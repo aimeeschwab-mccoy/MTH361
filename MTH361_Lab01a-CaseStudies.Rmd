@@ -1,0 +1,102 @@
+---
+title: 'Lab 1a: Case Studies'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=3)
+
+```
+
+
+## Question 1: Acupuncture for migraine relief
+
+Acupuncture is sometimes recommended as a treatment option for migraines; a migraine is a particularly painful type of headache. To determine whether acupuncture relieves migraine pain, researchers conducted a randomized controlled study in which 89 females diagnosed with migraines were randomly assigned to one of two groups: treatment or control. The 43 patients in the treatment group received acupuncture that is specifically designed to treat migraines, while 46 patients in the control group received placebo acupuncture (needle insertion at a non-acupoint locations). 24 hours after receiving acupuncture, patients were asked if they were pain free; the results are summarized in the contingency table below.
+
+a) What percent of patients in the treatment group were pain free 24 hours after receiving acupuncture? What percent in the control group?
+b) At first glance, does acupuncture appear to be an effective treatment for migraines? Explain your reasoning.
+
+Group|Pain free|Not pain free|Total
+----|----|----|----
+Treatment|10|33|43
+Control|2|44|46
+Total|12|77|89
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(RColorBrewer)
+migraine_data <- tribble(
+  ~group, ~outcome, ~n,
+  'Treatment', 'Pain free', 10,
+  'Treatment', 'Not pain free', 33,
+  'Control', 'Pain free', 2,
+  'Control', 'Not pain free', 44
+)
+
+migraine_data <- uncount(migraine_data, weights=n)
+```
+
+```{r, echo=TRUE}
+migraine_data %>% 
+  ggplot(aes(x=group)) + 
+  geom_bar(aes(fill=outcome), 
+           col='black')
+```
+
+\pagebreak
+
+## Question 2: Treatments for sinusitis
+
+Researchers studying the effect of antibiotic treatment for acute sinusitis randomly assigned 166 adults diagnosed with acute sinusitis to either the treatment or control group. Patients in the treatment group received a 10-day course of amoxicilllin, while patients in the control group received a placebo consisting of symptomatic treatments, such as nasal decongestants. At the end of the 10-day period, patients were asked if they experienced significant improvement in their symptoms. 
+
+a) What percent of patients in the treatment group experienced a significant improvement in symptoms? What percent in the control group?
+b) Based on your findings, which treatment appears to be more effective for sinusitis?
+c) Does it seem like the observed difference could just be due to chance?
+
+Group|Improved|Did not improve|Total
+----|----|----|----
+Treatment|66|19|85
+Control|65|16|81
+Total|131|35|166
+
+```{r, echo=FALSE}
+sinus_data <- tribble(
+  ~group, ~outcome, ~n,
+  'Treatment', 'Improved', 66,
+  'Treatment', 'Did not improve', 19,
+  'Control', 'Improved', 65,
+  'Control', 'Did not improve', 16
+)
+
+sinus_data <- uncount(sinus_data, weights=n)
+```
+
+```{r, echo=TRUE}
+sinus_data %>% 
+  ggplot(aes(x=group)) + 
+  geom_bar(aes(fill=outcome), 
+           col='black')
+```
+
+\pagebreak
+
+# Problem(s) to submit
+
+> At the end of every lab worksheet, you'll find 1-2 problems to submit so that I can check your understanding of a topic. Submissions will be through BlueLine, so that any students unable to attend class physically will still be able to submit responses. 
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## What should I know?
+
+Let's face it, this is going to be a strange semester. How can I help?
+
+1. What are you most excited about for this _semester in general_?
+2. What are you most apprehensive or nervous about for this _semester in general_?
+3. What are you most excited about for this _course_?
+4. What are you most apprehensive or nervous about for this _course_?
+5. Think back to Spring 2020. What did your professors do that helped you through the online transition, and what made it harder for you?
+6. What do you want to do after graduation?
+7. What else should I know about you?

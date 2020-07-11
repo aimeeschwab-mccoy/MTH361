@@ -1,0 +1,104 @@
+---
+title: 'Lab 4a: The Normal Model'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=3)
+```
+
+# Review: Section 3.3 (Normal Distribution)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Standard normal
+
+What percent of a standard normal distribution $Normal(\mu = 0, \sigma = 1)$ is found in each region? Be sure to draw a graph.
+
+a) $Z <-1.35$
+
+\vfill
+
+b) $Z >1.48$
+
+\vfill
+
+c) $-0.4<Z <1.5$
+
+\vfill
+
+d) $\vert Z\vert >2$
+
+\vfill
+
+\pagebreak
+
+## Question 2: Bone mineral density
+
+The World Health Organization defines osteoporosis in young adults as a measured bone mineral density 2.5 or more standard deviations below the mean for young adults. Assume that bone mineral density follows a normal distribution in young adults.
+
+a) Sketch a picture of this distribution?
+b) What percentage of young adults suffer from osteoporosis according to this criterion?
+
+\vfill
+
+## Question 3: Arsenic concentration
+
+Arsenic blood concentration is normally distributed with mean $\mu = 3.2 \mu g/dl$ and standard deviation $\sigma = 1.5 \mu g/dl$.
+
+a) Sketch a picture of this distribution.
+b) What range of arsenic blood concentration defines the middle 95% of this distribution?
+
+\vfill
+
+\pagebreak
+
+## Question 4: Height measurements
+
+Researchers studying anthropometry collected body girth measurements and skeletal diameter measurements, as well as age, weight, height and gender, for 507 physically active individuals. The histogram below shows the sample distribution of heights in centimeters.
+
+a) What is the point estimate for the average height of active individuals? 
+b) What is the point estimate for the standard deviation of the heights of active individuals? What about the IQR?
+b) Is a person who is 1m 80cm (180 cm) tall considered unusually tall? And is a person who is 1m 55cm (155cm) considered unusually short? Explain your reasoning. 
+
+\vfill
+
+```{r, echo=FALSE}
+set.seed(361)
+library(tidyverse)
+measurements <- tibble(height=round(rnorm(n=507, mean=171.1, sd=9.4), 0))
+```
+
+```{r}
+measurements %>% 
+  ggplot(aes(x=height)) + 
+  geom_histogram(bins=20, 
+                 fill='lightblue',
+                 col='black')
+
+library(mosaic)
+favstats(~height, data=measurements)
+```
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Standard normal model
+
+Consider the standard normal distribution with mean $\mu = 0$ and standard deviation $\sigma = 1$.
+
+a) What is the probability that an outcome $Z$ is greater than 2.60? 
+b) What is the probability that $Z$ is less than 1.35?
+c) What is the probability that $Z$ is between -1.70 and 3.10?
+d) What value of $Z$ cuts off the upper 15% of the distribution?
+e) What value of $Z$ marks off the lower 20% of the distribution?
+
+

@@ -1,0 +1,81 @@
+---
+title: 'Lab 3b: Conditional Probability'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+# Review: Section 2.2 (Conditional Probability)
+
+\pagebreak
+
+## Application: Cat genetics
+
+The gene that controls white coat color in cats, $KIT$ , is known to be responsible for multiple phenotypes such as deafness and blue eye color. 
+
+A dominant allele $W$ at one location in the gene has complete penetrance for white coat color; all cats with the $W$ allele have white coats. There is incomplete penetrance for blue eyes and deafness; not all white cats will have blue eyes and not all white cats will be deaf. However, deafness and blue eye color are strongly linked, such that white cats with blue eyes are much more likely to be deaf. The variation in penetrance for eye color and deafness may be due to other genes as well as environmental factors.
+
+Suppose that 30% of white cats have one blue eye, while 10% of white cats have two blue eyes. About 73% of white cats with two blue eyes are deaf and 40% of white cats with one blue eye are deaf. Only 19% of white cats with other eye colors are deaf.
+
+1. Calculate the prevalence of deafness among white cats.
+2. Given that a white cat is deaf, what is the probability that it has two blue eyes?
+
+Suppose that deaf, white cats have an increased chance of being blind, but that the prevalence of blindness differs according to eye color. While deaf, white cats with two blue eyes or two non-blue eyes have probability 0.20 of developing blindness, deaf and white cats with one blue eye have probability 0.40 of developing blindness. White cats that are not deaf have probability 0.10 of developing blindness, regardless of their eye color.
+
+3. What is the prevalence of blindness among deaf, white cats? ii. What is the prevalence of blindness among white cats?
+4.  Given that a cat is white and blind, what is the probability that it has two blue eyes?
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Positive predictive values and negative predictive values
+
+Calculating probabilities for diagnostic tests is done so often in medicine that the topic has some specialized terminology. The __sensitivity__ of a test is the probability of a positive test result when disease is present, such as a positive mammogram when a patient has breast cancer. The __specificity__ of a test is the probability of a negative test result when disease is absent. The probability of disease in a population is referred to as the __prevalence__. With specificity and sensitivity information for a particular test, along with disease prevalence, the __positive predictive value (PPV)__ can be calculated: the probability that disease is present when a test result is positive. Similarly, the __negative predictive value__ is the probability that disease is absent when test results are negative. These terms are used for nearly all diagnostic tests used to screen for diseases.
+
+Some congenital disorders are caused by errors that occur during cell division, resulting in the presence of additional chromosome copies. Trisomy 21 occurs in approximately 1 out of 800 births. Cell-free fetal DNA (cfDNA) testing is one commonly used way to screen fetuses for trisomy 21. The test sensitivity is 0.98 and the specificity is 0.995. Calculate the PPV and NPV of the test.
+
+\pagebreak
+
+## Question 2: Behavioral Risk Factor Surveillance system
+
+The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey designed to identify risk factors in the adult population and report emerging health trends. The table below summarizes two variables for the respondents: health status and health coverage, which describes whether each respondent had health insurance.
+
+Health status|Excellent|Very good|Good|Fair|Poor|Total
+---|---|---|---|---|---|---
+No health coverage|459|727|854|385|99|2,524
+Health coverage|4,198|6,245|4,821|1,634|578|17,476
+Total|4,657|6,972|5,675|2,019|677|20,000
+
+1. If we draw one individual at random, what is the probability that the respondent has excellent health and doesn’t have health coverage?
+2. If we draw one individual at random, what is the probability that the respondent has excellent health or doesn’t have health coverage?
+3. Are being in excellent health and having health coverage mutually exclusive (disjoint)?
+4. What is the probability that a randomly chosen individual has excellent health?
+5. What is the probability that a randomly chosen individual has excellent health given that he/she has health coverage?
+6. What is the probability that a randomly chosen individual has excellent health given that he/she doesn’t have health coverage?
+7. Do have excellent health and having health coverage appear to be independent? Explain why or why not.
+
+\pagebreak
+
+## Question 3: Breast cancer screenings
+
+In Canada, about 0.35% of women over 40 will develop breast cancer in any given year. A common screening test for cancer is the mammogram, but it is not perfect. In about 11% of patients with breast cancer, the test gives a false negative: it indicates a woman does not have breast cancer when she does have breast cancer. Similarly, the test gives a false positive in 7% of patients who do not have breast cancer: it indicates these patients have breast cancer when they actually do not.32 If a randomly selected woman over 40 is tested for breast cancer using a mammogram and the test is positive – that is, the test suggests the woman has cancer – what is the probability she has breast cancer?
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+
+## Predisposition for thrombosis
+
+A genetic test is used to determine if people have a predisposition for thrombosis, which is the formation of a blood clot inside a blood vessel that obstructs the flow of blood through the circulatory system. It is believed that 3% of people actually have this predisposition. The genetic test is 99% accurate if a person actually has the predisposition, meaning that the probability of a positive test result when a person actually has the predisposition is 0.99. The test is 98% accurate if a person does not have the predisposition.
+
+a) What is the probability that a randomly selected person who tests positive for the predisposition by the test actually has the predisposition?
+b) What is the probability that a randomly selected person who
