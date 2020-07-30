@@ -1,0 +1,497 @@
+---
+title: 'Ch. 3: The Normal Model'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse
+
+# 3.3: The normal model
+
+- Properties of the normal model
+
+--
+
+- Finding percentiles/quartiles from a normal model
+
+--
+
+- How do we know if a variable follows a normal model?
+
+---
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=6, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+```
+
+## Application: Lung volume
+
+The forced expiratory volume (FEV, measured in liters) is a primary indicator of successful lung function and corresponds to the volume of air that can be forcibly be blown out in the first second after fully breathing in. A study of FEV on a sample of $n=654$ children measured the children's age, FEV, height, sex, and whether they had been exposed to second-hand smoke.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+FEV <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/FEV.csv")
+head(FEV)
+```
+
+---
+
+## Application: Lung volume
+
+Describe the histogram of __forced expiratory volume__.
+
+.pull-left[
+```{r plot-last1, fig.show = 'hide', echo=TRUE}
+FEV %>% ggplot(aes(x=fev)) + 
+  geom_histogram(bins=15, 
+                 fill='blue', 
+                 col='black') + 
+  labs(title=
+         'Distribution of FEV')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last1', echo = FALSE}
+```
+]
+
+
+---
+
+## Application: Lung volume
+
+Describe the histogram of __height__.
+
+.pull-left[
+```{r plot-last2, fig.show = 'hide', echo=TRUE}
+FEV %>% ggplot(aes(x=height)) + 
+  geom_histogram(bins=15, 
+                 fill='blue', 
+                 col='black') + 
+  labs(title=
+         'Distribution of 
+          height')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last2', echo = FALSE}
+```
+]
+
+---
+
+## Normal model
+
+It turns out that this “bell-shaped curve” is a common shape in nature. So common, that the probability distribution that generates this curve is called the __normal model__.
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Normal model__: a continuous probability distribution (any value in an interval is possible) that always describes a symmetric, bell-shaped curve with two parameters: mean and standard deviation
+]
+
+- We denote the mean as $\mu$ and the standard deviation $\sigma$.
+
+--
+
+The normal model, which is also sometimes called the __normal distribution__, is a great approximation to many natural variables. 
+
+---
+
+## Properties of the normal model
+
+1.	Continuous distribution, so probability is measured by the area under the curve
+2.	Symmetric and unimodal about the mean $\mu$
+3.	Probability distribution is highest at exactly $\mu$
+
+```{r}
+x <- seq(from=-3, to=3, length=200)
+data <- tibble(x=x, dx=dnorm(x))
+
+data %>% ggplot(aes(x=x, y=dx)) + geom_line() +
+  labs(x='x', y='Density')
+```
+
+---
+
+## Finding normal probabilities
+
+To find the probability of observing a __range__ of outcomes, we need to find the area under the curve.
+
+```{r}
+x <- seq(from=-3, to=3, length=200)
+data <- tibble(x=x, dx=dnorm(x))
+
+data %>% ggplot(aes(x=x, y=dx)) + geom_line() +
+  labs(x='x', y='Density') + 
+  stat_function(fun = dnorm, 
+                xlim = c(-2,0),
+                geom = "area", fill='blue', alpha=0.5) 
+```
+
+---
+
+## Finding normal probabilities
+
+- This may be easier said than done. The probability distribution for the normal distribution is:
+
+$$f(x)=\frac{1}{\sqrt{2\pi\sigma^{2}}}e^{-(x-\mu)^{2}/2\sigma^{2}}$$
+
+--
+
+- How do we find the area under a curve? 
+
+---
+
+## Calculating normal probabilities
+
+In base `R`, the function `pnorm` calculates probabilities and `qnorm` calculates quantiles (percentiles) using a normal model.
+
+--
+
+- I prefer `xpnorm` and `xqnorm` from the `mosaic` library. Here's why.
+
+--
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Let's apply the normal model to the lung volume of children in the FEV study. 
+]
+
+```{r, echo=TRUE}
+library(mosaic)
+favstats(~fev, data=FEV)
+```
+
+---
+
+## `pnorm` v. `xpnorm`
+
+Assume forced expiratory volume (FEV) follows a normal model with $\mu=2.64$ and $\sigma=0.87$. Find the probability that a child has FEV less than 1.5.
+
+```{r pnorm, eval=FALSE}
+pnorm(1.5, mean=2.64, sd=0.87) 
+```
+
+```{r}
+library(flair)
+decorate('pnorm') %>% flair('1.5')
+```
+
+---
+
+## `pnorm` v. `xpnorm`
+
+Assume forced expiratory volume (FEV) follows a normal model with $\mu=2.64$ and $\sigma=0.87$. Find the probability that a child has FEV less than 1.5.
+
+```{r}
+decorate('pnorm') %>% flair_args()
+```
+
+---
+
+Compare the output you get with `pnorm` to the output using `xpnorm`.
+
+```{r xpnorm, eval=FALSE}
+xpnorm(1.5, mean=2.64, sd=0.87)
+```
+
+```{r}
+decorate('xpnorm') %>% flair('x')
+```
+
+---
+
+## Finding quantiles
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Assume FEV follows a normal model with $\mu=2.64$ and $\sigma=0.87$. Find the lung capacity of the lowest 40% of children.
+]
+
+```{r qnorm, echo=TRUE}
+qnorm(0.40, mean=2.64, sd=0.87)
+```
+
+---
+
+```{r xqnorm, eval=FALSE}
+xqnorm(0.40, mean=2.64, sd=0.87)
+```
+
+```{r}
+decorate('xqnorm') %>% flair('x')
+```
+
+---
+
+## Application: Birth weights
+
+The babies born in single births in the United States have birth weights that are approximately normally distributed with mean 3.296 kg and standard deviation 0.560 kg.
+
+- What is the probability of a baby being born weighing between 3 kg and 4 kg?
+
+```{r, eval=FALSE, echo=TRUE}
+xpnorm(___, mean=___, sd=___)
+```
+
+- What is the probability of a baby being born weighing more than 5 kg?
+
+```{r, eval=FALSE, echo=TRUE}
+xpnorm(___, mean=___, sd=___)
+```
+
+---
+
+## z-scores
+
+Comparing values across different normal distributions can be tricky. 
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__z-score__: a standardized normal useful for comparison
+
+$$z=\frac{x-\mu}{\sigma}$$
+]
+
+- A negative $z$-score indicates an observation below the mean
+
+- A positive $z$-score indicates a value above the mean
+
+---
+
+## Standard normal
+
+$z$-scores follow a special case of the normal distribution called the __standard normal distribution__:
+
+$Normal(\mu=0, \sigma=1)$
+
+```{r, echo=FALSE, fig.height=4, fig.width=8}
+x <- seq(from=-3, to=3, length=1000)
+y <- dnorm(x, mean=0, sd=1)
+data <- as.data.frame(cbind(x, y))
+
+data %>% ggplot(aes(x, y)) + geom_line() + labs(title='Standard Normal Distribution', x='x', y='Density')
+```
+
+---
+
+## Application: Birth weights
+
+The babies born in singleton births in the United States have birth weights that are approximately normally distributed with mean 3.296 kg and standard deviation 0.560 kg.
+
+- What fraction of babies are more than 1.5 standard deviations from the mean in either direction?
+
+```{r, eval=FALSE, echo=TRUE}
+xpnorm(___, mean=___, sd=___)
+```
+
+
+- What fraction of babies are more than 1.5 kg from the mean in either direction?
+
+```{r, eval=FALSE, echo=TRUE}
+xpnorm(___, mean=___, sd=___)
+```
+
+---
+
+## Application: Spy heights
+
+It was rumored that Britain's domestic intelligence service MI5 has an upper limit on the height of its spies, on the assumption that tall people stand out. (For the record - they deny this.) The rumor says that, to apply to be a spy, you can be no taller than 5 feet 11 inches (180.3 cm) if you are a man, and no taller than 5 feet 8 inches (172.7 cm) if you are a woman -- supposedly to allow the spies to blend in with a crowd.
+
+Adult heights are known to be approximately normally distributed. For males, $x \sim Normal(177.0, 7.1)$ and for females, $x \sim Normal(163.3, 6.4)$. 
+
+- What proportion of British males are eligible to apply to MI5?
+- What proportion of British females are eligible to apply to MI5?
+
+Sketch a graph of both distributions to help you out.
+
+---
+
+## Empirical Rule
+
+A simple rule of thumb for working with the normal model is the Empirical Rule.
+
+.bg-washed-green.b--green.ba.ph3[
+
+__Empirical Rule__:
+
+1.	Approximately 68% of all probability in a normal model is within $\mu\pm\sigma$
+
+2.	Approximately 95% of all probability in a normal model is within $\mu\pm2\sigma$
+
+3.	Approximately 99.7% of all probability in a normal model is within $\mu\pm3\sigma$
+]
+
+---
+
+## Empirical Rule
+
+![](https://s3-us-west-2.amazonaws.com/courses-images-archive-read-only/wp-content/uploads/sites/1298/2015/10/03182600/Figure5_3_1.png)
+
+---
+
+## Application: Birth weights
+
+The babies born in singleton births in the United States have birth weights that are approximately normally distributed with mean 3.296 kg and standard deviation 0.560 kg.
+
+1. Give a range for the central 68% of all birth weights.
+2. Give a range for the central 95% of all birth weights.
+3. Give a range for nearly all birth weights.
+
+---
+
+# Empirical Rule
+
+This rule _only works for (approximately) normal data_.
+
+```{r, out.width = "600px", echo=FALSE, fig.align="center"}
+knitr::include_graphics("not_normal.png")
+```
+
+
+
+---
+
+## Does data "fit" a normal model?
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Q-Q Plot__: a quantile-quantile plot plots the sample values from our data against the corresponding "theoretical quantiles" from a normal distribution using converted z-scores
+]
+
+- The closer the Q-Q plot is to a straight line, the better our data "fits" a normal model.
+- No Q-Q plot will be exactly perfect. Look for obvious deviations!
+
+---
+
+## What to expect in a Q-Q plot
+
+The data sets below were all generated using a $Normal(0, 1)$ model. 
+
+```{r, echo=FALSE}
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+norm <- as.numeric(rnorm(n=430, mean=0, sd=1))
+size <- c(rep('Small (n=30)', 30), rep('Medium (n=100)', 100), rep('Large (n=300)', 300))
+
+data <- data.frame(cbind(I(norm), size))
+data$size <- fct_relevel(data$size, 'Small (n=30)', 'Medium (n=100)')
+
+data %>% ggplot(aes(x=norm, fill=size)) + geom_histogram(bins=15) + facet_wrap(~size, scale='free') + guides(fill=FALSE) 
+```
+
+---
+
+## What to expect in a Q-Q plot
+
+Here's the Q-Q plots for these three normal data sets.
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(sample=norm, color=size)) + stat_qq() + stat_qq_line() + facet_wrap(~size) + guides(col=FALSE)
+```
+
+---
+
+## What to expect in a Q-Q plot
+
+What happens when we have clearly non-normal data sets?
+
+```{r, echo=FALSE}
+nonnorm1 <- rbeta(n=100, shape1=1, shape2=4)
+nonnorm2 <- rbeta(n=100, shape1=5, shape2=1)
+nonnorm3 <- rbeta(n=100, shape1=0.25, shape2=0.25)
+
+nonnorm <- as.numeric(c(nonnorm1, nonnorm2, nonnorm3))
+type <- c(rep('Skewed right', 100), rep('Skewed left', 100), rep('Bimodal', 100))
+
+data <- data.frame(nonnorm, type)
+
+
+data %>% ggplot(aes(x=nonnorm, fill=type)) + geom_histogram(bins=15) + facet_wrap(~type) + guides(fill=FALSE)
+```
+
+---
+
+## What to expect in a Q-Q plot
+
+Here's the Q-Q plots for these three non-normal data sets.
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(sample=nonnorm, color=type)) + stat_qq() + stat_qq_line() + facet_wrap(~type) + guides(col=FALSE)
+```
+
+---
+
+## Application: Lung volume
+
+Would it be reasonable to model FEV using a normal distribution?
+
+
+
+---
+
+## Application: height
+
+Would it be reasonable to model height of children using a normal distribution?
+
+.pull-left[
+```{r plot-qq2, fig.show = 'hide', echo=TRUE}
+FEV %>% ggplot(aes(sample=height)) + 
+  stat_qq() + #<<
+  stat_qq_line() + #<<
+  labs(title=
+         'Q-Q plot: Height')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-qq2', echo = FALSE}
+```
+]
+
+---
+
+## Application: height
+
+Does gender make a difference?
+
+```{r}
+FEV %>% mutate(gender=ifelse(sex==0, 'F', 'M')) %>% ggplot(aes(sample=height)) + 
+  stat_qq(aes(col=gender)) + #<<
+  stat_qq_line(aes(col=gender)) + #<<
+  labs(title=
+         'Q-Q plot: Height') +
+  facet_wrap(~gender)
+```

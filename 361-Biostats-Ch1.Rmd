@@ -1,0 +1,1394 @@
+---
+title: 'Ch. 1: Introduction to Data'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=6, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+```
+
+## Case study: preventing peanut allergies
+
+In many Western countries, the proportion of children with peanut allergies has doubled in the past ten years.
+
+- Some research suggests that early exposure to peanuts in small amounts may help prevent the development of allergies later in life.
+
+--
+
+The "Learning Early About Peanut Allergy" (LEAP) study was conducted to investigate whether early exposure to peanut products reduces the probability that a child will develop a peanut allergy.
+
+- Link: https://peanutallergyfacts.org/2015/02/25/new-study-suggests-early-introduction-of-peanut-protein-reduces-prevalence-of-allergy-occurrence/
+
+---
+
+## Case study: preventing peanut allergies
+
+- 640 infants in the United Kingdom
+
+--
+
+- Study enrollment: 2006-2009
+
+--
+
+- Participants all had diagnosed eczema, egg allergy, or both
+
+--
+
+Infants participating in the study were randomly assigned to two groups:
+
+.pull-left[
+
+__"Peanut" group__
+
+- Children consumed at least 6 grams of peanut protein per day until they turned 5 years old
+]
+
+.pull-right[
+
+__"No peanut" group__
+
+- Children avoided all peanut protein until they turned 5 years old
+]
+
+---
+
+## Case study: preventing peanut allergies
+
+Let's take a look at the data:
+
+```{r}
+library(oibiostat)
+data(LEAP)
+head(LEAP)
+```
+
+---
+
+## Case study: preventing peanut allergies
+
+At 5 years old, each child was tested for peanut allergy using an _oral food challenge_ (OFC): 5 grams of peanut protein in a single dose.
+
+- Pass: no allergic reaction was detected
+- Fail: An allergic reaction had occurred
+
+--
+
+- 530 children were still part of the study at this stage.
+
+---
+
+## Case study: preventing peanut allergies
+
+```{r}
+LEAP %>% ggplot(aes(x=overall.V60.outcome)) + 
+  geom_bar()
+```
+
+---
+
+## Case study: preventing peanut allergies
+
+```{r}
+LEAP %>% ggplot(aes(x=overall.V60.outcome)) + 
+  geom_bar(aes(fill=treatment.group), position = "dodge2")
+```
+
+---
+
+## Case study: preventing peanut allergies
+
+Which group was more likely to develop a peanut allergy?
+
+```{r}
+LEAP %>% count(treatment.group, overall.V60.outcome)
+```
+
+---
+class: inverse
+
+# 1.2: Data basics
+
+- So what _is_ statistics?
+
+--
+
+- Describing a data set: variables, observations, types of variables
+
+    - Numerical variables
+    - Categorical variables
+    - Response variables
+    - Explanatory variables
+    
+---
+
+## Statistics
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Statistics__: the study of methods to describe and measure aspects of some population from a sample
+
+]
+
+--
+
+Other definitions:
+
+- The art and science of learning from data
+
+- The study of how to collect, analyze, and draw conclusions from data
+
+---
+
+## Observations and variables
+
+In a __data table__ (also called "data matrix"), like the one below:
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Variables__: characteristics that are recorded for each subject in the sample (columns)
+
+__Observations__: each individual subject, case, or sample point (rows)
+
+]
+
+```{r}
+head(LEAP)
+```
+
+---
+
+## Types of variables
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Numerical variables__: take on numerical values _with meaning_
+
+- Mathematical operations like addition, subtraction, etc. _must make sense_
+
+__Categorical variables__: take on names, categories, or labels
+
+- Categories are sometimes represented by numbers...
+]
+
+---
+
+## Types of variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Classify the variables from the LEAP study as categorical or numerical.
+]
+
+```{r}
+head(LEAP)
+```
+
+---
+
+## Types of variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: The Functional polymorphisms Associated with human Muscle Size and Strength study (FAMuSS) measured a variety of demographic, phenotypic, and genetic characteristics for about 1,300 participants. Data from the study have been used in a number of subsequent studies, such as one examining the relationship between muscle strength and genotype at a location on the ACTN3 gene.
+
+Based on the data table below, classify the variables as numerical or categorical. Can you tell or infer what each variable represents?
+]
+
+```{r}
+data(famuss)
+head(famuss)
+```
+
+---
+
+## Types of variables
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-variabletypes.png')
+```
+
+---
+
+## Types of variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Suppose that on a given day, a research assistant collected data on the first 20 individuals visiting a walk-in clinic: age (measured as less than 21, 21-65, and greater than 65 years of age), sex, height, weight, and reason for the visit. Classify each of the variables.]
+
+---
+
+## Relationships between variables
+
+Many studies are motivated by a researcher examining how two or more variables are related. 
+
+> Do the values of one variable increase as the values of another decrease? Do the values of one variable tend to differ by the levels of another variable?
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Response variable__: defined by the particular research question a study seeks to address, and measures the outcome of interest in the study
+
+__Explanatory variable__: a secondary variable(s) that _explains_ changes in the response variable
+]
+
+---
+
+## Relationships between variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Could cancer cells be selectively targeted by using antibodies recognizing a tumor-specific protein marker? Researchers grafted human cancerous cells onto healthy adult mice. Some of the mice were then injected with tumor-specific antibodies while others were not. The researchers wanted to study the number of mice exhibiting lymph node metastases in each group.
+
+- What variables were recorded? Classify each variable as numerical or categorical.
+- Which variable is the response variable and which variable is the explanatory variable?
+]
+
+---
+
+## Relationships between variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Read the scenarios below, and identify the _most reasonable_ explanatory and response variables.
+
+
+1. Do bluefin tuna from the Atlantic Ocean have particularly high levels of mercury, such that they are unsafe for human consumption?
+2. For infants predisposed to developing a peanut allergy, is there evidence that introducing peanut products early in life is an effective strategy for reducing the risk of developing a peanut allergy?
+3. Does a recently developed drug designed to treat glioblastoma, a form of brain cancer, appear more effective at inducing tumor shrinkage than the drug currently on the market?
+]
+
+---
+class: inverse
+
+# 1.3: Data collection
+
+- Populations and samples
+
+--
+
+- Sampling methods
+
+--
+
+- Experimental studies v. observational studies
+
+--
+
+- Designing an experiment: control, randomization, and replication
+
+---
+
+## Populations and samples
+
+As statisticians, we work to understand more about a population, based on data from a single sample.
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Population__: the entire collection of individual units that a researcher is interested in
+]
+
+--
+
+There are _some_ situations in which we might be able to study an entire population. However, most of the time, we work with a sample.
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sample__: a much smaller set of individuals selected from the entire population
+]
+
+---
+
+## Populations and samples
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Read the scenarios below, and identify the population of interest. How would you collect data to form a sample?
+
+1. Do bluefin tuna from the Atlantic Ocean have particularly high levels of mercury, such that they are unsafe for human consumption?
+2. For infants predisposed to developing a peanut allergy, is there evidence that introducing peanut products early in life is an effective strategy for reducing the risk of developing a peanut allergy?
+3. Does a recently developed drug designed to treat glioblastoma, a form of brain cancer, appear more effective at inducing tumor shrinkage than the drug currently on the market?
+]
+
+---
+
+## Sampling from a population
+
+Samples are most useful for learning about a population when they are __representative__.
+
+- The characteristics of the sample should _match_ the characteristics of the population.
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Suppose that the quality improvement team at an integrated health care system, such as Harvard Pilgrim Health Care, is interested in learning about how members of the health plan perceive the quality of the services offered under the plan.
+
+- Based on what you already know, describe a "good" way to take a sample.
+- Based on what you already know, describe a "bad" way to take a sample.
+]
+
+---
+
+## Sampling from a population
+
+.pull-left[
+
+.bg-washed-red.b--red.ba.ph3[
+__Convenience sample__: individuals who are easily accessible are more likely to be included
+]
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-convenience.png')
+```
+
+]
+
+--
+
+.pull-right[
+
+.bg-washed-green.b--green.ba.ph3[
+__Simple random sample__: each member of a population has the same chance of being sampled
+]
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-srs.png')
+```
+]
+
+---
+
+## Sampling from a population
+
+Even simple random samples may not be representative!
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: It is increasingly common for health care facilities to follow- up a patient visit with an email providing a link to a website where patients can rate their experience. A typical __non-response__ rate for such a survey is more than 50%. This means that, in practice, less than half of the patients will actually visit the website. If half of those who respond indicate a negative experience, do you think that this implies that at least 25% of patient visits are unsatisfactory?
+]
+
+---
+
+## Sampling methods
+
+Other useful sampling methods include:
+
+.pull-left[
+
+__Stratified sample__: the population is divided into strata, and observations are randomly selected within each strata
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-stratified.png')
+```
+
+]
+
+--
+
+.pull-right[
+
+__Cluster sample__: the population is divided into subgroups (clusters), and a few _clusters_ are randomly sampled
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-stratified.png')
+```
+]
+
+---
+
+## Sampling methods
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: For the scenarios below, which sampling method would you recommend and why?
+
+1. Suppose researchers are interested in estimating the malaria rate in a densely tropical portion of rural Indonesia. There are 30 villages in the area, each more or less similar to the others. The goal is to test 150 individuals for malaria.
+2. It is increasingly common for health care facilities to follow up a patient visit with an email providing a link to a website where patients can rate their experience. Since the non-response rate for email is expected to be high, the facilities have decided to use a phone survey instead.
+3. This health care facility is concerned following some reports of discriminatory treatment of minority patients, and they want to make sure that minority patients' experiences are well-documented in their reporting.
+]
+
+---
+
+## Experiments and observational studies
+
+There are two primary types of study designs used to collect data.
+
+.pull-left[
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Experimental studies__: researchers directly influence how data arise, by manipulating the subjects in some way
+]
+
+- Usually this is by assigning subjects to experience some particular condition (__treatment__)
+
+]
+
+--
+
+.pull-right[
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Observational studies__: researchers do not manipulate the subjects in any way, they merely observe
+]
+
+- Conclusions that can be drawn are limited
+]
+
+---
+
+## Experiments and observational studies
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Read the study descriptions below. Is the study experimental or observational? What is the target population?
+
+1. Researchers randomly assign diabetes patients to two groups. In the first group, patients received a new drug called tasploglutide, whereas patients in the second group received standard treatment without the new drug. The researchers compared the rate of insulin release in the two groups.
+2. Psychologists tested whether the frequency of illegal drug use differs between people suffering from schizophrenia patients and those not having the disease. They measured drug use in a group of schizophrenia patients and compared it with that in a similar sized group of randomly chosen people.
+]
+
+---
+
+## Three principles of experimental design
+
+1. __Control__: Researchers attempt to control outside variables by standardizing experimental conditions
+
+--
+
+2. __Randomization__: Randomly assigning patients to treatment groups ensures that groups are balanced with respect to variables we cannot control
+
+--
+
+3. __Replication__: Experiments should be repeated on a sufficiently large sample of data
+
+---
+
+## Control or _control_?
+
+There are two ideas of _control_ in statistics:
+
+- Control from the experimental design perspective: Researchers attempt to control outside variables by standardizing experimental conditions
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Control group__: in an experiment, the control group serves as a basis for comparison
+
+- Placebo group, known treatment, etc.
+]
+
+---
+
+## Confounding variables
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Confounding variable__: a variable (potentially measured or not) that is related to both the explanatory and response variable
+]
+
+These "muddy the water"! Classic example: 
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('img-ch1-confounding.png')
+```
+
+---
+
+## Randomization
+
+In a study, we can randomize in several ways:
+
+1. Randomly select subjects to participate
+
+--
+
+2. Randomly assign subjects to experimental treatments
+
+--
+
+__Some randomization__ is preferable to no randomization.
+
+---
+
+## Replication
+
+When designing a study, __replication__ means that the study is conducted on multiple subjects.
+
+- How can we decide how many subjects?
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Replication study__: a (sadly new) phenomenon in research where earlier studies are fully repeated to see if the results remain the same
+]
+
+
+---
+class: inverse
+
+#s 1.4-1.7: Summarizing data
+
+In the next sections, we'll talk about summarizing and working with data. In this class, there is one driving philosophy behind the technology and calculations we'll work with:
+
+> __If I don't use it or do it, as a professional statistician, I won't expect you to.__
+
+In 90% of cases, that means we'll skip the formulas.
+
+--
+
+So then, how will we work with data?
+
+---
+class: inverse
+
+![](https://hpc.nih.gov/images/rstudio_ide.png)
+
+---
+class: inverse
+
+## How to learn a programming language
+
+1. Breathe.
+
+--
+
+2. Mistakes are okay!
+
+--
+
+3. Ask for help, with a _reproducible example_.
+
+--
+
+4. Translate code into plain English.
+
+--
+
+5. Don't reinvent the wheel.
+
+---
+
+## Case study: ICU admissions
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: The data set `ICUAdmissions` includes information on 200 patients admitted to the intensive care unit at a hospital. 16 variables are given for the patients being admitted, the code below will show us the first few observations (__`head`__) of the data set.
+]
+
+```{r, echo=2}
+ICUAdmissions <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/ICUAdmissions.csv")
+head(ICUAdmissions)
+```
+
+---
+
+## Case study: ICU admissions
+
+The variables in this data set are:
+
+- `ID`: ID number of the patient
+- `Status`: Vital status
+- `Age`: Patient's age in years
+- `Sex`: Patient's sex 
+- `Race`: Patient's race (White, Black, Other)
+- `Service`: Service at ICU admission
+- `Cancer`: Is cancer part of the present problem?
+- `Renal`: History of chronic renal failure
+- `Infection`: Infection probable at ICU admission
+- `CPR`: CPR prior to ICU admission
+- `Systolic`: Systolic blood pressure at ICU admission
+- `HeartRate`: Heart rate at ICU admission
+- `Previous`: Previous admission to an ICU within 6 months
+- `Type`: Type of admission
+- `Fracture`: Long bone, multiple, neck, single area, or hip fracture
+- `Consciousness`: Level of consciousness at admission
+
+---
+
+## How R "thinks"
+
+R is considered a __functional programming language__.
+
+- Functions tell R _what to do_ with a data set or variable.
+- Options within functions can be used to customize or set certain values.
+
+```{r, eval=FALSE}
+function(option1 = , option2 = , ...)
+```
+
+If you've used Python or Java before, this will feel unfamiliar at first. R was designed primarily for statistical computing and graphics, although it's since evolved into a full-fledged computing language.
+
+---
+
+## Summarizing a data set
+
+The first function we'll learn in R to summarize data is the __`summary`__ function. 
+
+- For numerical variables, this provides some basic summary statistics such as the mean and median.
+- For categorical variables, this tells you how many observations are in each category.
+
+```{r, echo=TRUE}
+summary(ICUAdmissions)
+```
+
+---
+
+## Counting categories
+
+When summarizing categorical variables, start with the __frequency distribution__: how many observations having a given measurement or value
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: _How many_ patients in this data set were emergency ICU admissons?
+]
+
+```{r pipe, echo=TRUE}
+ICUAdmissions %>% 
+  group_by(Type) %>% 
+  summarize(n=n())
+```
+
+---
+
+## Counting categories
+
+When summarizing categorical variables, start with the __frequency distribution__: how many observations having a given measurement or value
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: _How many_ patients in this data set were emergency ICU admissons?
+]
+
+```{r}
+library(flair)
+decorate("pipe") %>% 
+  flair("%>%")
+```
+
+---
+
+## Ceci n'est pas une pipe
+
+What the heck is `%>%`?
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Pipe operator__: most programming languages have some version of the pipe operator, this takes everything on the left-hand side and "pipes" it through to the right-hand side]
+
+![](http://hexb.in/hexagons/pipe.png)
+
+---
+
+## Ceci n'est pas une pipe
+
+```{r}
+library(tweetrmd)
+tweet_embed("https://twitter.com/i/status/1193777505746014209")
+```
+
+
+
+---
+
+## Back to counting categories
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: In words, what is the code below doing?
+]
+
+```{r, echo=TRUE}
+ICUAdmissions %>% 
+  group_by(Type) %>% #<<
+  summarize(n=n())
+```
+
+__What proportion__ of patients in this data set had been admitted to the emergency room in the previous six months?
+
+---
+
+## Sample proportion
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sample proportion__: the proportion in a given category of interest
+]
+
+- In this class, we'll denote the sample proportion as "p-hat"
+
+$$\hat{p}$$
+
+--
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: How many patients in our data were 50 years old or less? Find the sample proprtion that are 50 years old or less.
+]
+
+```{r, echo=TRUE}
+ICUAdmissions %>% 
+  filter(Age<=50) %>% #<<
+  summarize(n=n())
+```
+
+---
+
+## Graphing in `R` with `ggplot()`
+
+We can make a plot of the number of patients admitted to the emergency room in the previous six months with the `ggplot()` function. 
+
+1. First, we take a data set and "pipe" it into `ggplot()`.
+2. `aes()` stands for __aesthetics__: these are what you want to plot, and where. In our case, we want to plot `Type` on the `x` axis.
+
+> Hint: Any plot options you want to change related to a variable will be done in an `aes()`. Any plot options you want to change that aren't variable related can be done outside of `aes()`.
+
+---
+
+## Graphing in `R` with `ggplot()`
+
+.pull-left[
+
+```{r, echo=TRUE, eval=FALSE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Type))
+```
+]
+
+.pull-right[
+
+```{r, eval=TRUE, echo=FALSE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Type))
+```
+]
+
+Well, that's boring.
+
+---
+
+## Graphing in `R` with `ggplot()`
+
+`ggplot()` is an additive function - that means we need to keep going. The `geom_bar()` function will add a new bar chart "layer" to our plot. New layers can be added with the `+` sign.
+
+.pull-left[
+```{r plot-last1, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Type)) + 
+  geom_bar()
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last1', echo = FALSE}
+```
+]
+
+
+---
+
+## Graphing in `R` with `ggplot()`
+
+Adding more layers can make the plot look even better!
+
+.pull-left[
+```{r plot-last2, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Type)) + 
+  geom_bar(aes(fill=Type)) + 
+  labs(x='Admission Type', #<<
+       y='Number of Patients') #<<
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last2', echo = FALSE}
+```
+]
+
+---
+
+![`ggplot2` default color palette](https://i0.wp.com/media.tumblr.com/tumblr_mcd40i1lMF1rwydv6.png?w=584)
+
+As we get more comfortable working with R, we'll explore more customization options.
+
+---
+
+## Histograms
+
+A common tool for graphing numerical variables is a __histogram__. These are basically bar charts for numerical variables.
+
+1. Take the range of your numerical variable, and split it into __bins__ of equal width. 2. Count up how many observations fall into each bin.
+3. Draw a bar for each bin, where the height corresponds to the number of observations in that bin.
+
+---
+
+## Graphing numerical variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: How can we describe the age distribution of patients in the ICU?
+]
+
+.pull-left[
+```{r plot-last3, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Age)) + 
+  geom_histogram(bins=20) + #<<
+  labs(x='Age', y='Count')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last3', echo = FALSE}
+```
+]
+
+
+---
+
+## Histograms
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Which ages are most and least common for ICU patients?
+]
+
+.pull-left[
+```{r plot-last4, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Age)) + 
+  geom_histogram(bins=30) + 
+  labs(x='Age', y='Count')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last4', echo = FALSE}
+```
+]
+
+---
+
+## Histograms
+
+When we look at a histogram, we often care about:
+
+- Center: what is the "middle" or "typical value" of a distribution?
+- Shape: what does the distribution look like?
+- Spread: how spread out is the distribution?
+- Outliers: are there any unusual observations?
+
+---
+
+## Interpreting histograms: shape
+
+```{r, echo=FALSE}
+shapes <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/shapes.csv")
+shapes %>% ggplot(aes(x=values)) + geom_histogram(bins=15, aes(fill=labels)) + facet_wrap(~labels, scales='free') + guides(fill=FALSE)
+```
+
+---
+
+## Interpreting histograms
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Outlier__: an observation well outside the range of values of other observations in the data set
+]
+
+- There are "tests" and rules of thumb for identifying outliers, but usually you'll know it if you see it.
+
+---
+
+## Interpreting histograms
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: How can we describe the distribution of heart rate of patients in the ICU?
+]
+
+.pull-left[
+```{r plot-last5, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=HeartRate)) + 
+  geom_histogram(bins=20, #<<
+                 fill='blue') + #<<
+  labs(x='Heart Rate', y='Count')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last5', echo = FALSE}
+```
+]
+
+---
+
+## Interpreting boxplots
+
+In a boxplot, 
+
+- The thick line in the middle of the box represents the __median__.
+- The lower end of the box represents the first quartile, $Q1$, and the upper end of the box represents the third quartile, $Q3$.
+- The "whiskers" or lines on a boxplot extend to either the maximum/minimum observations, or the largest/smallest "typical" observations.
+- The dots on a boxplot represent any unusual observations, or __outliers__.
+
+.bg-washed-red.b--red.ba.ph3[
+__Consider__: Is there a relationship between a patient's age and how they are admitted to the ICU? Make a prediction.
+]
+
+---
+
+## Interpreting boxplots
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Write 2-3 sentences describing the distribution of patient age. How does it depend on admission type?
+]
+
+.pull-left[
+```{r plot-last6, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Type, y=Age)) + 
+  geom_boxplot(aes(fill=Type)) +  #<<
+  labs(x='Admission Type', 
+       y='Patient Age')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last6', echo = FALSE}
+```
+]
+
+---
+
+## Interpreting scatterplots
+
+A __scatterplot__ shows the potential association between two numerical variables, with the explanatory variable on the $x$-axis and the response variable on the $y$-axis.
+
+- __Positive association__: upward trend
+
+```{r, echo=FALSE}
+x <- runif(min=0, max=10, n=50)
+y <- 2*x-0.5+rnorm(mean=0, sd=2, n=50)
+data <- as.data.frame(cbind(x, y))
+data %>% ggplot(aes(x=x, y=y)) + geom_point(col='#019cdb')
+```
+
+---
+
+## Interpreting scatterplots
+
+- __Negative association__: downward trend
+
+```{r, echo=FALSE}
+x <- runif(min=0, max=10, n=50)
+y <- -3*x+1+rnorm(mean=0, sd=2, n=50)
+data <- as.data.frame(cbind(x, y))
+data %>% ggplot(aes(x=x, y=y)) + geom_point(col='#73b865')
+```
+
+---
+
+## Interpreting scatterplots
+
+.bg-washed-red.b--red.ba.ph3[
+__Consider__: Is there a relationship between a patient's age and their heart rate? Make a prediction.
+]
+
+--
+
+.pull-left[
+```{r plot-last7, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=HeartRate, y=Age)) + 
+  geom_point() +
+  labs(x='Patient HR', 
+       y='Patient Age')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last7', echo = FALSE}
+```
+]
+
+---
+
+## Association
+
+We say that two variables are __associated__ if they are related in some way. In this case, it doesn't look like there is a strong association between age and heart rate.
+
+.bg-washed-red.b--red.ba.ph3[
+__Consider__: What about a patient's systolic blood pressure and their heart rate? Make a prediction.
+]
+
+---
+
+## Interpreting scatterplots
+
+.pull-left[
+```{r plot-last8, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=HeartRate, 
+             y=Systolic)) + 
+  geom_point() +
+  labs(x='Patient HR', 
+       y='Patient Systolic BP')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last8', echo = FALSE}
+```
+]
+
+
+
+
+---
+
+## Interpreting scatterplots
+
+Sometimes it's easier to compare variables if we break the data up into smaller groups.
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: The side-by-side scatterplots (next slide) show the relationship between patient heart rate and systolic blood pressure, split by whether the patient was admitted as an emergency or for an elective procedure. The line on each plot models any linear "trend". What can you conclude from this plot?
+]
+
+---
+
+## Interpreting scatterplots
+
+.pull-left[
+```{r plot-last9, fig.show = 'hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=HeartRate, 
+             y=Systolic)) + 
+  geom_point(aes(col=Type)) + 
+  facet_wrap(~Type) + #<<
+  geom_smooth(method='lm') + #<<
+  labs(x='Patient HR', 
+       y='Patient Systolic BP')
+```
+]
+.pull-right[
+```{r ref.label = 'plot-last9', echo = FALSE}
+```
+]
+
+---
+
+## Measures of center
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sample mean__: average of all individual observations in the sample
+]
+
+$$\bar{x}=\frac{\sum_{i=1}^{n}x_{i}}{n}$$
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sample median__: middle observation when all values are ordered from smallest to largest
+]
+
+$$m$$
+
+---
+
+## Mean and median
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Find the mean and median age of ICU patients in the sample. Does the average age of patients admitted change with admission type?
+]
+
+```{r}
+ICUAdmissions %>% 
+  summarize(mean=mean(Age),
+            median=median(Age))
+
+ICUAdmissions %>% group_by(Type) %>%
+  summarize(mean=mean(Age), 
+            median=median(Age))
+```
+
+---
+
+## Variability and standard deviation
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Find the range and quartiles of age. How "spread out" are the ages of the ICU patients?
+]
+
+```{r}
+ICUAdmissions %>% 
+  summarize('Minimum Age' = min(Age), 
+            'Q1 Age' = quantile(Age, 0.25),
+            'Median Age' = median(Age),
+            'Q3 Age' = quantile(Age, 0.75),
+            'Maximum Age' = max(Age),
+            'Mean Age' = mean(Age))
+```
+
+--
+
+There has to be an easier way, right? 
+
+---
+
+## There's always an easier way...
+
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
+library(mosaic)
+favstats(~Age, data=ICUAdmissions)
+```
+
+--
+
+What's `sd`?
+
+---
+
+## Standard deviation
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sample standard deviation__: a measure of the spread of a data set, the “typical” distance between an individual observation and the sample mean
+]
+
+$$s=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{i}-\bar{x})^{2}}$$
+
+--
+
+- Large standard deviation indicates that the observations are typically far from the mean
+- Small standard deviation indicates that the observations are closely concentrated
+
+---
+
+## Standard deviation
+
+$$s=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_{i}-\bar{x})^{2}}$$
+
+Why $n-1$?
+
+--
+
+- Dividing by $n-1$ makes the sample standard deviation $s$ an unbiased estimate of the population standard deviation, $\sigma$
+
+---
+
+## Variance
+
+The standard deviation is the square root of another measure of spread: __variance__. 
+
+- Variance has some nice mathematical properties, but is less useful for interpreting data.
+- Variance _is_ useful in probability theory!
+
+---
+
+## Interpreting standard deviation
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: What can we say about how the variability of age of ICU patients at this hospital? 
+]
+
+```{r}
+favstats(~Age, data=ICUAdmissions)
+```
+
+---
+
+## Interpreting standard deviation
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: What can we say about how the variability of age of ICU patients at this hospital? Is it related to admission type?
+]
+
+```{r}
+favstats(~Age, groups=Type, data=ICUAdmissions)
+```
+
+---
+
+## Interpreting standard deviation
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Which group looks more variable?
+]
+
+.pull-left[
+```{r demo, fig.show='hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Age)) + 
+  geom_histogram(bins=20, 
+                 aes(fill=Type)) + 
+  facet_wrap(~Type) + 
+  guides(fill=FALSE) + 
+  labs(x='Age', y='Count') 
+```
+]
+
+.pull-right[
+```{r ref.label='demo', echo=FALSE}
+```
+]
+
+---
+
+## Two categorical variables
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Contingency table__: a frequency table with two (or more) categorical variables
+]
+
+- These are also called "two-way" tables.
+
+--
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Are patients with a history of cancer more likely to be admitted as emergency?
+]
+
+```{r}
+ICUAdmissions %>% 
+  group_by(Cancer, Type) %>% 
+  summarize(n=n())
+```
+
+---
+
+## Two categorical variables
+
+A contingency table usually looks more like this:
+
+Cancer|Elective|Emergency
+---|---|---
+N|38|142
+Y|15|5
+
+We can reformat our table with just a little more work.
+
+---
+
+## Two categorical variables
+
+```{r, echo=TRUE}
+ICUAdmissions %>% 
+  group_by(Cancer, Type) %>% 
+  summarize(n=n()) %>%
+  spread(Type, n) #<<
+```
+
+---
+
+## Two categorical variables
+
+- There's _almost always_ multiple ways to do something in R.
+
+```{r, echo=TRUE}
+tally(Cancer~Type, data=ICUAdmissions)
+```
+
+---
+
+## Plotting categorical data
+
+Let's plot this data in a __stacked bar chart__.
+
+.pull-left[
+```{r demo2, fig.show='hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Cancer)) + 
+  geom_bar(aes(fill=Type)) 
+```
+]
+
+.pull-right[
+```{r ref.label='demo2', echo=FALSE}
+```
+]
+
+
+---
+
+## Plotting categorical data
+
+We can use a __facet__ to split the bar chart into multiple graphs...
+
+.pull-left[
+```{r demo3, fig.show='hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Cancer)) + 
+  geom_bar(aes(fill=Type)) + 
+  facet_wrap(~Type) 
+```
+]
+
+.pull-right[
+```{r ref.label='demo3', echo=FALSE}
+```
+]
+
+
+---
+
+## Plotting categorical data
+
+... or `position='dodge'` to move the bars side by side.
+
+.pull-left[
+```{r demo4, fig.show='hide', echo=TRUE}
+ICUAdmissions %>% 
+  ggplot(aes(x=Cancer, 
+             fill=Type)) + 
+  geom_bar(position='dodge') 
+```
+]
+
+.pull-right[
+```{r ref.label='demo4', echo=FALSE}
+```
+]
+
+---
+class: inverse
+
+## Takeaway Points
+
+1. We have TONS of options for graphing and exploring data in RStudio.
+
+--
+
+2. It's hard to produce a clear, informative visualization of a data set.
+
+--
+
+Don't worry - we'll practice a lot, and you'll get lots of sample code to use.
+
+---
+class: inverse
+
+```{r}
+tweet_embed("https://twitter.com/CedScherer/status/1279158409527472130")
+```

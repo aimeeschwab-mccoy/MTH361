@@ -1,0 +1,360 @@
+---
+title: 'Ch. 7: Multiple Regression'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse
+
+# 7.1-7.2: Multiple linear regression
+
+- Looking for a trend
+
+--
+
+- Measuring a trend with correlation
+
+---
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=8, fig.height=5, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+library(oibiostat)
+library(mosaic)
+```
+
+## Relationships between variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Statins are a class of drugs widely used to lower cholesterol. Research suggests that adults with elevated LDL cholesterol may be at risk for cardiovascular events such as a heart attack or stroke. 
+
+In 2013, the American College of Cardiology and the American Heart Association recommended that statin therapy be considered for individuals with cardiovascular disease, high LDL levels, and people with Type II diabetes. Policy analysts estimate that almost half of Americans age 40 to 75 and nearly all men over 60 would fall under these guidelines.
+
+However, there's concern that use of statins may be associated with increased risk of cognitive decline. Let's look at the data. We'll consider a smaller subsample of the data from the PREVEND study, `prevend.samp`.
+]
+
+```{r, echo=TRUE}
+library(oibiostat)
+data(prevend.samp)
+```
+
+---
+
+## Relationships between variables
+
+`Statin` = 1 for statin users and 0 for non-users.
+
+```{r, echo=TRUE}
+prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point(aes(col=as.factor(Statin)))
+```
+
+---
+
+## Confounding
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Confounder__: an additional variable related to both the response and explantory variable in a model
+]
+
+--
+
+There is a relationship between RFFT and Age, but...
+
+- `Statin` use may also be related!
+
+--
+
+__Solution__: Expand our model.
+
+---
+
+## Multiple linear regression
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Multiple regression model__: Let $Y$ denote the numerical response variable and $X_1$, $X_2$,..., $X_{p}$ denote the $p$ possible explanatory variables in the model. Then, 
+
+$$Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + ... \beta_p X_{pi} + \epsilon_i$$
+
+]
+
+--
+
+Basically, we just __add more terms__ to the linear regression model. 
+
+---
+
+## Mulitple linear regression
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Write the multiple linear regression model for predicting RFFT score based on age and statin use. How many regression coefficients are in the model?
+]
+
+---
+
+## Mulitple linear regression
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Write the estimated multiple linear regression model for predicting RFFT score based on age and statin use. How does whether a patient is using statins affect the predicted value? Does it affect the slope?
+].bg-washed-blue.b--blue.ba.ph3[
+
+```{r, echo=TRUE}
+model <- lm(RFFT ~ Age + Statin, data=prevend.samp)
+model
+```
+
+---
+
+## Mulitple linear regression
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: What can we learn from the `summary(model)`?
+]
+
+```{r, echo=TRUE}
+summary(model)
+```
+
+---
+class: inverse
+
+# 7.3: Evaluating a multiple regression model
+
+- Evaluating a model based on residual plots
+
+--
+
+- Multiple R-squared or adjusted R-squared?
+
+---
+
+## Multiple regression assumptions
+
+- __L__: A linear model is a "good fit" for the relationship between the response variable and explanatory variables
+
+--
+
+- __I__: Observations (residuals) are independent
+
+--
+
+- __N__: Residuals are normally distributed
+
+--
+
+- __E__: The error (residual) variance is constant
+
+---
+
+## Interpreting residual plots
+
+```{r, echo=TRUE}
+par(mfrow=c(2,2))
+plot(model)
+```
+
+---
+
+## Coefficient of determination
+
+For simple linear regression, $R^2$ measures the proportion of variability in the response variable $Y$ that can be explained using the linear model.
+
+- For multiple linear regression, same idea!
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Multiple R-squared__: $R^2$ is the correlation between $\hat{Y}$ and $Y$, squared
+
+- We use $\hat{Y}$ instead of $X$ because there are now multiple explanatory variables.
+]
+
+---
+
+## Adjusted R-squared
+
+Adding a new explanatory variable to a multiple linear regression model will always increase $R^2$.
+
+__Goal__: Explain as much variability in $Y$ with the simplest possible model!
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Adjusted R-squared__: a measure of the "quality" of a model that takes the multiple R-squared and shifts it downward based on the number of terms in the model
+
+$$R^2_{adj} = 1-\frac{(1-R^2)(n-1)}{n-p-1}$$
+]
+
+--
+
+If you're...
+
+1. Explaining variability, use `Multiple R-squared`
+2. Choosing the "best model", use `Adjusted R-squared`
+
+---
+
+## Which R-squared?
+
+How much of the variability in the active heart rate can be explained using this multiple regression model?
+
+```{r, echo=FALSE}
+summary(model)
+```
+
+
+---
+class: inverse
+
+# 7.7: Interaction terms
+
+- What if the _slope_ depends on some categorical factor?
+
+--
+
+- How can we quantify the relationship between explanatory variables?
+
+---
+
+## Interaction terms
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Interaction__: an interaction exists between two variables when the relationship of one explantory variable $x_1$ to the response variable $y$ changes depending on another explantory variable
+]
+
+--
+
+We can add a new term to our model called an __interaction term__:
+
+$$X_{12} = X_1 \times X_2$$
+
+---
+
+## Interaction terms
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Write the multiple linear regression model for predicting RFFT score based on age and statin use, _with an interaction term_. How many regression coefficients are in the model?
+]
+
+---
+
+## Interaction terms
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Write the estimated multiple linear regression model for predicting RFFT score based on age and statin use, _with an interaction term_. How does whether a patient is using statins affect the predicted value? Does it affect the slope?
+]
+
+```{r, echo=TRUE}
+model2 <- lm(RFFT ~ Age + Statin + Age:Statin, data=prevend.samp)
+model2
+```
+
+---
+
+## Interaction terms
+
+```{r}
+prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point(aes(col=as.factor(Statin))) + 
+  geom_smooth(method='lm', se=FALSE)
+```
+
+---
+
+## Interaction terms
+
+```{r}
+prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point(aes(col=as.factor(Statin))) + 
+  geom_smooth(aes(col=as.factor(Statin)), method='lm', se=FALSE)
+```
+
+---
+
+## Interaction terms
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: According to the guidance issued, individuals with Type II diabetes ages 40 to 75 with LDL between 70 to 189 mg/dL should be on statins. For non-diabetic individuals, those individuals aged of 40 to 75 with a predicted probability of future clogged arteries of at least 0.075. Why is the criteria different depending on whether someone has diabetes?
+]
+
+---
+
+## Interaction terms
+
+Describe the relationship between age and cholesterol, without accounting for whether someone has diabetes?
+
+- Data is taken from the NHANES database.
+
+```{r}
+data(nhanes.samp.adult.500)
+nhanes.samp.adult.500 %>%
+  ggplot(aes(x=Age, y=TotChol)) + 
+  geom_point(aes(col=as.factor(Diabetes))) + 
+  geom_smooth(method='lm', se=FALSE) + 
+  labs(x='Age (years)', y='Total cholesterol', guides='Diabetes')
+```
+
+---
+
+## Interaction terms
+
+```{r}
+nhanes.samp.adult.500 %>%
+  ggplot(aes(x=Age, y=TotChol)) + 
+  geom_point(aes(col=Diabetes)) + 
+  geom_smooth(aes(col=Diabetes), method='lm', se=FALSE) + 
+  labs(x='Age (years)', y='Total cholesterol', guides='Diabetes')
+```
+
+---
+
+## Interaction terms
+
+Is there an interaction?
+
+- If the slope changes dramatically (i.e. the lines overlap), then the interaction term should be included.
+
+--
+
+- If the slopes are similiar, the interaction term is not needed.

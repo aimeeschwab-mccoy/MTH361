@@ -1,0 +1,1209 @@
+---
+title: 'Ch. 5: Inference for Numerical Data'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse
+
+# 5.1: Inference for One-Sample Mean
+
+- The $t$-distribution
+
+--
+
+- Confidence intervals for a population mean, $\mu$
+
+--
+
+- The $t$-test
+
+---
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=6, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+library(oibiostat)
+library(mosaic)
+```
+
+## Review: Sampling distribution of the mean
+
+We've already learned that, assuming our sample size $n$ is "large enough" and that the population is relatively symmetric, the sample mean follows an approximately normal distribution:
+
+$$\bar{x}\sim Normal\left(\mu,\frac{\sigma}{\sqrt{n}}\right)$$
+
+--
+
+- We’d like to use the sample mean $\bar{x}$ to estimate the population mean $\mu$. But, there’s a problem. __Do we have all the necessary information?__
+
+
+---
+
+## Review: Sampling distribution of the mean
+
+We've used the sample standard deviation $s$ to estimate the unknown population standard deviation $\sigma$.
+
+$$\bar{x}\sim Normal\left(\mu,\frac{s}{\sqrt{n}}\right)?$$
+
+--
+
+This brings additional variability into the picture. __There are  two sources of error!__
+
+--
+
+![](https://media.giphy.com/media/dlMIwDQAxXn1K/giphy.gif)
+
+---
+
+## t-distribution
+
+Calculate a new _test statistic_, 
+
+$$t = \frac{\bar{x}-\mu}{s/\sqrt{n}}$$
+
+This new test statistic follows a $t$-distribution.
+
+--
+
+![](https://media.giphy.com/media/IbCZtb3vnl4BSPjoEy/giphy.gif)
+
+---
+
+## t-distribution
+
+In the graph below, the standard normal distribution is the red dotted line and selected $t$-distributions are the blue solid lines. What do you notice about the $t$-distribution?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+x <- seq(from=-3, to=3, length=1000)
+norm <- dnorm(x, mean=0, sd=1)
+t1 <- dt(x, df=1)
+t3 <- dt(x, df=3)
+t5 <- dt(x, df=5)
+t10 <- dt(x, df=10)
+t25 <- dt(x, df=25)
+
+data <- tibble(x=rep(x, 6),
+               p=c(norm, t1, t3, t5, t10, t25),
+               dist=c(rep('Normal', 1000), rep('t (df=01)', 1000), rep('t (df=03)', 1000),
+                      rep('t (df=05)', 1000), rep('t (df=10)', 1000), 
+                      rep('t (df=25)', 1000)))
+
+library(RColorBrewer)
+cols <- brewer.pal(9, 'Blues')
+data %>% ggplot(aes(x=x, y=p)) + geom_line(aes(col=dist), lwd=1.5) + scale_color_manual(values=c('red', cols[4:8]))
+```
+
+---
+
+## t-distribution
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__t-distribution__: used to account for the extra variability that comes from estimating the standard error using the sample standard deviation.
+]
+
+Properties of the $t$-distribution:
+
+--
+  
+-	Symmetric, bell-shaped curve - looks like a normal distribution!
+
+--
+
+- The tails (ends) are “fatter”, which means that values farther from zero are more likely than they are under a normal distribution.
+
+--
+
+- Always centered at 0
+
+--
+
+- Has a single parameter, $df$ = "degrees of freedom
+
+--
+
+- Larger sample size -> closer to the standard normal
+
+---
+
+## Hypothesis tests and confidence intervals
+
+For better long-term accuracy, the $t$-distribution should be used in place of the normal distribution when doing inference about a population mean.
+
+- _Downside: Since the distribution changes for every sample size, it's harder to work with values from the $t$-distribution "by hand"._
+
+--
+
+![](https://www.ttable.org/uploads/2/1/7/9/21795380/published/9754276.png?1517416376)
+
+---
+
+## Confidence interval for a mean
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Confidence interval for a population mean__: Based on our sample, we can be CL confident that the true population mean is between
+
+$$\bar{x} \pm t^* \times SE(\bar{x})$$
+
+]
+
+We can use the `qt()` command to find $t^*$. 
+
+---
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Find $t^*$ for a sample...
+
+1. With $n=10$ and a $(1-\alpha)=$ 90% confidence interval.
+2. With $n=15$ and a $(1-\alpha)=$ 99% confidence interval.
+
+]
+
+--
+
+```{r, echo=TRUE}
+qt(p=(1-0.10/2), df=10-1)
+```
+
+--
+
+```{r, echo=TRUE}
+qt(p=0.995, df=14)
+```
+
+---
+
+
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Outside of currently living cells, the most common place DNA can be found is on the ocean floor. DNA actually plays a vital role in nourishing seafloor life. A random sample of ocean floor specimens from 116 locations around the world gave the following summary statistics. Calculate and interpret a 95% confidence interval for the mean DNA concentration on the ocean floor, by hand.
+
+- $\bar{x}=0.2781$
+- $s=0.1803$
+
+]
+
+--
+
+```{r}
+qt(p=0.975, df=115)
+```
+
+--
+
+.white[
+
+Calculate: 
+
+$$\bar{x} \pm t^* \frac{s}{\sqrt{n}} = 0.2781 \pm 1.980808 \frac{0.1803}{\sqrt{116}} = (0.2449, 0.3113)$$
+]
+
+---
+
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Outside of currently living cells, the most common place DNA can be found is on the ocean floor. DNA actually plays a vital role in nourishing seafloor life. A random sample of ocean floor specimens from 116 locations around the world gave the following summary statistics. Calculate and interpret a 95% confidence interval for the mean DNA concentration on the ocean floor, by hand.
+]
+
+.white[
+Interpret: 
+
+Based on our data, we are 95% confident that the population mean DNA concentration on the ocean floor is between 0.2449 and 0.3113.
+]
+
+
+---
+
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A study in the Journal of the American Medical Association (_JAMA_) included three groups, with 25 subjects in each. The control group consisted of healthy individuals with no history of brain trauma who were comparable to the other groups in age, sex, and education. The second group consisted of NCAA Division 1 college football players with no history of concussion, while the third group consisted of NCAA Division 1 college football players with a history of concussion. High resolution MRI was used to collect brain hippocampus volume. Data were collected between June 2011 and August 2013. (The data values given here are estimated from information given in the paper.)
+]
+
+```{r}
+library(Lock5Data)
+data(FootballBrain)
+head(FootballBrain)
+```
+
+---
+
+## Confidence interval for a mean
+
+```{r, echo=FALSE}
+
+FootballBrain %>% ggplot(aes(x=Hipp)) + 
+  geom_density(aes(fill=Group), alpha=0.5)
+```
+
+---
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: The table below summarizes the total hippocampus volume for the control group (non-football players). Calculate a 95% confidence interval for the mean total hippocampus volume for _all_ non-football players.
+]
+
+```{r}
+favstats(~Hipp, groups=Group, data=FootballBrain)
+qt(0.975, df=25-1)
+```
+
+.white[
+
+Calculate: 
+
+$$\bar{x} \pm t^* \frac{s}{\sqrt{n}} = 7602.6 \pm 2.063899\times \frac{1074.0229}{\sqrt{25}} = (7159.3, 8045.9)$$
+]
+
+---
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Calculate a 95% confidence interval for the mean total hippocampus volume for _all football players without concussions_.
+]
+
+```{r}
+favstats(~Hipp, groups=Group, data=FootballBrain)
+```
+
+.white[
+
+Try it! You should get: 
+
+$$(6137.3, 6781.1)$$
+]
+
+---
+
+## One-sample t-test
+
+_Step 1: Write null and alternative hypotheses._
+
+$H_0$ represents an assumption about the population parameter, and is assumed true.
+
+$$H_0: \mu = \mu_0$$
+  
+--
+
+$H_A$ represents an alternative claim based on the research question.
+
+$$H_A: \mu (<, >, \ne) \mu_0$$
+
+---
+
+## One-sample t-test
+  
+_Step 2: Compute the test statistic._
+
+Based on our observed data, calculate some test statistic as a measure of "how far" the data is from the assumed $\mu_0$.
+
+$$t = \frac{\bar{x}-\mu_0}{s/\sqrt{n}}$$
+
+
+---
+
+## One-sample t-test
+
+_Step 3: Determine the $p$-value._
+
+From the test statistic, calculate a $p$-value (.blue[the probability of observing data as or more extreme as our sample, assuming the null hypothesis is true]).
+
+--
+
+- We’ll use the `t.test()` command in R/RStudio for this part.
+
+---
+
+## One-sample t-test
+
+_Step 4: Make a conclusion about the original research question._
+
+If the $p$-value is sufficiently small, reject the $H_0$.
+
+- There may be strong evidence to reject the null hypothesis, in support of the alternative.
+
+--
+
+If the $p$-value is not sufficiently small, fail to reject the $H_0$. 
+
+- There may not be evidence to reject the null hypothesis – the null is, in fact, plausible.
+
+---
+
+## Robust procedure
+
+The $t$-distribution is a __robust statistical procedure__ – it is not sensitive to modest departures from the following assumption: "the variable is normally distributed in the population". 
+
+--
+
+- Some textbooks heavily emphasize this assumption, others are more lax about it.
+
+--
+
+- It turns out, that for reasonably large sample sizes, this assumption isn't really necessary. 
+- When the sample size is "small", we can turn to different procedures instead. 
+
+--
+
+__Punchline__: As long as the variable we’re interested in is numerical with a “reasonable” sample distribution (i.e. no extreme outliers or patterns), the $t$-test and confidence interval will work well.
+
+
+---
+
+## One-sample t-test
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Is there sufficient evidence to show that the population mean total hippocampus volume for football players with a history of concussions is less than 6000 microL?
+]
+
+.white[
+
+$$H_0: \mu = 6000$$
+
+In words, the population mean hippocampus volume is exactly 6,000 microL (this has to be an "equality" assumption).
+
+$$H_A: \mu < 6000$$
+
+In words, the population mean hippocampus volume is less than 6,000 microL.
+]
+
+---
+
+## One-sample t-test
+
+```{r}
+FBConcuss <- FootballBrain %>% filter(Group=='FBConcuss')
+t.test(~Hipp, mu=6000, alternative='less', data=FBConcuss)
+```
+
+.white[
+
+Test statistic: 
+
+$$t = -2.2363$$
+
+p-value = 0.01745 -> reject null hypothesis
+
+Interpretation: There is strong evidence to show that football players with a history of concussion have a mean hippocampus volume less than 6,000.
+]
+
+---
+
+## One-sample t-test
+
+What does the confidence interval suggest?
+
+```{r}
+t.test(~Hipp, conf.level=0.95, data=FBConcuss)
+```
+
+--
+
+.white[Why is t = 48.32?]
+
+
+---
+
+## One-sample t-test
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Radioactive cesium (cesium-134 and cesium-137) is a waste product of nuclear reactors. a study examined the radioactive cesium tissue concentration of a random sample of 15 Pacific bluefin tuna captured off the coast of California four months after the Fukushima nuclear meltdown of 2011. The data is measured in becquerels per kilogram of dry tissue (Bq/kg).
+]
+
+```{r, echo=-1}
+TunaRadiation <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/TunaRadiation.csv", sep="")
+favstats(~Cesium, data=TunaRadiation)
+```
+
+---
+
+## One-sample t-test
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: 
+Historically, radioactive cesium tissue concentrations in bluefin tuna have been below 2 Bq/kg, on average. Is there statistically significant evidence to show that the radioactive cesium concentration in bluefin tuna increased?
+]
+
+```{r, echo=FALSE, fig.height=4}
+TunaRadiation %>% ggplot(aes(x=Cesium)) + geom_histogram(bins=10, fill='#4078c0')
+```
+
+---
+
+## One-sample t-test
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Is there sufficient evidence to show that the radioactive cesium concentration in bluefin tuna increased?
+]
+
+.white[
+
+$$H_0: \mu = 2$$
+
+$$H_A: \mu > 2$$
+
+]
+
+---
+
+## One-sample t-test
+
+```{r}
+t.test(~Cesium, mu=2, alternative='greater', data=TunaRadiation)
+```
+
+.white[
+
+The test statistic is $t=11.065$ and the p-value is 0.00000001315. There is very strong evidence to reject the null hypothesis and conclude that the population mean cesium concentration has increased.
+
+]
+
+---
+
+## Confidence interval for a mean
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Use a 99% confidence interval to estimate the mean radioactive cesium concentration in all bluefin tuna.
+]
+
+```{r}
+t.test(~Cesium, conf.level=0.99, data=TunaRadiation)
+```
+
+.white[
+
+Based on the data, we are 95% confident that the population mean radioactive cesium concentration in bluefin tuna is between 8.04 and 12.48.
+
+]
+
+---
+class: inverse
+
+# 5.2: Two-sample test for paired data
+
+- Paired samples or independent samples?
+
+--
+
+- Confidence intervals for a paired difference
+
+--
+
+- The $t$-test for a paired difference
+
+---
+
+## Comparing two groups
+
+Suppose we want to compare two sample means, such as the average growth in a control group v. a treatment group. 
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Paired data__: two sets of observations are considered paired if each observation in one set has a one-to-one correspondence or connection with a single observation in the other data set]
+
+---
+
+## Comparing two groups
+
+Suppose we want to compare two sample means, such as the average growth in a control group v. a treatment group. 
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Independent samples__: two sets of observations are considered independent if there is no relationship between observations in each group]
+
+--
+
+- The appropriate analysis depends on whether we have paired data or independent samples!
+
+---
+
+## Paired confidence intervals
+
+Let $x_{1i}$ represent the $i^{th}$ observation in group 1 and let $x_{2i}$ represent the $i^{th}$ observation in group 2. Define the __difference__ as:
+
+$$d_i = x_{1i} - x_{2i}$$
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Confidence interval for the population mean difference__: we'll treat the new difference variable as our variable of interest]
+
+$$\bar{d} \pm t^* SE(\bar{d})$$
+
+---
+
+## Paired confidence intervals
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Nondigestible oligosaccharides are known to stimulate calcium absorption in rats. A double-blind, randomized experiment investigated whether the consumption of oligofructose similarly stimulates calcium absorption in healthy male adolescents. 
+
+The subjects took a pill for nine days and had their calcium absorption tested on the last day. The experiment was repeated three weeks later. Some subjects received the oligofructose pill in the first round and a placebo in the second; the order was switched for the remaining subjects.
+]
+
+---
+
+## Paired confidence intervals
+
+```{r, message=FALSE, echo=2, warning=FALSE}
+oligofructose <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/oligofructose.csv")
+head(oligofructose)
+```
+
+---
+
+## Paired confidence intervals
+
+```{r, echo=TRUE}
+favstats(~Control, data=oligofructose)
+favstats(~Oligofructose, data=oligofructose)
+```
+
+---
+
+## Paired confidence intervals
+
+Use the `mutate()` function to calculate the difference, and save it as a new variable.
+
+```{r, echo=TRUE}
+oligofructose <- oligofructose %>%
+  mutate(Difference = Control - Oligofructose)
+
+favstats(~Difference, data=oligofructose)
+```
+
+- Calculate and interpret a 95% confidence interval for the difference in calcium absorption.
+
+.white[
+
+$$\bar{x} = -10.84, \ s = 18.15$$
+]
+
+---
+
+## Paired confidence intervals
+
+- Calculate and interpret a 95% confidence interval for the difference in calcium absorption.
+
+```{r}
+qt(p=0.975, df=10)
+```
+
+.white[
+
+Calculate: 
+$$-10.84\pm 2.228139\times  \frac{18.15}{\sqrt{11}}= (-23.03, 1.36)$$
+
+Interpret: Based on our data, we are 95% confident that the population mean difference is between -23.03 and 1.36. It's possible that the two groups have the same mean!
+]
+
+---
+
+## Paired confidence interval
+
+```{r, echo=TRUE}
+t.test(~Difference, 
+       conf.level=0.95, #<<
+       data=oligofructose)
+```
+
+---
+
+## Paired t-test
+
+The __paired t-test__ is used to test the null hypothesis that the population mean difference $\mu_d$
+ is equal to a specified value. 
+ 
+- What would it mean if $\mu_d=0$?
+
+--
+
+IF $\mu_d = 0$, the two groups are the same.
+
+---
+ 
+## Paired t-test
+
+_Step 1: Write null and alternative hypotheses_
+
+$H_0$: The population mean difference is equal to some value, usually zero
+
+$$H_0: \mu_d = \mu_0$$
+
+$H_A$: The population mean difference is less than/greater than/different from some value
+
+$$H_A: \mu_d (<, >, \ne) \mu_0$$
+
+---
+
+## Paired t-test
+
+_Step 2: Compute the test statistic_
+
+$$t=\frac{\bar{d} - \mu_0}{s_d/\sqrt{n}}$$
+
+--
+
+_Step 3: Determine the p-value_
+
+```{r, eval=FALSE, echo=TRUE}
+t.test()
+```
+
+--
+
+_Step 4: Make a conclusion about the original research question_
+
+---
+
+## Paired t-test
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Is there enough evidence to show that the treatment encourages calcium absorption?
+]
+
+.white[
+
+$$H_0: \mu_d = 0$$
+
+$$H_A: \mu_d <0$$
+
+The "difference" is control - treatment, so if the difference is negative the control group has less absorption.
+]
+
+---
+
+## Paired t-test
+
+```{r, echo=TRUE}
+t.test(~Difference, alternative='less', mu=0,
+       data=oligofructose)
+```
+
+.white[
+p-value = 0.03793
+
+There is _some_ evidence that the treatment group has higher calcium absorption. 
+
+--
+
+Hesitation: Sample size is only 11.
+]
+
+---
+
+## Paired t-test
+
+Another way to do this is to explicitly list both variables, and use the `paired=TRUE` option.
+
+```{r, echo=TRUE}
+t.test(oligofructose$Control, 
+       oligofructose$Oligofructose, 
+       alternative='less', mu=0, 
+       paired=TRUE) #<<
+```
+
+---
+
+## Paired-test
+
+Both R statements give equivalent output. 
+
+- Formula notation can't be used for the second option, because our control and treatment values are recorded in separate columns. 
+- In this case, I recommend calculating the difference first.
+
+---
+class: inverse
+
+# 5.3: Two-sample test for independent data
+
+- Equal variances or unequal variances
+
+--
+
+- Confidence intervals for a difference in two means
+
+--
+
+- The $t$-test for a difference in two means
+
+---
+
+## Independent samples
+
+Let $x_{1i}$ represent the $i^{th}$ observation in group 1 and $x_{2i}$ represent the $i^{th}$ observation in group 2.
+
+- Denote the sample mean in each group as $\bar{x_1}$ and $\bar{x_2}$ and sample size as $n_1$ and $n_2$, respectively.
+
+--
+
+It turns out that $\bar{x_1} - \bar{x_2}$ follows a t-distribution with mean $\mu_1 -\mu_2$
+
+---
+
+## Independent samples (same variance)
+
+Can we assume both groups have the same population standard deviation, $\sigma_1=\sigma_2$?
+
+- If __yes__, estimate the variability of this new distribution using the pooled standard error formula
+
+```{r, eval=FALSE}
+t.test(...., var.equal=TRUE)
+```
+
+---
+
+## Independent samples (unequal variance)
+
+Can we assume both groups have the same population standard deviation, $\sigma_1=\sigma_2$?
+
+- If __no__, use the unpooled standard error formula (Welch approximation)
+
+```{r, eval=FALSE}
+t.test(...., var.equal=FALSE)
+```
+
+- Using the _Satterthwaite approximation_ requires us to adjust the degrees of freedom
+
+---
+
+## Comparing independent samples
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Confidence interval for the difference of population means__: this confidence interval has a familiar form
+
+$$(\bar{x}_1 - \bar{x}_2) \pm t^* SE(\bar{x}_1 - \bar{x_2})$$
+
+]
+
+--
+
+- Rule of thumb: if $\frac{s_{max}}{s_{min}}>2$, use unpooled standard error.
+
+--
+
+- In practice, the results are pretty similar
+- Choosing the degrees of freedom has gotten more complicated, so we'll use R
+
+---
+
+## Comparing independent samples
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: According to the CDC, obesity rates among children have increased dramatically over the past three decades, from a low of about 5% to 18% in 2010. A study examined the effect of family-based food-counseling sessions provided by trained professionals. The study randomly assigned obese children aged 9 to 12 years to either the counseling intervention or a control group not receiving any food counseling. The data provided in __obesity.csv__ includes the children's weight changes (in pounds) after 15 weeks.
+]
+
+---
+
+## Comparing independent samples
+
+```{r, echo=2}
+obesity <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/obesity.csv")
+
+obesity %>% ggplot(aes(x=change)) + 
+  geom_histogram(aes(fill=group), bins=15) + 
+  facet_wrap(~group)
+```
+
+---
+
+## Comparing independent samples
+
+How does the weight change in each group compare?
+
+```{r}
+favstats(~change|group, data=obesity)
+```
+
+
+---
+
+## Comparing independent samples
+
+If we __don't__ assume $\sigma_1=\sigma_2$:
+
+```{r}
+t.test(change~group, data=obesity, conf.level=0.95)
+```
+
+---
+
+## Comparing independent samples
+
+If we __do__ assume $\sigma_1=\sigma_2$:
+
+```{r}
+t.test(change~group, data=obesity, conf.level=0.95, 
+       var.equal=TRUE) #<<
+```
+
+
+---
+
+## Comparing independent samples
+
+How do the confidence intervals compare?
+
+- Unequal variances: 3.456199, 8.092631
+- Equal variances: 3.292526, 8.256304
+
+---
+
+## Independent two-sample t-test
+
+_Step 1: Write null and alternative hypotheses_
+
+$H_0$: The difference in population means is equal to some value, usually zero
+
+$$H_0: \mu_1 - \mu_2 = \mu_0$$
+
+$H_A$: The difference mean in population means is less than/greater than/different from some value
+
+$$H_A: \mu_1 - \mu_2 (<, >, \ne) \mu_0$$
+
+---
+
+## Independent two-sample t-test
+
+_Step 2: Compute the test statistic_
+
+$$t = \frac{(\bar{x}_1 -\bar{x}_2) - \mu_0}{SE(\bar{x}_1 - \bar{x}_2)}$$
+
+--
+
+_Step 3: Determine the p-value_
+
+Still use `t.test()`.
+
+- Choose appropriate assumption about variances
+
+--
+
+_Step 4: Make a conclusion about the original research question_
+
+Still business as usual. 
+
+- Reject $H_0$ if the $p$-value $<\alpha$
+- Fail to reject $H_0$ if the $p$-value $>\alpha$
+
+---
+
+## Comparing independent samples
+
+```{r}
+t.test(change~group, mu=0, alternative='greater', 
+       data=obesity)
+```
+
+.white[Reject the null hypothesis, and conclude that there is strong evidence that the treatment and control group have different population means.]
+
+---
+class: inverse
+
+# 5.5: Comparing means with analyis of variance
+
+- Analysis of variance model
+
+--
+
+- Analysis of variance assumptions
+
+--
+
+- Analysis of variance interpretation
+
+---
+
+## Analysis of variance
+
+Analysis of variance (ANOVA) tests the null hypothesis that all $k$ groups have the same population mean
+
+$$H_0: \mu_1 = \mu_2 = \mu_3 = .... = \mu_k$$
+
+In other words, all observations start with the same value and any difference observed is only due to random variation.
+
+- Extending the two-sample t-test to more than two groups!
+
+---
+
+## Analysis of variance
+
+The alternative hypothesis is that there's at least one group that differs significantly from the others, in terms of the mean response
+
+$$H_A: \mu_i \ne \mu_j$$ 
+
+for some $i \ne j$.
+
+---
+
+## Analysis of variance
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__ANOVA model__: The statistical model for an analysis of variance is
+
+$$Y_{ij} = \mu + \alpha_i + \epsilon_{ij}$$
+
+- Response variable for subject $j$ in group $i$: $Y_{ij}$
+
+- Mean response for each group $i$: $\mu_i = \mu + \alpha_i$
+
+- Grand mean: $\mu$
+
+- Group effect for group $i$: $\alpha_i$
+
+- Error term for subject $j$ in group $i$: $\epsilon_{ij}$
+]
+
+---
+
+## Analysis of variance
+
+Suppose we have the data below.
+
+```{r, echo=FALSE}
+set.seed(361)
+group <- c(rep('A', 4), rep('B', 4), rep('C', 4))
+y <- c(sample(5:10, 4), sample(8:15, 4), sample(12:20, 4))
+
+data <- tibble(obs=1:12, group, y)
+
+data
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=obs, y=y)) + geom_col(aes(fill=group)) 
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=TRUE}
+favstats(~y, data=data)
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=obs, y=y)) + geom_col(aes(fill=group), alpha=0.5) + geom_hline(yintercept=11.58, col='red')
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=TRUE}
+favstats(~y|group, data=data)
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=obs, y=y)) + geom_col(aes(fill=group), alpha=0.5) +  geom_hline(yintercept=11.58) + 
+  geom_segment(aes(x=1, y=7.75, xend=4, yend=7.75), col='red') + 
+  geom_segment(aes(x=5, y=11.5, xend=8, yend=11.5), col='red') + 
+  geom_segment(aes(x=9, y=15.5, xend=12, yend=15.5), col='red') +
+  geom_segment(aes(x=2.5, y=7.75, xend=2.5, yend=11.58), col='red') +
+  geom_segment(aes(x=6.5, y=11.5, xend=6.5, yend=11.58), col='red') +
+  geom_segment(aes(x=10.5, y=15.5, xend=10.5, yend=11.58), col='red')
+```
+
+---
+
+## Analysis of variance
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=obs, y=y)) + geom_col(aes(fill=group), alpha=0.5) +  geom_hline(yintercept=11.58) + 
+  geom_segment(aes(x=1, y=7.75, xend=4, yend=7.75), col='black') + 
+  geom_segment(aes(x=5, y=11.5, xend=8, yend=11.5), col='black') + 
+  geom_segment(aes(x=9, y=15.5, xend=12, yend=15.5), col='black') +
+  geom_segment(aes(x=2.5, y=7.75, xend=2.5, yend=11.58), col='black') +
+  geom_segment(aes(x=6.5, y=11.5, xend=6.5, yend=11.58), col='black') +
+  geom_segment(aes(x=10.5, y=15.5, xend=10.5, yend=11.58), col='black') +
+  geom_segment(aes(x=1, y=7.75, xend=1, yend=8), col='red') + 
+  geom_segment(aes(x=2, y=7.75, xend=2, yend=7), col='red') + 
+  geom_segment(aes(x=3, y=7.75, xend=3, yend=10), col='red') + 
+  geom_segment(aes(x=4, y=7.75, xend=4, yend=6), col='red') +
+  geom_segment(aes(x=5, y=11.5, xend=5, yend=10), col='red') + 
+  geom_segment(aes(x=6, y=11.5, xend=6, yend=12), col='red') + 
+  geom_segment(aes(x=7, y=11.5, xend=7, yend=11), col='red') + 
+  geom_segment(aes(x=8, y=11.5, xend=8, yend=13), col='red') +
+  geom_segment(aes(x=9, y=15.5, xend=9, yend=16), col='red') + 
+  geom_segment(aes(x=10, y=15.5, xend=10, yend=14), col='red') + 
+  geom_segment(aes(x=11, y=15.5, xend=11, yend=12), col='red') + 
+  geom_segment(aes(x=12, y=15.5, xend=12, yend=20), col='red') 
+```
+
+---
+
+## Analysis of variance
+
+Does splitting our data up into groups explain the variability?
+
+```{r, echo=FALSE}
+model <- aov(y ~ group, data=data)
+summary(model)
+```
+
+
+---
+
+## Analysis of variance
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Analysis of variance assumptions__: We make four assumptions when we use this method.
+
+1. Parameters $\mu$, $\alpha_i$, and $\sigma^2$ are constant
+
+    - We still don't know their values, but they aren't changing in the population
+    
+2. ANOVA model is additive
+
+    - Linear combinations only!
+    
+3. Error terms are independent and identically distributed, and follow a normal model with mean 0
+
+4. Population variances for each group (factor level) are equal
+]
+
+---
+
+## Analysis of variance
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A dental study evaluated the effect of tooth etch time on resin bonding strength. A total of 78 undamaged, recently extracted first molars (baby teeth) were randomly assigned to be etched with phosphoric acid gel for either 15, 30, or 60 seconds. Composite resin cylinders of identical size were then bonded to the tooth enamel. The researchers examined the bond strength after 24 hours by finding the failure load (in megapascals) for each bond.
+
+- Write the ANOVA null and alternative hypotheses, in symbols and in words.
+
+]
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+tooth_etch <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/tooth_etch.csv")
+```
+
+
+---
+
+## Analysis of variance
+
+- Does it look like there are significant differences in the failure load?
+
+```{r}
+tooth_etch %>% ggplot(aes(x=etch_time, y=failure_load)) +
+  geom_boxplot(aes(fill=etch_time)) + guides(fill=FALSE)
+```
+
+
+---
+
+## Analysis of variance
+
+Estimate the group effects $\alpha_i$ and grand mean $\mu$.
+
+```{r, echo=TRUE}
+favstats(~failure_load, data=tooth_etch)
+favstats(~failure_load|etch_time, data=tooth_etch)
+```
+
+---
+
+## Analysis of variance
+
+The test statistic for an analysis of variance is an __F-statistic__:
+
+$$F = \frac{MSGroup}{MSError}$$
+
+- $MSGroup$: measure of variability between levels of each factor
+- $MSError$: measure of variability within each level (error term)
+
+--
+
+What would we expect for $F$ if $\mu_i=\mu$ for all groups?
+
+---
+
+## Analysis of variance
+
+Software programs will report the results of an ANOVA model in an __ANOVA table__.
+
+- The basic outline of the ANOVA table looks like this:
+
+Source|df|Sums of Sq.|Mean Sq.|F-ratio|p-value
+---|---|---|---|---|---|---
+Groups (trt)|k-1|SSGroup|MSGroup|F|p-value
+Error|n-k|SSError|MSError||
+Total|n-1|SSTotal|||
+
+- Calculation details are in  _OpenIntro Statistics_ (p. 246-256).
+- I won't expect you to calculate an ANOVA table by hand, but you should be able to identify the most important parts of the ANOVA table and what they tell us.
+
+---
+
+## Analysis of variance
+
+Source|df|Sums of Sq.|Mean Sq.|F-ratio|p-value
+---|---|---|---|---|---|---
+Groups (trt)|k-1|SSGroup|MSGroup|F|p-value
+Error|n-k|SSError|MSError||
+Total|n-1|SSTotal|||
+
+---
+
+## Analysis of variance
+
+```{r, echo=TRUE}
+results.teeth <- aov(failure_load~etch_time, data=tooth_etch)
+summary(results.teeth)
+```

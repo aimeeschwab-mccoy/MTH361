@@ -1,0 +1,575 @@
+---
+title: 'Ch. 6: Simple Linear Regression'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse
+
+# 6.1: Examining scatterplots
+
+- Looking for a trend
+
+--
+
+- Measuring a trend with correlation
+
+---
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=8, fig.height=5, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+library(oibiostat)
+library(mosaic)
+```
+
+## Relationships between variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Demographic and cardiovascular risk factors were collected as part of the Prevention of REnal and Vascular END-stage Disease (PREVEND) study in the Netherlands. Data from 4,095 participants who completed cognitive testing and were part of the study for the full 10 year period are in the `prevend` data set.
+]
+
+```{r, echo=TRUE}
+library(oibiostat)
+data(prevend)
+head(prevend)
+```
+
+---
+
+## Relationships between variables
+
+.bg-washed-blue.b--blue.ba.ph3[
+As adults age, cognitive function changes over time. The Ruff Figural Fluency Test (RFFT) is a measure of cognitive function that is designed to measure abilities like planning and multitasking. Scores range from 0 to 175 points. Is there a relationship between RFFT scores and age?
+]
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(tidyverse)
+prevend %>% ggplot(aes(x=Age, y=RFFT)) + geom_point(alpha=0.5) + labs(x='Age (years)', y='RFFT Score')
+```
+
+---
+
+## Correlation
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Correlation__: a measure of the strength and direction of the linear relationship between two numerical variables
+
+- Denoted $R$ or $r$
+
+- Correlation is bounded between -1 and +1
+]
+
+--
+
+![](https://www.quarkanalytics.com/public/img/blog/how-correlation-analysis-works/correlation.png)
+
+---
+
+## Correlation
+
+![](https://www.mathsisfun.com/data/images/correlation-examples.svg)
+
+--
+
+- The closer $\vert R \vert$ is to $\pm 1$, the stronger the relationship
+
+--
+
+- $R>0$ when there is a postive association
+
+--
+
+- $R<0$ when there is a negative association
+
+---
+
+## Correlation
+
+Correlation can be misleading...
+
+```{r, echo=FALSE}
+data(anscombe)
+
+data <- tibble(x=c(anscombe$x1, anscombe$x2, anscombe$x3, anscombe$x4), 
+               y=c(anscombe$y1, anscombe$y2, anscombe$y3, anscombe$y4),
+               group=c(rep(1, 11), rep(2, 11), rep(3, 11), rep(4, 11)))
+
+data %>% ggplot(aes(x=x, y=y)) + geom_point(aes(col=as.factor(group)), cex=2) + facet_wrap(~group) + guides(col=FALSE) 
+```
+
+---
+
+## Correlation
+
+```{r, echo=2}
+data <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/Datasaurus_data.csv")
+
+cor(data$x, data$y)
+```
+
+- This data set has a correlation very close to 0! What do you think it looks like?
+
+---
+
+## Correlation
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=x, y=y)) + geom_point()
+```
+
+---
+
+## Correlation
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(x=x, y=y)) + geom_point() + geom_smooth(method='lm')
+```
+
+---
+
+
+## Correlation
+
+__Takeaway point__:
+
+--
+
+- Strong correlations do not guarantee a linear relationship!
+
+--
+
+.bg-washed-red.b--red.ba.ph3[Always plot your data first]
+
+---
+
+## Correlation
+
+When we're working with a lot of numerical variables, it can be useful to calculate all pairwise correlations at once using a __correlation matrix__.
+
+--
+
+The PREVEND study is quite large! Let's look at correlations between just a few variables.
+
+- `VAT` is a visual association score.
+- `eGFR` is a measure of kidney function.
+- `FRS` (Framingham risk score) is risk of a cardiovascular event in the next ten years.
+
+```{r, echo=TRUE}
+prevend2 <- prevend %>% select(Age, RFFT, VAT, BMI, eGFR, FRS)
+cor(prevend2)
+```
+
+---
+
+## Correlation plot
+
+We can visualize the pairwise correlations in a __correlation plot__.
+
+```{r, eval=FALSE, warning=FALSE, message=FALSE, echo=TRUE}
+library(corrplot)
+matrix <- cor(prevend2)
+corrplot(matrix) #<<
+```
+
+---
+
+## Correlation plot
+
+We can visualize the pairwise correlations in a __correlation plot__.
+
+```{r, eval=TRUE, echo=FALSE}
+library(corrplot)
+matrix <- cor(prevend2)
+corrplot(matrix) #<<
+```
+
+---
+
+## Correlation chart
+
+Another option is to use a __correlation chart__. These plot the correlation _and_ the original data.
+
+```{r, echo=TRUE, eval=FALSE}
+library(PerformanceAnalytics)
+chart.Correlation(prevend2)
+```
+
+---
+
+## Correlation chart
+
+Another option is to use a __correlation chart__. These plot the correlation _and_ the original data.
+
+```{r, eval=TRUE, echo=FALSE}
+library(PerformanceAnalytics)
+chart.Correlation(prevend2)
+```
+
+---
+
+## Correlation
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Researchers conducted a study to examine associations between diet and blood plasma levels of beta-carotene and retinol. The data consists of 315 observations on 16 variables.
+]
+
+```{r, echo=TRUE}
+NutritionStudy <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/NutritionStudy.csv")
+names(NutritionStudy)
+```
+
+---
+
+## Correlation
+
+We might like to know (1) which variables are strongly correlated with blood plasma levels of beta-carotene and retinol, and (2) the nature of the relationship between these variables.
+
+Start with a correlation matrix. We need to first identify which rows contain numerical variables.
+
+```{r, echo=TRUE}
+Nutrition_Numerical <- NutritionStudy %>% 
+  select(Age, Quetelet, Calories, Fat, Fiber, Alcohol, 
+         Cholesterol, BetaDiet, RetinolDiet, BetaPlasma, 
+         RetinolPlasma)
+```
+
+---
+
+## Correlation
+
+```{r, echo=TRUE}
+Nutrition_Numerical %>% 
+  cor(use='complete.obs') %>% #<<
+  corrplot()
+```
+
+
+---
+class: inverse
+
+#s 6.2-6.3: Estimating and interpreting a regression line
+
+- Regression model: $y = \beta_0 + \beta_1 x$
+
+--
+
+- Interpreting regression coefficients
+
+--
+
+- Least squares estimation
+
+---
+
+## Linear regression model
+
+.def[
+__Linear regression model__: a simple way to model the relationship between an explanatory variable (X) and a response variable (Y) is with linear regression
+
+$$Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$$
+
+- $\beta_0$: y-intercept
+- $\beta_1$: slope
+
+]
+
+--
+
+Based on our data, we "fit" the linear regression model:
+
+$$\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$$
+
+- $\hat{\beta}_0$ and $\hat{\beta}_1$ are the fitted _regression coefficients_
+
+---
+
+## Linear regression model
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Researchers interested in how the human brain reacts to emotional stimuli recruited 16 couples in their mid-twenties who were married or had been dating for at least two years to participate in an experiment. The male partner's hand was zapped with an electrode while the female partner watched. As she watched, they measured the activity in several parts of the woman's brain that would respond to her own pain. They were looking for evidence of an "empathetic" response: that the female partner was sympathizing with how the male partner was feeling while being zapped. 
+
+Brain activity was recorded as a fraction of the activity observed when the woman herself was zapped with the electrode. The women also completed a psychological test that measured empathy. The data is saved as __BrainEmpathy.csv__.
+
+]
+
+```{r, warning=FALSE, message=FALSE}
+library(mosaic)
+BrainEmpathy <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/BrainEmpathy.csv")
+```
+
+---
+
+## Linear regression model
+
+Did the women who scored higher on the psychological test for empathy have stronger reactions in the brain to their partner's pain?
+
+1. Identify the repsonse and explanatory variable.
+2. Write the linear model.
+
+---
+
+## Linear regression model
+
+Is a linear regression model appropriate?
+
+```{r}
+head(BrainEmpathy)
+BrainEmpathy %>% cor()
+```
+
+---
+
+## Linear regression model
+
+Is a linear regression model appropriate?
+
+```{r}
+BrainEmpathy %>% ggplot(aes(x=Empathy, y=Brain_Activity)) + 
+  geom_point() + geom_smooth(method='lm', se=FALSE)
+```
+
+---
+
+## Linear regression model
+
+Write the fitted linear regression model.
+
+```{r}
+lm(Brain_Activity~Empathy, data=BrainEmpathy)
+```
+
+---
+
+## Predicted values
+
+For any value of $X$, we can predict or estimate $\hat{Y}$ using the fitted linear model:
+
+$$\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$$
+
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A new couple comes to participate in this experiment. The female partner scores an 82 on the empathy assessment. Predict her brain response to the shocks given to her male partner.
+]
+
+---
+
+## Residuals
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Residuals__: the difference between the predicted value and observed value in a regression model, also called the "error"
+
+$$e_i = \hat{Y}_i - Y_i$$
+]
+
+--
+
+- Sometimes our model will overpredict, sometimes it will overpredict. Models are never perfect!
+
+--
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Subject 2 had an empathy assessment score of 53, and a brain response of 0.392. Predict her brain response to the shocks given to her male partner, and calculate the residual.
+]
+
+---
+
+## Residuals
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: Subject 3 had an empathy assessment score of 41, and a brain response of 0.005. Predict her brain response to the shocks given to her male partner, and calculate the residual.
+]
+
+---
+
+## Least squares regression
+
+Linear regression models are typically fit using a technique called __least squares regression__. The optimal fitted line is chosen such that:
+
+1. The residuals sum to zero
+2. The residuals squared are minimized
+
+
+---
+class: inverse
+
+#s 6.3-6.4: Evaluting a regression model
+
+- Inference on $\beta_0$ and $\beta_1$
+
+--
+
+- Regression assumptions
+
+--
+
+- Evaluating a regression model
+
+---
+
+## Conditions for a linear model
+
+There are four conditions a linear regression model must satisfy:
+
+- __L__: $X$ and $Y$ must have a .blue[linear] relationship
+- __I__: The individual observations, and therefore residuals, must be .blue[independent]
+- __N__: The residuals must be .blue[normally] distributed with mean 0
+- __E__: The .blue[errors] must have constant variance
+
+---
+
+## Conditions for a linear model
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: How well does the linear model fit the brain empathy data?
+]
+
+```{r, echo=FALSE}
+BrainEmpathy %>% 
+  ggplot(aes(x=Empathy, 
+             y=Brain_Activity)) +
+  geom_point() + 
+  geom_smooth(method='lm', se=FALSE)
+```
+
+---
+
+## Conditions for a linear model
+
+```{r}
+model <- lm(Brain_Activity~Empathy, data=BrainEmpathy)
+summary(model)
+```
+
+---
+
+## Conditions for a linear model
+
+How do we know if our model is "significant"?
+
+```{r}
+summary(model)
+```
+
+---
+
+## Evaluating model conditions
+
+Use a scatterplot of the residuals against the fitted line to assess the assumptions of constant variance and independent residuals.
+
+- What you want to see: random variation above and below zero (grey dotted line) with no pattern or "runs"
+
+```{r, eval=FALSE}
+plot(model)
+```
+
+- _This code will produce a series of 4 plots, hit return to view all four._
+
+---
+
+## Evaluating model conditions
+
+![](ch17-image1.png)
+
+---
+
+## Evaluating model conditions
+
+Use a normal Q-Q plot to check whether the residuals are normally distributed
+
+- What you want to see: most dots close to the diagonal line, with maybe a few deviations at the end
+
+```{r, eval=FALSE}
+plot(model)
+```
+
+---
+
+## Evaluating model conditions
+
+![](ch17-image2.png)
+
+---
+
+## Outliers 
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Outlier__: a data point that stands out away from the pattern of the rest of data
+]
+
+Outliers can have a strong effect on the linear regression model.
+
+__Standardized residuals__: 
+
+$$\frac{e_i - \bar{e}}{s_e}$$
+
+Standardized residuals greater than 2 are unusual. A point with a standardized residual greater than three should definitely be considered an outlier. 
+
+- By the way, doesn't that look familiar?
+
+---
+
+## Outliers
+
+```{r}
+BrainEmpathy %>% 
+  ggplot(aes(x=Empathy, y=Brain_Activity)) + 
+  geom_point() + geom_smooth(method='lm') + 
+  geom_label(label=rownames(BrainEmpathy))  #<<
+```
+
+---
+
+## Extrapolation
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Extrapolation__: Using the regression line to predict beyond the range of observed data
+]
+
+--
+
+Extrapolation can be dangerous - there's no guarantee that a trend will continue!
+
+--
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: What would happen with a subject whose empathy score is 0?
+]

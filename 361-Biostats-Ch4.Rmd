@@ -1,0 +1,1017 @@
+---
+title: 'Ch. 4: Foundations for Statistical Inference'
+#subtitle: "<span style = 'font-size: 90%;'>Sections 1.1-1.3</span>"
+author: "MTH 361: Probability and Statistics in the Health Sciences"
+date: "Last updated: `r Sys.Date()`"
+#institute: '`r icon::fa("twitter")` AimeeSMcCoy <br> `r icon::fa("envelope")` aimeeschwab-mccoy@creighton.edu'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: ['left', 'middle', 'inverse']
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse
+
+# 4.1: Variability in estimates
+
+- Parameters and statistics
+
+--
+
+- Sampling distributions
+
+--
+
+- Standard error
+
+---
+
+
+```{css, include=FALSE}
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{r xaringan-setup, include=FALSE}
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo_accent(primary_color = "#0054a6",
+                 secondary_color = "#f1fffe",
+  header_font_google = google_font("Source Sans Pro"),
+  text_font_google = google_font("Source Sans Pro"))
+#xaringanExtra::use_logo(
+#  image_url = "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Creighton_University_seal.svg/1200px-Creighton_University_seal.svg.png"
+#)
+
+
+xaringanExtra::use_tachyons()
+
+xaringanExtra::use_tile_view()
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=6, cache=TRUE)
+
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+library(kableExtra)
+library(oibiostat)
+library(mosaic)
+
+xaringanExtra::use_webcam()
+xaringanExtra::use_fit_screen()
+```
+
+## Population parameters
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: The Centers for Disease Control (CDC) uses survey data to estimate features of health from samples of the US population. These surveys include...
+
+- National Health Interview Survey (NHIS)
+- National Health and Nutrition Examination Survey (NHANES)
+- Behavioral Risk Factor Surveillance System (BRFSS)
+
+]
+
+--
+
+These health features are, in statistical terms, population parameters.
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Population parameter__: a numerical summary of an entire population
+]
+
+---
+
+## Estimating population parameters
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: The BRFSS was established in 1984 to collect data using telephone interviews about health-related risk behaviors, chronic health conditions, and the use of preventative services. The BRFSS now reaches more than 400,000 households per year.
+
+The data set `cdc` contains a small number of variables from a random sample of 20,000 responses from the year 2000.
+]
+
+```{r}
+#cdc <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/cdc.csv")
+
+cdc <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/cdc.csv")
+
+head(cdc)
+```
+
+---
+
+## Estimating population parameters
+
+To illustrate the ideas of this section, we'll __pretend__ that the `cdc` data set reprsents the entire population of American adults.
+
+- `cdc` $\rightarrow$ population
+
+We'll take a random sample of 60 individuals, called `cdc.samp`, and use this to see how the techniques we learn about work in practice.
+
+```{r}
+data(cdc.samp)
+head(cdc.samp)
+```
+
+.red[
+In the "real world", we won't have access to the population data. __This is purely for illustrative purposes__. 
+]
+
+---
+
+## Variability in estimates
+
+A natural way to estimate the population parameter is to calculate the corresponding __sample statistic__.
+
+- Population mean $\rightarrow$ sample mean
+- Population standard deviation $\rightarrow$ sample standard deviation
+
+... and so on. 
+
+--
+
+But we have a problem, samples aren't perfect.
+
+---
+
+## Variability in estimates
+
+.pull-left[
+
+Here's the __"population" mean weight__, $\mu$, of adults in the 2000 BRFSS.
+
+```{r, echo=TRUE}
+mean(cdc$weight)
+```
+]
+
+--
+
+.pull-right[
+
+Now let's look at the __sample mean weight__, $\bar{x}$, of adults in the 2000 BRFSS.
+
+```{r, echo=TRUE}
+mean(cdc.samp$weight)
+```
+]
+
+--
+
+Close! But not exactly right. 
+
+--
+
+.red[
+How could we get a more accurate sample?
+]
+
+---
+
+## Variability in estimates
+
+What if we take some more samples?
+
+```{r, echo=TRUE}
+new.sample <- sample(cdc$weight, size=60)
+
+mean(new.sample)
+```
+
+--
+
+```{r, echo=TRUE}
+new.sample <- sample(cdc$weight, size=60)
+
+mean(new.sample)
+```
+
+--
+
+```{r, echo=TRUE}
+new.sample <- sample(cdc$weight, size=60)
+
+mean(new.sample)
+```
+
+---
+
+## Variability in estimates
+
+What if we wanted to generate _even more samples_?
+
+--
+
+![](https://media2.giphy.com/media/VtUrqIbEU2tuo/giphy.gif?cid=ecf05e478e763c900024d41e0e591c2ed67c657a466416e4&rid=giphy.gif)
+
+--
+
+"Off-screen", I generated 10,000 random samples of 60 observations each. (It sounds scary, but it wasn't hard!)
+
+.red[Before I show you the results, what do you think will happen?]
+
+---
+
+## Variability in estimates
+
+```{r, echo=TRUE}
+means <- do(10000)*mean(sample(cdc$weight, size=60))
+```
+
+```{r}
+means %>% 
+  ggplot(aes(x=mean)) +
+  geom_histogram(bins=20, fill='blue', col='black') + 
+  labs(title='Sample means from 10,000 randomly generated samples')
+```
+
+---
+
+## Variability in estimates
+
+The red line represents the population mean, $\mu=169.683$.
+
+```{r}
+means %>% 
+  ggplot(aes(x=mean)) +
+  geom_histogram(bins=20, fill='blue', col='black') + 
+  labs(title='Sample means from 10,000 randomly generated samples') + 
+  geom_vline(xintercept=mean(cdc$weight), col='red')
+```
+
+---
+
+## Variability in estimates
+
+What are the takeaway points?
+
+1. Random samples tend to, most of the time, produce sample statistics that are reasonably close to the population parameter.
+
+--
+
+2. Some samples are "unlucky": they may overestimate or underestimate the population parameter. (There aren't very many of those!)
+
+--
+
+3. The __distribution of the sample statistics__ (which has a very special name) has a symmetric, bell-shaped curve appearance.
+
+---
+
+## Sampling distribution
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Sampling distribution__: the probability distribution of all possible values of a sample statistic
+]
+
+- Every statistic has a sampling distribution, but we'll focus on $\bar{x}$ and $\hat{p}$ in this class
+
+--
+
+To describe a sampling distribution, we'll need to know three things:
+
+- Center (_mean_)
+- Variation (_standard error_)
+- Shape
+
+---
+
+## Standard error
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Standard error__: a measure of the sample-to-sample variability of the sample statistic
+
+- How far away we expect a "typical" sample statistic to be from the true population parameter
+]
+
+--
+
+- Standard error is the __standard deviation of the sampling distribution__.
+
+---
+
+## Sampling distribution of $\bar{x}$
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+The __sampling distribution of $\bar{x}$__ has:
+
+- Mean: $\mu$ 
+
+- Standard error: $SE_{\bar{x}} = \frac{s}{\sqrt{n}}$
+
+- Shape: Approximately normally distributed, as long as the sample size is "large enough" and the population distribution is not strongly skewed
+]
+
+--
+
+Sampling distributions provide the theoretical basis for __statistical inference__: learning about a population based on a sample.
+
+---
+
+## Two basic methods for inference
+
+We can use statistical inference to answer two types of research questions:
+
+.pull-left[
+
+Can we find a reasonable estimate or set of estimates for our population parameter?
+
+]
+
+--
+
+.pull-right[
+
+Has our population parameter increased/decreased/changed compared to some other value?
+
+]
+
+---
+
+## Two basic methods for inference
+
+We can use statistical inference to answer two types of research questions:
+
+.pull-left[
+
+__.blue[Can we find a reasonable estimate or set of estimates for our population parameter?]__
+
+]
+
+.pull-right[
+
+Has our population parameter increased/decreased/changed compared to some other value?
+
+]
+
+---
+class: inverse
+
+# 4.2: Confidence intervals
+
+- Interval estimates
+
+--
+
+- Confidence intervals: calculation and interpretation
+
+--
+
+- Margin of error
+
+---
+
+## Confidence intervals
+
+An __interval estimate__ consists of a range of values that, based on the sample data we've collected, are the most plausible or believeable values for the population parameter.
+
+--
+
+There are lots of techniques for constructing these interval-type estimates, but the easiest is to build a confidence interval.
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Confidence interval__: a range of the most plausible or believable values for the population parameter, based on a sample of data
+
+$$sample \ statistic \pm margin \ of \ error$$
+]
+
+---
+
+## Margin of error
+
+The __margin of error__ reflects how uncertain we are about the accuracy of our original sample statistic.
+
+- How much "wiggle room" do we want to add?
+
+--
+
+Another measure of the uncertainty of a random sample is the...
+
+--
+
+__Standard error__!
+
+
+$$Margin \ of \ error = \square \times SE$$
+
+---
+
+## Confidence interval for $\mu$
+
+Suppose we're interested in estimating the population mean, $\mu$. Based on the sampling distribution, we know that, _as long as our sample size is "large enough" and the population distribution isn't too skewed_, 
+
+__95% of random samples will be such that:__
+
+$$\mu - 1.96\times SE_{\bar{x}} < \bar{x} < \mu + 1.96\times SE_{\bar{x}}$$
+
+--
+
+With a bit of algebra, we get...
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Approximate 95% confidence interval for the mean__:
+
+$$\bar{x} \pm 1.96 \times SE_{\bar{x}}$$
+]
+
+
+---
+
+## Confidence interval for $\mu$
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: We know that, in the CDC data set, the overall mean population weight is $\mu = 169.683$. 
+
+Pretend we don't know that. How often will a confidence interval contain this value?
+]
+
+```{r, echo=TRUE}
+mean(cdc.samp$weight)
+sd(cdc.samp$weight)
+length(cdc.samp$weight)
+```
+
+---
+
+## Confidence interval for $\mu$
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: We know that, in the CDC data set, the overall mean population weight is $\mu = 169.683$. 
+
+Did we get lucky last time?
+]
+
+```{r, echo=TRUE}
+mean(new.sample)
+sd(new.sample)
+length(new.sample)
+```
+
+---
+
+## Confidence interval for $\mu$
+
+```{r}
+N <- 100
+results <- matrix(nrow=N, ncol=5)
+colnames(results) <- c('mean', 'sd', 'lower', 'upper', 'i')
+for(i in 1:N){
+  sample.sim <- sample(cdc$weight, size=60)
+  results[i,1] <- mean(sample.sim)
+  results[i,2] <- sd(sample.sim)
+  results[i,3] <- mean(sample.sim) - 1.96*sd(sample.sim)/sqrt(60)
+  results[i,4] <- mean(sample.sim) + 1.96*sd(sample.sim)/sqrt(60)
+  results[i,5] <- i
+  
+}
+
+results <-  as.data.frame(results)
+
+results <- results %>%
+  mutate(contains = ifelse(lower < 169.683 & upper > 169.683, TRUE, FALSE))
+
+results%>% ggplot(aes(x=i, y=mean)) + 
+  geom_point(aes(col=contains), pch=18) +
+  geom_point(aes(x=i, y=lower, col=contains), cex=0.5) + 
+  geom_point(aes(x=i, y=upper, col=contains), cex=0.5) + 
+  geom_segment(aes(x=i, y=lower, xend=i, 
+                   yend=upper, col=contains)) + 
+    guides(col=FALSE) + 
+  labs(x='Sample', y='Confidence interval')
+
+```
+
+---
+
+## Interpreting a confidence interval
+
+A confidence interval interpretation should go something like this...
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Based on our sample__, we are __95% confident__ that the __population parameter (in context)__ is between __(lower limit, upper limit)__.
+
+]
+
+---
+
+## Interpreting a confidence interval
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Interpret the first confidence interval you calculated for the population mean weight of US adults.
+]
+
+```{r, echo=TRUE}
+mean(cdc.samp$weight) + c(-1.96, 1.96)*sd(cdc.samp$weight)/sqrt(60)
+```
+
+
+
+---
+
+## Interpreting a confidence interval
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Body mass index (BMI) is one measure of body weight that adjusts for height. The national Health and Nutrition Examination Survey (NHANES) consists of a set of surveys and measurements conducted by the CDC to assess the health and nutritional status of adults and children in the US. The data set `nhanes.samp` contains 76 variables and is a random sample of 200 individuals from 2009-2010 and 2012-2013.
+
+Calculate and interpret a 95% confidence interval for adult BMI. Does this suggest that Americans tend to be overweight?
+]
+
+```{r, echo=TRUE}
+data(nhanes.samp)
+library(mosaic)
+favstats(~BMI, data=nhanes.samp)
+```
+
+---
+
+## Changing the confidence level
+
+$$\bar{x} \pm 1.96 \times SE_{\bar{x}}$$
+
+- Why 1.96?
+
+--
+
+What if we want to have a different confidence level - say 90%?
+
+- For a 90% confidence level, use $z=1.645$
+- For a 99% confidence level, use $z=2.58$
+
+For any other confidence level, use the standard normal distribution to find $z$ directly.
+
+---
+
+## Changing the confidence level
+
+```{r}
+N <- 10
+results <- matrix(nrow=N, ncol=9)
+colnames(results) <- c('mean', 'sd', 'lower_90', 'upper_90', 'i', 'lower_95', 'upper_95', 'lower_99', 'upper_99')
+i <- 1
+
+for(i in 1:N){
+    sample.sim <- sample(cdc$weight, size=60)
+    results[i,1] <- mean(sample.sim)
+    results[i,2] <- sd(sample.sim)
+    results[i,3] <- mean(sample.sim) - 1.645*sd(sample.sim)/sqrt(60)
+    results[i,4] <- mean(sample.sim) + 1.645*sd(sample.sim)/sqrt(60)
+    results[i,5] <- i
+    results[i,6] <- mean(sample.sim) - 1.96*sd(sample.sim)/sqrt(60)
+    results[i,7] <- mean(sample.sim) + 1.96*sd(sample.sim)/sqrt(60)
+    results[i,8] <- mean(sample.sim) - 2.58*sd(sample.sim)/sqrt(60)
+    results[i,9] <- mean(sample.sim) + 2.58*sd(sample.sim)/sqrt(60)
+
+}
+
+results <-  as.data.frame(results)
+
+results <- results %>%
+  mutate(contains_90 = ifelse(lower_90 < 169.683 & upper_90 > 169.683, TRUE, FALSE),
+         contains_95 = ifelse(lower_95 < 169.683 & upper_95 > 169.683, TRUE, FALSE),
+         contains_99 = ifelse(lower_99 < 169.683 & upper_99 > 169.683, TRUE, FALSE))
+
+results%>% ggplot(aes(x=i, y=mean)) + 
+  geom_point(pch=18) +
+  geom_segment(aes(x=i-0.1, y=lower_90, xend=i-0.1, 
+                   yend=upper_90, col=contains_90)) + 
+  geom_segment(aes(x=i, y=lower_95, xend=i, 
+                   yend=upper_95, col=contains_95)) + 
+  geom_segment(aes(x=i+0.1, y=lower_99, xend=i+0.1, 
+                   yend=upper_99, col=contains_99)) + 
+    guides(col=FALSE) + 
+  labs(x='Sample', y='Confidence interval')
+
+```
+
+---
+
+## Two basic methods for inference
+
+We can use statistical inference to answer two types of research questions:
+
+.pull-left[
+
+Can we find a reasonable estimate or set of estimates for our population parameter?
+
+]
+
+.pull-right[
+
+__.blue[Has our population parameter increased/decreased/changed compared to some other value?]__
+
+]
+
+---
+class: inverse
+
+# 4.3: Hypothesis testing
+
+- Outline of a hypothesis test
+
+--
+
+- Writing statistical hypotheses
+
+--
+
+- Making a conclusion based on p-values
+
+--
+
+- Types of error
+
+
+---
+
+## Hypothesis testing
+
+Hypothesis testing is a method for evaluating the evidence for/against a specific research claim based on a probability, called a p-value. There are four basic steps to this procedure:
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+
+__Four steps of a hypothesis test__:
+
+1. Write the null and alternative hypothesis
+2. Collect evidence from our sample and calculate a test statistic
+3. "Translate" the test statistic into a p-value
+4. Make a conclusion based on the p-value
+
+]
+
+--
+
+- Like with confidence intervals, there are many different "flavors". The basic structure of this doesn't change, just the details in the middle.
+
+---
+
+## Step 1: Write hypotheses  
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Null hypothesis__: a specific statement about the exact value of some population parameter
+]
+
+--
+
+- The null hypothesis represents an assumption or a skeptical statement about the population parameter, and always includes just a single value.
+- Denoted $H_0$
+
+---
+
+## Step 1: Write hypotheses  
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Alternative hypothesis__: a competing hypothesis, usually related to the research question in some way]
+
+--
+
+- Most often the alternative hypothesis is what the original research question hoped to show, prove, or find evidence for
+- Denoted $H_A$
+- Can be one-sided ("increased", "decreased") or two-sided ("changed")
+
+---
+
+## Step 1: Write hypotheses  
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: For the following alternative hypotheses: (1) determine whether it is one-sided or two-sided, and (2) state the corresponding null hypothesis.
+
+1. Patients who take phentermine and topiramate lose weight at a different rate than control patients without these drugs.
+2. Artesunate is less effective than quinine at treating children with severe malaria.
+3. Cities that do not have safe-injection sites for drug addicts have higher rates of HIV transmission than cities that do have safe-injection sites.
+]
+
+
+---
+
+## Step 1: Write hypotheses  
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Drug maker GlaxoSmithKline (GSK) investigated the potential impact of its oral anti-diabetic drug Avandia on the blood lipid levels of adult diabetics who might benefit from taking Avandia. They were particularly concerned that LDL, "bad" cholesterol, levels might increase. Write the null and alternative hypothesis for their test.
+]
+
+---
+
+## Step 2: Calculate the test statistic
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Test statistic__: a number calculated from the sample data that is used to evaluate how far the data we've observed are from the result expected assuming the null hypothesis is true.
+]
+
+--
+
+- We know by now that data does not always reflect the population but we also know that a large enough random sample is (typically) pretty close.
+
+- This changes depending on the type of variable we're interested in and the assumptions we're willing to make
+
+---
+
+## Step 2: Calculate the test statistic
+
+Usually, the test statistic follows this form:
+
+$$test \ statistic=\frac{statistic-expectation}{standard \ error}$$
+
+As we'll see, the choice of test statistic depends on two things.
+
+- The type of data we're analyzing
+- The assumptions we're willing to make
+
+Different parameters and assumptions will change the test statistic from one hypothesis test to another.
+
+---
+
+## Step 3: Calculate the p-value
+
+It's useful to translate the test statistic into another measurement that's _consistent for all types of hypothesis tests_.
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__p-value__: the probability of observing a sample statistic as or more extreme as the data we have observed, assuming the null hypothesis is true
+]
+
+--
+
+The $p$-value is not the probability that the null hypothesis is true!
+
+- Depending on the scenario we're interested in, how we calculate the $p$-value will change. For now, we'll focus on making decisions using a $p$-value.
+
+---
+
+## Step 4: Make a conclusion
+
+.bg-washed-red.b--red.ba.ph3[
+If the p-value is "small", we reject the null hypothesis.
+]
+
+Why?? 
+
+--
+
+Assuming the null hypothesis is true, the probability of observing a sample statistic as or more extreme as ours is very low. Which explanation is more reasonable?
+
+--
+
+1.	Our sample data is extremely unusual or unlikely, and the null hypothesis is still true.
+
+--
+
+2.	Our sample data is typical, and the null hypothesis is not plausible.
+
+
+---
+
+## Step 4: Make a conclusion
+
+.bg-washed-red.b--red.ba.ph3[
+If the p-value is "large", we fail to reject the null hypothesis.]
+
+Why?? 
+
+--
+
+This doesn't imply that the null hypothesis is true!
+
+--
+
+- It does imply that the data we observed is consistent with what would happen IF the null hypothesis were true.
+
+--
+
+- How "small" is small? How "large" is large?
+
+---
+
+![](https://imgs.xkcd.com/comics/p_values.png)
+
+---
+
+## Step 4: Make a conclusion
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Significance level__: a predetermined value that we compare the p-value to
+
+If the $p$-value is $<\alpha$, we will reject the null hypothesis.
+
+]
+
+- This means that we have "strong enough" evidence to conclude the null hypothesis is false.
+
+---
+
+## Step 4: Make a conclusion
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+If the $p$-value is $>\alpha$, we will fail to reject the null hypothesis.
+]
+
+- This means that we do not have enough evidence to reject the null hypothesis, and that this assumption is, in fact, a plausible value for the population parameter.
+
+--
+
+Most disciplines will use $\alpha=0.5$ by default, and that a p-value must be below 0.05 to be "statistically significant". 
+
+--
+
+For us, the decision is a little more complicated:
+
+1. How strong is the evidence from the p-value?
+2. How trustworthy is the sample?
+3. What are the consequences of being wrong?
+
+---
+
+## Step 4: Make a conclusion
+
+When you're summarizing the results of any hypothesis test, three things should always be included.
+
+1.	The decision (reject $H_0$ or fail to reject $H_0$).
+
+--
+
+2.	The rationale for the decision (test statistic and $p$-value, most researchers will parenthesize these or put them in a table).
+
+--
+
+3.	An interpretation of the decision in context. What are the practical implications? How can you answer the research question based on this hypothesis test?
+
+
+---
+
+## Hypothesis testing
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: A BMI in adults of 25.0 or greater is considered overweight. Based on the data from the NHANES sample, is there strong enough evidence to show that the population mean BMI for American adults is greater than 25.0?
+]
+
+```{r, echo=FALSE}
+nhanes.samp %>% ggplot(aes(x=BMI)) + 
+  geom_histogram(bins=20, 
+                 fill='lightblue', 
+                 col='black')
+```
+
+---
+
+## Hypothesis testing
+
+Write the null and alternative hypothesis, and calculate the test statistic.
+
+```{r, echo=TRUE}
+favstats(~BMI, data=nhanes.samp)
+```
+
+---
+
+## Hypothesis testing
+
+Identify the p-value, and write a conclusion for the test.
+
+```{r, echo=TRUE}
+t.test(~BMI, 
+       mu=25, 
+       alternative='greater', 
+       data=nhanes.samp)
+```
+
+---
+
+## Hypothesis testing
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: While fish and other types of seafood are important for a healthy diet, nearly all fish and shellfish contain traces of mercury. Dietary exposure to mercury can be dangerous for young children and unborn babies. The general consensus is that fish with levels above 0.5 ppm should not be consumed. A study of mercury levels for saltwater fish caught of the New Jersey coast found that a sample of 23 bluefin tuna had a mean mercury level of 0.54 ppm, with standard deviation 0.15 ppm.
+]
+
+```{r, echo=FALSE}
+set.seed(361)
+bluefin_tuna <- tibble(mercury = rnorm(n=23, mean=0.52, sd=0.16))
+```
+
+---
+
+## Hypothesis testing
+
+Write the null and alternative hypothesis, and calculate the test statistic.
+
+```{r, echo=TRUE}
+favstats(~mercury, data=bluefin_tuna)
+```
+
+---
+
+## Hypothesis testing
+
+Identify the p-value, and write a conclusion for the test.
+
+```{r, echo=TRUE}
+t.test(~mercury, 
+       mu=0.5, 
+       alternative='greater', 
+       data=bluefin_tuna)
+```
+
+---
+
+## Types of errors
+
+There are four possible outcomes in every hypothesis test. Two outcomes result in a "correct decision"... but the other two outcomes result in an "error".
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Type 1 Error__: Rejecting the null hypothesis when it is actually true
+
+__Type 2 Error__: Failing to reject the null hypothesis when it is actually false
+]
+
+
+---
+
+## Types of errors
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A patient was diagnosed with fibromyalgia, a long-term syndrome of body pain, and was prescribed anti-depressants. Being a skeptic, the patient didn't initially believe that anti-depressants would help her symptoms. However, after a couple months she decides the anti-depressants must be working, because she feels like her symptoms are getting better.
+
+1. What is a Type 1 error?
+2. What is a Type 2 error?
+]
+
+---
+
+## Types of errors
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A pharmaceutical company manufactures aspirin tablets that are sold with the label "active ingredient: aspirin 325 mg".  A random sample of 100 aspirin tablets had $\bar{x}=326.9$ mg and $s=3.1$ mg. Use a hypothesis test to determine whether there is evidence that the mean amount of aspirin is more than stated on the label.
+]
+
+---
+
+## Types of errors
+
+Use a hypothesis test to determine whether there is evidence that the mean amount of aspirin is more than stated on the label.
+
+```{r, message=FALSE, warning=FALSE}
+library(BSDA)
+tsum.test(mean.x=326.9, s.x=3.1, n.x=100, 
+          alternative='greater', mu=325)
+```
+
+---
+
+## Types of errors
+
+.bg-washed-blue.b--blue.ba.ph3[
+__Example__: A pharmaceutical company manufactures aspirin tablets that are sold with the label "active ingredient: aspirin 325 mg".  A random sample of 100 aspirin tablets had $\bar{x}=326.9$ mg and $s=3.1$ mg. What are the consequences of Type 1 and Type 2 errors in this scenario? Which is "worse"?
+]
+
+---
+
+## Adjusting for errors
+
+- We can never prevent these errors but we can take steps to control them! For example, we can set the significance level $\alpha$ to be very small if we'd like to control for Type 1 Error.
+
+--
+
+- The probability of a Type 2 Error can be controlled by choosing a statistical method with high power. 
+
+--
+
+.bg-washed-yellow.b--yellow.ba.ph3[
+__Power__: probability that a random sample taken from a population will lead to a correct rejection of a false null hypothesis
+]
+
+- A test with high power will have a low probability of a Type 2 Error.
+
+---
+
+## Types of errors
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: Belsomra is a drug prescribed for insomnia. A randomized, placebo-controlled clinical trial found that patients assigned to take Belsomra for three months fell asleep 35 minutes faster, on average, than they did before the study -- a statistically significant improvement.
+
+- Would you consider an __effect size__ of falling asleep 35 minutes sooner important in the context of patients suffering from insomnia? Explain why or why not.]
+
+---
+
+## Types of errors
+
+.bg-washed-blue.b--blue.ba.ph3[
+
+__Example__: By contrast, patients assigned to take a placebo for three months fell asleep 27 minutes faster than they did originally -- also statistically significant. The difference between taking Belsomra and taking a placebo was, on average falling asleep 8 minutes faster with Belsomra.
+
+- Would you consider an effect size of 8 minutes important in the context of patients suffering from insomnia? Explain why or why not.
+- Explain why this result occurred.]
