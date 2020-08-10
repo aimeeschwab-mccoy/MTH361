@@ -1,0 +1,306 @@
+---
+title: 'MTH 361: Probability and Statistics in the Health Sciences'
+author: "Syllabus: Fall 2020"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  html_document:
+      toc: TRUE
+      toc_depth: 2
+      toc_float: TRUE
+      css: style_MTH361.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+```
+
+## Instructor contact information
+
+- Aimee Schwab-McCoy, Ph.D
+-	Email: aimeeschwab-mccoy@creighton.edu
+-	Office location: Hixson-Lied 545
+
+## Course meetings
+
+-	TR 9:30-10:45 am
+- Zoom (https://creighton.zoom.us/my/aimeeschwabmccoy).
+
+__This course is considered by the university to be a Remote Instruction (SD300) course. Instructors and students meet synchronously using digital technology (e.g., Zoom) at the scheduled times according to the schedule of classes. No room is assigned. This option is reserved for (a) large courses for which a hybrid social-distance modality cannot be implemented, (b) courses with individuals who have additional health risks or (c) courses in which the learning objectives can be met with a technology-mediated pedagogy.__ 
+
+## "Online" hours
+
+Regular weekly "online" hours will be held:
+
+Day|Time
+---|---
+Wednesday|12:30-2:30 pm
+Friday|12:30-2:30 pm
+
+This semester, all traditional office hours will be held via Zoom (
+https://creighton.zoom.us/my/aimeeschwabmccoy). Online hours do not require an appointment! I will be online, at my computer, with Zoom open. Drop in, ask questions, say hi! Show me your Animal Crossing islands. `r emo::ji("leaf")`  
+
+Appointments outside these time slots may be made through email at least 24 hours in advance. Any changes to regular office hours will be posted on BlueLine.
+
+## Course description and objectives
+
+This course covers topics in probability and statistics considered useful to those students planning on a career in the health sciences. The topics covered include probability principles and distributions in health sciences, types of epidemiological study designs, estimation of medical parameters in defined patient populations, tests of hypotheses, measures and analysis of treatment of the sick, analysis of variance, methods of medical outcome prediction, and prospective, retrospective, and cross-sectional studies of disease occurrence.
+
+A primary goal of this course is to develop your statistical literacy skills. Gal (2002) wrote that statistical literacy is achieved by developing two capabilities:
+
+1.	An ability to interpret and critically evaluate statistical information within diverse contexts.
+2.	The capacity to discuss and communicate the interpretation and evaluation of statistical information.
+
+### Creighton learning objectives
+
+MTH 361 addresses the following learning objectives from the Magis Core Curriculum, Data Science Major, and Mathematics Department:
+
+1. __Mathematical and Statistical Models__ (Data Science Major): Students will... 
+
+    a) use exploratory and graphical techniques to propose statistical models, 
+    b) demonstrate an understanding of basic statistical estimation and inference, 
+    c) use simulation and resampling to explore and evaluate statistical models, 
+    d) apply statistical models, algorithmic models, supervised models, and unsupervised models, 
+    e) evaluate the performance and fit of a model to a data set, and 
+    f) use probability as a foundation for modeling and computation.
+    
+2. __Professional Data Science Skills__ (Data Science Major): Students will... 
+
+    a) demonstrate effective logical and critical thinking skills, 
+    b) collect, prepare, and curate data from a variety of sources,
+    c) communicate technical ideas in written, oral, and visual forms, and 
+    d) recognize and evaluate the power and limits of data and its analysis techniques.
+
+3.  __Interpreting Quantitative Information__ (Designated Statistical Reasoning, Magis Core): Students will interpret and present quantitative information verbally, mathematically, statistically, and graphically.
+4. __Applying Technology to Solve Quantitative Problems__ (Designated Statistical Reasoning, Magis Core): Students will apply appropriate technology, quantitative tools and logical modes of thinking to analyze and synthesize information in problem solving situations.
+5. __Using Technology for Research__ (Designated Technology, Magis Core): Students will use technology effectively for research, analysis, communication, and collaborative work.
+6. __Dangers of Technology__ (Designated Technology, Magis Core): Students will recognize that technology and the digitization of knowledge are powerful tools and will identify potential dangers concerning reliability, privacy, security, and equity.
+7. __Communication in Mathematics__ (Mathematics): The ability to communicate effectively in both oral and written forms while applying their mathematical skills. Students will learn the basic language of proof and counterexample. Students will organize and present significant ideas and calculations in written form.
+8. __Breadth and Depth__ (Mathematics): Students will develop an awareness of the breadth and depth of mathematics. This will include an awareness of historical and contemporary contexts in which mathematics is practiced. They will develop critical perspectives of the inherent limitations of the discipline.
+
+### Magis Core Curriculum
+
+MTH 361 satisfies the __Designated Statistical Reasoning__ and __Designated Technology__ requirements of the Magis Core Curriculum. A modern statistics course needs technology to be successful. Students taking MTH 361 are expected to analyze data in the R/RStudio programming environment on homework assignments, in-class group work, and projects. Students use R to analyze real data sets and explore the effectiveness of statistical methods through simulation studies. Students also learn about the importance of reproducible research, openness in medical research, and biases in medicine.
+
+__Mission__: The content of this course contributes directly to the development of student’s understanding of the scientific process and a mathematical concept in statistical theory and applications to the health sciences. It examines applications of statistics that can inform decisions related to almost any modern models of trends, such as those in the sciences, the social sciences, and business. Without an effective understanding of the world’s condition, and an ability to model the impacts of future activities, the ability to improve the human condition would be significantly compromised. Thus, the course fits into the long-standing Jesuit education tradition, which includes a study of the natural sciences and mathematics as a key component of a student’s education. More specifically, by developing a deeper understanding of our statistically-oriented world, the course will support student’s search for truth, a personal and societal goal that is one of the central elements of Ignatian philosophy. 
+
+__Core__: The entire course is devoted to statistical reasoning, which is exactly what the statistical designation is demanding. This includes the use of inferential statistics, such as confidence interval analysis and hypothesis testing, studying a virtual sample population to understand its underlying characteristics. This specifically addresses the objective to “analyze and synthesize information in problem solving situations.”
+
+### CURAS Undergraduate Research Certificate
+
+MTH 361 satisfies two core focus areas of the CURAS Certificate in Undergraduate Research and Scholarship:
+
+- __Area 3__: Statistical Analysis for Research & Scholarship
+- __Area 6__: Dissemination of Research or Scholarly Projects
+
+
+## Course materials and resources
+
+BlueLine will be your main resource for class notes, lecture videos, data sets, software resources, and assignments. You should expect an announcement every Monday letting you know what's due over the next week, and what material we will be covering.
+
+The required book for this course is listed below. All students should have access to either a physical or e-copy of the textbook.
+
+- Vu and Harrington, __Introductory Statistics for the Life and Biomedical Sciences__ (Preliminary Edition - 2020). ISBN-13: 978-1943450114
+
+The textbook is available as a free PDF from the OpenIntro project page: 
+
+https://www.openintro.org/book/biostat/
+
+Copies may be purchased from the usual online retailers for under $10. 
+
+![](https://images-na.ssl-images-amazon.com/images/I/41NysQvGVUL._SX385_BO1,204,203,200_.jpg)
+
+- Please note that this is __not__ the same as the textbook on order with the Creighton Bookstore. Long story short - this was released after textbook orders were due. Apologies for the inconvenience.
+
+## Course format and organization
+
+For this semester, we’ll be using a flipped class format. This means I’ll provide you with pre-recorded lecture videos for you to watch on your own time. (Just make sure you watch them in advance of the date listed on the BlueLine calendar!) Our scheduled virtual class meetings will consist of practice problems, review, and interactive lab activities. Each virtual class meeting will be recorded for those unable to attend.
+
+Each week in MTH 361 will, for the most part, look something like this:
+
+```{r, eval=FALSE, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('Fall2020_FlowDiagram.png')
+```
+
+```{r, eval=TRUE, message=FALSE, warning=FALSE}
+library(DiagrammeR)
+grViz("digraph {
+  
+graph[layout = dot, rankdir = LR]
+
+node [shape = rectangle, style = filled, fillcolor = LightBlue]
+node[fontname = 'helvetica', width = 1.5, height = 0.5]
+
+videos [label = 'Monday: \n Watch lecture videos \n at home', fillcolor = '#FBB4AE']
+lab_a [label = 'Tuesday: \n Complete Lab Activity #a  \n in-class and submit \n exercise (due at 11:59 pm)', fillcolor = '#B3CDE3']
+lab_b [label = 'Thursday: \n Complete Lab Activity #b  \n in-class and submit \n exercise (due at 11:59 pm)', fillcolor = '#CCEBC5']
+homework [label =  'Sunday: \n Submit homework assignment \n (due at 11:59 pm)', fillcolor = '#DECBE4']
+
+videos -> {lab_a lab_b} -> homework
+}")
+```
+
+
+## Course assessment 
+
+Your grade in MTH 361 will contain the following components.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+grades <- tribble(
+  ~category,  ~percent,
+  "Homeworks", 40,
+  "Lab activities", 20,
+  "Midterm exam", 12.5,
+  "Final exam", 15,
+  "Semester project", 12.5
+)
+
+grades$category <- fct_relevel(grades$category, 'Homeworks', 'Lab activities', 'Midterm exam', 'Final exam', 'Semester project')
+
+grades$location <- rep(1, 5)
+
+library(RColorBrewer)
+pal <- brewer.pal(5, 'Pastel1')
+
+grades %>% ggplot(aes(x=location, y=percent)) +
+  geom_col(aes(fill=category), col='black') + 
+  guides(fill=FALSE) + 
+  geom_text(aes(x=rep(1, 5), 
+                label=c('Lab activities (20%)', 
+                        'Homeworks (40%)', 
+                        'Midterm exam (12.5%)', 
+                        'Final exam (15%)',
+                        'Semester project (12.5%)'), 
+                y=c(50, 80, 33.5, 20, 6.25))) + 
+  labs(x='', y='Cumulative percent') + 
+  theme(axis.text.x = element_blank()) +
+  scale_fill_manual(values=pal)
+
+```
+
+1. Lab activities (20%): In place of traditional lecture, we'll complete a series of worksheets and lab activities as a group during our virtual class meetings. At the end of each class, students will submit responses to one of the lab questions in BlueLine. Responses will be due the day of class at 11:59 pm. Lab activities will be graded on a combination of completeness and correctness.
+2. Homeworks (40%): Homework will be collected approximately once a week. All answers must be readable and neatly written. Students should show their work for complete credit on homeworks. Where applicable, supporting R code should also be provided. Homeworks will be due at 11:59 pm on the due date.
+3. Midterm Exam (12.5%): There will be one Midterm Exam in this course, which will be available in BlueLine from October 3-5. Exam dates will not change, but coverage will depend on our progress in the course. 
+4. Final Exam (15%): The Final Exam will be on Wednesday, November 25. The Final Exam will be cumulative, and cover all material from the semester. Like the Midterm, the Final Exam will be administered in BlueLine.
+5. Semester Project (12.5%): Students will complete a project showcasing their data visualization and statistical analysis skills on a data set of their choosing. More instructions will be available later in the semester.
+
+All assignments must be readable, and when appropriate, all work must be shown to receive credit. To prevent lost papers and emails, all work must be submitted in BlueLine.
+
+## Late policy
+
+Deadlines must be set to help keep you on track with assignments and the overall course load. They also allow me to help you get feedback in a timely manner. But these are some weird times, and there's enough stress in the world. If you need an extension, a quick email before 11:59 pm on the due date will suffice (within reason - no deadlines will be pushed more than a week unless absolutely necessary). You don't need to tell me why, but you are welcome to do so.
+
+This policy does not apply to exams, which must be completed during the assigned window unless other arrangements have been made _before_ the window opens.
+
+Adjustments to this policy may be made in emergency circumstances or should pandemic conditions worsen.
+
+## Course grade 
+
+Final course grades will be determined according to the following scale.
+
+Letter Grade|Weighted Score
+---|---
+A|93-100%
+A-|90-92.99%
+B+|87-89.99%
+B|83-86.99%
+B-|80-82.99%
+C+|77-79.99%
+C|73-76.99%
+C-|70-72.99%
+D|60-69.99%
+F|<59.99%
+
+The grade cutoffs may be shifted _downward_ at the end of the semester based on student performance (never upward).
+
+
+## Class preparation 
+
+Students should come to each virtual class meeting prepared to write and talk intelligently about the material. This means watching all required videos or reading all required materials before class. The assignments will require thought and analysis, which cannot be had in 15 minutes or less. Give yourself adequate time to read carefully, to think and reflect, to sleep on it, then maybe glance it over before class.
+
+## Computing and software 
+
+Computing is an essential part of modern statistical practice. We will be using the open-source statistical computing language R and user interface program RStudio to graph probability distributions, calculate probabilities, demonstrate theoretical results, and investigate complex problems. 
+
+## Creighton student technology requirement
+
+All Creighton University students are required to have a laptop computer that meets or exceeds the below requirements. Any additional program/course-specific hardware or software requirements are listed in course syllabi. 
+
+PC|Mac
+---|---
+OS: Windows 10|	OS: High Sierra
+Memory: 8 GB|	Memory: 8 GB
+
+[More details about the student technology requirement and software downloads can be found here.](https://www.creighton.edu/node/170088)
+
+In case of technical issues, students may check out laptops from Reinert-Alumni Memorial Library.
+
+
+## Attendance policy 
+
+__Students are highly encouraged, but not required to attend virtual classes__. Especially in a flipped classroom, success relies on engagement with me, each other, and the material. That being said, __if you are unable to attend a virtual meeting, plan to watch the recording at home to catch up__. You do not owe me an explanation or detailed health information, but you are _welcome_ to chat with me about your absence. If I can't help, I can probably get you in touch with someone who can.
+
+If you are sick, please do not come to campus. In the event of illness (fever/chills, shortness of breath, headache, sore throat, lack of taste/smell, etc.) please register your condition with the COVID-19 Screening App CampusClear and notify the instructor. __Even if you can’t attend class, you won’t fall behind__. Students who must miss class for a protracted period of time (or even just a day) due to illness or self-quarantining due to COVID-19 exposure will be able to engage the course material online. 
+
+### COVID-19 symptoms
+
+COVID-19 affects different people in different ways. Infected people have had a wide range of symptoms reported – from mild symptoms to severe illness.
+
+Symptoms may appear 2-14 days after exposure to the virus. People with these symptoms may have COVID-19:
+
+- Fever or chills
+- Cough
+- Shortness of breath or difficulty breathing
+- Fatigue
+- Muscle or body aches
+- Headache
+- New loss of taste or smell
+- Sore throat
+- Congestion or runny nose
+- Nausea or vomiting
+- Diarrhea
+
+__If you or anyone whom you have been in close contact with is exhibiting symptoms of COVID-19, please do not come to campus. Symptoms and known exposures should be reported to CoronavirusResponse@creighton.edu.__
+
+## Cancellation of class 
+
+Generally speaking, if the University is open, you can expect class to meet. But, should we have to cancel class for inclement weather or due to illness, an announcement will be made at least 45 minutes before the start of class via (1) email to the entire class and (2) a posted announcement on BlueLine. If an assignment is scheduled for that day, the new due date will be included in the message. The University Weather Hotline is 402-280-5800.
+
+Rarely, it may be necessary to cancel a class on rather short notice. In that case, the procedure above will be followed or another professor will make an announcement at the start of class. In this case, assignments will not be cancelled or postponed.
+
+## Academic honesty and misconduct
+
+This course is governed by the Policy on Academic Honesty of the College of Arts and Science. The CCAS policy on academic honesty can be found at the link below.
+
+https://www.creighton.edu/fileadmin/user/CCAS/curriculum/CCAS_Academic_Honesty_Policy_.pdf
+
+You are encouraged to work together on homework assignments and in-class activities, but all work you submit must be your own (unless the assignment specifically states otherwise). A first act of academic dishonesty will result in a score of zero on the item in question. A subsequent offense will result in an F for the course. Students should consult the Academic Honesty Procedures if they have any questions.
+
+Learning takes place in the face to face and virtual classrooms through a variety of means, including lectures, discussions, activities, etc. For learning to take place, these environments need to be a safe space. As part of that safe space, we should speak respectfully to and with each other. That is not to suggest that any of us will never misspeak. To learn from these conversations, we need to ensure that what happens in our face to face and virtual classrooms stays in the classroom. For this reason all course materials, including handouts, problem sets (and solutions), and lecture and discussion materials (slides, videos, lecture and discussion recordings, etc.) that are posted on the course BlueLine site are considered to be copyrighted and are intended to be used only by students enrolled in that class, for the purposes of fulfilling the course objectives. 
+
+Only the instructor may record common class sessions. Only the instructor may distribute any and all recorded materials, including individual student discussion posts. Sharing any of these materials with others outside of the course will be considered "misuse of academic resources," as defined in the Creighton University Student Handbook as an act of academic misconduct, and students can be penalized, up to and including failure of the course. This includes actions such as posting course material on "homework help" websites, or sharing solutions with students in another course or section. Students may however store their work in a personal online repository such as GitHub, provided that references to a particular course/assignment are removed.
+
+In the case of recorded live lecture and discussion material, students should be aware that recording may continue during class breaks. Therefore, private conversations should be held elsewhere in order to avoid inadvertent recording.
+
+## Important university dates
+
+Date|Event
+---|---
+August 17 (Mon)|Fall semester begins.
+August 21 (Fri)|Last day for registration, adding courses.
+August 26 (Wed)|Last day to drop individual courses from schedule.
+September 7 (Mon)|Labor Day Holiday. No classes.
+September 11 (Fri)|Last day to apply for Pass/No Pass status. Last day to change from credit to audit.
+October 15 (Thurs)|Last day to file online Degree Application for December degree conferral.
+October 28 (Wed)|Last day to withdraw from courses with a grade of "W".
+November 17 (Tues)|Last day of classes.
+November 18 (Wed)|Reading Day. No classes.
+November 19-20; 23-25|Final semester examinations.
+December 12 (Sat)|December degree conferral date.
+
+## Force majeure policy
+
+Creighton University may modify, suspend, or postpone any and all activities and services immediately and without notice because of force majeure causes beyond Creighton’s control and occurring without its fault or negligence including, but not limited to, acts of god, fire, war, governmental action, terrorism, epidemic, pandemic, weather, national emergencies, or other threats to the safety of students or staff. Creighton may, at its option, alter the academic schedule or provide alternate instruction modalities to meet course objectives and competencies and program outcomes, including, but not limited to, distance or remote learning, until such time as Creighton determines normal operations may resume safely.
+
+In the event of a disruption of normal classroom activities due to emergencies such as a disease outbreak the format for this course may be modified to enable completion of the course. In that event, you will be provided an addendum to this syllabus that will supersede this version.
