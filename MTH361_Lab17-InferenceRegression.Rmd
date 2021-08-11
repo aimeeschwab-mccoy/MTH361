@@ -1,0 +1,280 @@
+---
+title: 'Lab 17: Inference in Regression'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Introduction
+
+## Categorical predictors with two levels
+
+Although the response variable in linear regression is necessarily numerical, the predictor variable may be either numerical or categorical. Simple linear regression only allows for categorical predictors with two levels; examining categorical predictors with more than two levels requires multiple linear regression.
+
+Fitting a simple linear regression model with a categorical predictor that has two levels is analogous to comparing the means of two groups, where the groups are defined by the categorical variable. The equation of the regression line has intercept $\beta_0$, which equals the mean of one of the groups, and slope $\beta_1$, which equals the difference in means between the two groups.\footnote{The group for which $\beta_0$ is the mean is usually referred as the \textit{baseline} group or \textit{reference} group.}
+
+\vfill
+
+## Inference in regression
+
+When conducting inference in a regression context, observed data $(x_i, y_i)$ used for fitting a regression line are assumed to have been randomly sampled from a population where the explanatory variable $X$ and response variable $Y$ follow a population model
+
+\[Y = \beta_0 + \beta_1X + \epsilon, \]
+
+where $\epsilon \sim N(0, \sigma)$. Under this assumption, the intercept and slope of the regression line, $\hat{\beta}_0$ and $\hat{\beta}_1$, are estimates of the population parameters $\beta_0$ and $\beta_1$.
+
+Hypothesis tests and confidence intervals for regression population parameters have the same basic structure as tests and intervals about population means. Inference is usually done about the slope, $\beta_1$. Under the null hypothesis, the variables $X$ and $Y$ are not associated; $H_0: \beta_1 = 0$. Under the alternative hypothesis, the variables $X$ and $Y$ are associated; $H_1: \beta_1 \neq 0$.
+
+\vfill
+
+\pagebreak
+
+# Obesity and diabetes
+
+Obesity is known to be a leading risk factor for diabetes. The following questions step through exploring the association between BMI (`BMI`) and presence of diabetes (`DM`) in a random sample of $n = 500$ individuals from the PREVEND data.
+
+```{r}
+library(tidyverse)
+library(oibiostat)
+
+data(prevend.samp)
+```
+
+1. What proportion of individuals in `prevend.samp` have diabetes? Presence of diabetes is coded as `DM=1` and absence is coded as `DM=0`.
+
+\vfill
+
+```{r}
+prevend.samp %>% 
+  group_by(DM) %>%
+  summarize(n=n())
+```
+
+2. The plots below show the association between BMI and presence of diabetes. Based on the plots, comment briefly on the nature of the association.
+
+\vfill
+
+```{r, echo=FALSE}
+library(patchwork)
+library(colorblindr)
+p1 <- prevend.samp %>% ggplot(aes(group=as.factor(DM), y=BMI)) + 
+  geom_boxplot(aes(fill=as.factor(DM))) + 
+  labs(fill='Diabetes') + 
+  scale_fill_OkabeIto()
+
+p2 <- prevend.samp %>% ggplot(aes(x=DM, y=BMI)) + 
+  geom_point() + 
+  geom_smooth(method='lm', se=FALSE)
+
+p1 + p2
+```
+
+\pagebreak
+    
+3. Describe distribution of BMI for diabetic individuals and individuals without diabetes using the summary statistics. (Your description should mention the center and spread of the data.)
+
+\vfill
+
+```{r}
+library(mosaic)
+favstats(~BMI|DM, data=prevend.samp)
+```
+
+
+
+4. The code chunk on the next page fits a linear model to predict BMI based on whether or not someone has diabetes.
+
+    a) Write the fitted linear model.
+    
+    \vfill
+    
+    b) Find the predicted value of BMI for someone with diabetes (`DM=1`).
+    
+    \vfill
+    
+    c) Find the predicted value of BMI for someone without diabetes(`DM=0`).
+    
+    \vfill
+    
+    d) Where have you seen your predicted values before?
+    
+    \vfill
+
+\pagebreak
+    
+```{r}
+model <- lm(BMI ~ DM, data=prevend.samp)
+summary(model)
+```
+
+\vfill
+
+# Inference in regression
+
+Inference in a regression context is usually for the slope parameter, $\beta_1$. 
+
+The null hypothesis in regression is most commonly a hypothesis of 'no association', similar to how the null hypothesis when testing for a difference of means is often one of 'no difference'. When two variables are not associated, plotting them against each other results in a cloud of points with no apparent trend; in this setting, the slope of a least-squares line equals 0. 
+
+Thus, the hypotheses in regression can be written as:
+
+- $H_0: \beta_1 = 0$, the $X$ and $Y$ variables are not associated
+- $H_A: \beta_1 \neq 0$, the $X$ and $Y$ variables are associated
+
+The $t$-statistic for a null hypothesis $H_0: \beta_1 = \beta_1^0$ has degrees of freedom $df = n - 2$, where $n$ is the number of ordered pairs in the dataset. The value $\beta_1^0$ equals 0 when the null hypothesis is one of no association.
+\[t = \dfrac{\hat{\beta}_1 - \beta_1^0}{SE(\hat{\beta}_1)} = \dfrac{\hat{\beta}_1}{SE(\hat{\beta}_1)} \]
+
+A 95\% confidence interval for $\beta_1$ has the following formula, where $t^\star$ is the point on a $t$-distribution with $n - 2$ degrees of freedom and $\alpha/2$ area to the right.
+\[\hat{\beta}_1 \pm \left( t^\star \times SE(\hat{\beta}_1) \right) \]
+
+The formulas for calculating the standard error of $\hat{\beta}_1$ are in Section 6.4 of *OpenIntro Biostatistics*. In practice, statistical software should be used.
+
+
+\pagebreak
+
+5. Conduct a formal hypothesis test of no association between BMI and diabetes presence using `prevend.samp`, at the $\alpha = 0.05$ significance level.
+    
+    a) State the hypotheses.
+    
+    \vfill
+    
+    b) Identify the relevant $t$-statistic and $p$-value from the output of the `summary(lm( )` function. 
+    
+    \vfill
+    
+    c) State a conclusion in the context of the data.
+    
+    \vfill
+    
+    d) Calculate and interpret the 95\% confidence interval for the slope coefficient of the model. Use $t^* = 1.964729$.
+    
+    \vfill
+    
+```{r}
+summary(model)
+```
+
+\pagebreak
+
+6. Use `t.test( )` to conduct a $t$-test for the difference in mean BMI between diabetic and non-diabetic individuals. Compare the results of inference based on the linear model to those based on a two-group test.
+
+\vfill
+
+
+```{r}
+t.test(BMI~DM, data=prevend.samp, var.equal=TRUE)
+```
+
+\pagebreak
+
+## Learning a second langage
+
+Does learning a second language change brain structure? Researchers tested 22 native Italian speakers who had learned English as a second language. Proficiencies in reading, writing, and speech were assessed using a number of tests whose results were summarized by a proficiency score. Gray-matter density was measured in the left inferior parietal region of the brain using a neuroimaging technique, as $mm^3$ of gray matter per voxel (a voxel is a 3D pixel). 
+
+
+```{r, echo=FALSE}
+SecondLanguage <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Homework/SecondLanguage.csv")
+```
+
+```{r}
+head(SecondLanguage)
+```
+
+```{r}
+library(tidyverse)
+SecondLanguage %>% ggplot(aes(x=Proficiency, y=GrayMatter)) + 
+  geom_point()
+
+model <- lm(GrayMatter ~ Proficiency, data=SecondLanguage)
+summary(model)
+```
+
+a) Write the fitted linear model for predicting gray-matter density based on language proficiency.
+
+\vfill
+
+b) How much of the variability in gray-matter density can be explained using a model with proficiency as the explanatory variable?
+
+\vfill
+
+c) Is the model "statistically significant"? Explain how you know.
+
+\vfill
+
+\pagebreak
+
+d) Interpret a 95% confidence interval for the slope. (_Hint_: Use the code below.)
+
+\vfill
+
+```{r}
+confint(model)
+```
+
+Respondents with a proficiency score less than 2 were considered "beginners", between 2-3 were "intermediate", and between 3-4 were "advanced". Is there evidence that subjects' proficiency level had an effect on higher gray-matter density?
+
+e) The code below creates a new variable called `Prof2`, and creates a boxplot of the two groups. How do the groups compare?
+
+```{r}
+SecondLanguage <- SecondLanguage %>%
+  mutate(Prof2 = ifelse(Proficiency<2, "Beginner", ifelse(Proficiency < 3, "Intermediate", "Advanced")))
+
+# By default, R sorts categories in alphabetical order
+SecondLanguage$Prof2 <- fct_relevel(SecondLanguage$Prof2, "Beginner", "Intermediate", "Advanced")
+
+SecondLanguage %>% ggplot(aes(x=Prof2, y=GrayMatter)) + 
+  geom_boxplot(aes(fill=Prof2)) + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+f) Write the fitted linear model. Predict the gray-matter density for beginning learners, intermediate learners, and advanced learners.
+
+\vfill
+
+```{r}
+model <- lm(GrayMatter ~ Prof2, data=SecondLanguage)
+summary(model)
+```
+
+g) Compare the predicted values to the `favstats()` output. What do you notice?
+
+\vfill
+
+```{r}
+favstats(~GrayMatter|Prof2, data=SecondLanguage)
+```
+
+h) Compare the regression output to the analysis of variance output. What do you notice?
+
+\vfill
+
+```{r}
+model2 <- aov(GrayMatter ~ Prof2, data=SecondLanguage)
+summary(model2)
+```
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Reflection
+
+Think back to the BMI example. Write an explanation in plain English for why the regression model and t-test have the same p-value/results.
+
+\vfill
+

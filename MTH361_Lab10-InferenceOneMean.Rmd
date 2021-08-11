@@ -1,0 +1,219 @@
+---
+title: 'Lab 10: Inference for One Mean'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 5.1 (Inference for One-Sample Means)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Mercury in dolphins
+
+Dolphins are at the top of the oceanic food chain; as a consequence dangerous substances such as mercury tend to be present in their organs and muscles at higher concentrations. In areas where dolphins are regularly consumed, it's important to monitor dolphin mercury levels. The data for this exercise comes from a random sample of 19 Risso's dolphins from the Taiji region in Japan.
+
+a) Calculate and interpret a 95% confidence interval for average mercury content (in ppm) in Risso's dolphins from the Taiji area.
+
+$n$|Mean|Standard deviation|Minimum|Maximum
+----|----|----|----|----
+19|2.4|1.3|0.2|8.1
+
+```{r}
+qt(0.975, df=19-1)
+```
+
+\vfill
+
+b) Having access to the original data is preferable, but not always possible. The `BSDA` package in R can carry out a t-test and calculate a confidence interval using only summary statistics. Compare the confidence interval results to the one calculated "by hand".
+
+\vfill
+
+```{r}
+library(BSDA)
+tsum.test(mean.x=2.4, s.x=1.3, n.x=19, conf.level=0.95)
+
+tsum.test(mean.x=2.4, s.x=1.3, n.x=19, conf.level=0.90)
+
+qt(1-0.1/2, df=19-1)
+```
+
+\pagebreak
+
+c) According to the EPA, regulatory action should be taken if fish species are found to have a mercury level of 0.5 ppm or higher. Use a t-test to determine whether dolphins caught in the Taiji region pose a safety concern.
+
+\vfill
+
+```{r}
+tsum.test(mean.x=2.4, s.x=1.3, n.x=19, mu=0.5, alternative='greater')
+```
+
+\pagebreak
+
+## Question 2: Benefits of drinking tea
+
+Drinking tea appears to offer a strong boost to the immune system. Specifically, researchers suspected that drinking tea might enhance the production of interferon gamma, a molecule that helps the immune system fight bacteria, viruses, and tumors. Twenty-one individuals who did not drink tea or coffee were sampled. Eleven of these participants were randomly assigned to drink five or six cups of tea a day, while 10 were asked to drink the same amount of coffee. After two weeks, their blood samples were exposed to an antigen and production of interferon gamma was measured. The results are shown below. 
+
+a) Use a 95% confidence interval to estimate the mean interferon gamma production for tea drinkers. Interpret the result in context.
+
+b) Use a 95% confidence interval to estimate the mean interferon gamma production for coffee drinkers. Interpret the result in context.
+
+c) Compare and contrast the intervals. 
+
+\vfill
+
+```{r, echo=TRUE}
+tea <- c(5, 11, 13, 18, 20, 47, 48, 52, 55, 56, 58) 
+coffee <- c(0, 0, 3, 11, 15, 16, 21, 21, 38, 52)
+
+library(mosaic)
+favstats(~tea)
+favstats(~coffee)
+
+qt(0.975, df=10-1)
+qt(0.975, df=11-1)
+```
+
+\pagebreak
+
+We can also use R to calculate the confidence intervals for us!
+
+```{r}
+t.test(~tea, conf.level=0.95)
+```
+
+\vfill
+
+```{r}
+t.test(~coffee, conf.level=0.95)
+```
+
+\vfill
+
+__Programming note__: In this example, we don't need to specify the data set because these variables are "self-contained". They exist as their own "vector" or list of data, rather than within a particular data set.
+
+## Question 3: US drinking habits
+
+The dataset `nhanes.samp.adult` in the `oibiostat` package contains sleep information for 135 participants ages 21 years or older that were randomly sampled from the NHANES population. The variable `AlcohollDay` contains the self-reported number of alcoholic drinks consumed daily.
+
+```{r}
+library(tidyverse)
+
+library(oibiostat)
+data(nhanes.samp.adult)
+```
+
+a) The CDC recommends that if alcohol is consumed, it should be in moderation — up to 1 drink per day for women and up to 2 drinks per day for men — and only by adults of legal drinking age. Based on the distribution of alcohol consumption (split by gender), does it look like the CDC recommendations are generally followed?
+
+\vfill
+
+```{r}
+nhanes.samp.adult %>%
+  ggplot(aes(x=AlcoholDay)) + 
+  geom_histogram(aes(fill=Gender), bins=12, col='black') + 
+  facet_wrap(~Gender)
+
+library(mosaic)
+favstats(~AlcoholDay|Gender, data=nhanes.samp.adult)
+```
+  
+\pagebreak
+
+b) Conduct a hypothesis test to assess whether on average, American adults are following the CDC recommendations. Let $\mu_0$ be 2 hours, the recommended limit for men.
+
+    a) Formulate null and alternative hypotheses. The symbol $\mu$ denotes the population mean, while $\mu_0$ refers to the numeric value specified by the null hypothesis. 
+    
+    b) Specify a significance level, $\alpha$.
+    
+    c) Calculate the test statistic.
+    
+    $$t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}}$$
+    
+    d) Calculate the $p$-value.
+    
+    e) Draw a conclusion.
+
+\vfill
+
+```{r}
+t.test(~AlcoholDay, mu=2, alternative='greater', data=nhanes.samp.adult)
+```
+
+c) Do you have any hesitations or concerns about this test?
+
+\vfill
+
+\pagebreak
+
+## Question 4: Aspirin labels
+
+A pharmaceutical company manufactures aspirin tablets that are sold with the label "active ingredient: aspirin 325 mg".  A random sample of 100 aspirin tablets had $\bar{x}=326.9$ mg and $s=3.1$ mg. Use a hypothesis test to determine whether there is evidence that the mean amount of aspirin is more than stated on the label. What are the consequences of Type 1 and Type 2 errors in this scenario? Which is "worse"?
+
+\vfill
+
+```{r, message=FALSE, warning=FALSE}
+tsum.test(mean.x=326.9, s.x=3.1, n.x=100, 
+          alternative='greater', mu=325)
+```
+
+\pagebreak
+
+# A comment on using R
+
+You may have noticed by now that there are lots of different ways to do a t-test in R.
+
+If you have...
+
+- The complete data, you can use the `t.test()` function.
+
+```{r, eval=FALSE}
+t.test(~variable,      # Variable name
+       data = data,    # Data set name
+       mu = ,          # Null hypothesis value
+       alternative = , # Alternative hypothesis "sign"
+       conf.level = )  # Confidence level
+```
+
+- Summary statistics only, you can use the `tsum.test()` function. This is from the the `BSDA` library, and will only work if this library is loaded.
+
+```{r, eval=FALSE}
+t.test(mean.x = ,      # Sample mean
+       s.x = ,         # Sample standard deviation
+       n.x = ,         # Sample size
+       mu = ,          # Null hypothesis value
+       alternative = , # Alternative hypothesis "sign"
+       conf.level = )  # Confidence level
+```
+
+__Reminder__: A sample code guide is available on BlueLine. 
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Neuron spikes in monkeys
+
+Neurons fire action potentials ("spikes") at different frequencies under different circumstances. A neuron is recorded in an awake-behaving monkey looking at a luminous dot 40 centimeters away to determine the neuron's baseline activity. Over the course of 72 random trials, that neuron is found to have an average baseline activity of $\bar{x}=27.8$ spikes per second with standard deviation $s=32.2$ spikes per second. 
+
+a) What is the standard error of the mean?
+b) Calculate and interpret a 95% confidence interval for the mean baseline activity of this neuron using the t-distribution.
+
+

@@ -1,0 +1,308 @@
+---
+title: 'Lab 14: Analysis of Variance'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 5.5 (Analysis of Variance)
+
+\pagebreak
+
+# Visualizing the ANOVA model
+
+Suppose we have three groups: a control, treatment A, and treatment B. We are interested in how each treatment affects the response variable, $Y$. Our model is:
+
+$$Y_{ij} = \mu + \alpha_i + \epsilon_{ij}$$
+
+where $\epsilon_{ij} \sim Normal(0, \sigma)$, $\sigma$ representing the population standard deviation.
+
+What does this model "look like"? Let...
+
+- $\mu=10$
+- $\alpha_{1} = 0$ (Control)
+- $\alpha_{2} = 2$ (Treatment A)
+- $\alpha_{3} = -2$ (Treatment B)
+
+```{r, echo=FALSE}
+library(tidyverse)
+N <- 100
+sigma <- 1
+alpha <- c(0, 2, -2)
+mu <- 10
+
+x <- c(rep('Control', N), rep('Trt A', N), rep('Trt B', N))
+y <- rnorm(length(x), 
+           mean=mu+ifelse(x=='Control', alpha[1], 
+                          ifelse(x=='Trt A', alpha[2], alpha[3])), 
+           sd=sigma)
+  
+df <- tibble(x=x, 
+             y=y, 
+             alpha=c(rep(1, 100), rep(2, 100), rep(3, 100)),
+             group=c(rep('Control', 100), rep('Trt A', 100), rep('Trt B', 100)))
+
+
+x0 <- seq(from=8, to=12, length=100)
+y0 <- dnorm(x0, mu + alpha[1], sigma)
+path1 <- tibble(x=1+y0, y=x0)
+
+x0 <- seq(from=10, to=14, length=100)
+y0 <- dnorm(x0, mu + alpha[2], sigma)
+path2 <- tibble(x=2+y0, y=x0)
+
+x0 <- seq(from=6, to=10, length=100)
+y0 <- dnorm(x0, mu + alpha[3], sigma)
+path3 <- tibble(x=3+y0, y=x0)
+
+library(colorblindr)
+
+df %>% ggplot(aes(x=alpha, y=y)) + 
+  geom_boxplot(aes(fill=group), alpha=0.5) + 
+  scale_fill_OkabeIto() + 
+  geom_path(aes(x, y), data=path1, col='#E69F00') + 
+  geom_path(aes(x, y), data=path2, col='#56B4E9') + 
+  geom_path(aes(x, y), data=path3, col='#009E73')
+```
+
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Is change in non-dominant arm strength after resistance training associated with genotype?
+
+In the Functional polymorphisms Associated with Human Muscle Size and Strength study (FAMuSS), researchers examined the relationship between muscle strength and genotype at a particular location on the *ACTN3* gene. The `famuss` dataset in the `oibiostat` package contains a subset of data from the study. 
+
+The percent change in non-dominant arm strength, comparing strength after resistance training to before training, is stored as `ndrm.ch`. There are three possible genotypes (CC, CT, TT) at the *r577x* position on the *ACTN3* gene; genotype is stored as `actn3.r577x`.
+
+```{r}
+library(oibiostat)
+data(famuss)
+head(famuss)
+```
+
+a) The boxplot below shows the association between change in non-dominant arm strength and *ACTN3* genotype. Describe what you see.
+
+\vfill
+
+```{r}
+library(tidyverse)
+library(colorblindr)
+famuss %>%
+  ggplot(aes(x=ndrm.ch)) + 
+  geom_boxplot(aes(fill=actn3.r577x)) + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+b) Assess whether the assumptions for conducting an ANOVA are reasonably satisfied: 
+
+    1. Observations are independent within and across groups, 
+    2. The data within each group are nearly normal, and 
+    3. The variability across the groups is about equal.
+    
+```{r}
+library(mosaic)
+favstats(~ndrm.ch|actn3.r577x, data=famuss)
+```
+
+\vfill
+
+b) Conduct a hypothesis test to address the question of interest. Let $\alpha = 0.05$.
+
+    1. Let the parameters $\mu_{CC}$, $\mu_{CT}$, and $\mu_{TT}$ represent the population mean change in non-dominant arm strength for individuals of the corresponding genotype. State the null and alternative hypotheses.
+    
+    2. Use `aov()` to fit the ANOVA model, and examine it using the `summary()` function. Identify the $F$-statistic and $p$-value. Interpret the $p$-value.
+
+\vfill
+
+```{r}
+model <- aov(ndrm.ch ~ actn3.r577x, data=famuss)
+summary(model)
+```
+
+\pagebreak
+
+## Question 2: Tukey's honest significant differences
+
+We know that at least one genotype location has a different mean non-dominant arm strength, but which one?
+
+One option is to use __pairwise tests__: compare each pair of groups individually.
+
+a) In the `famuss` study, how many pairs of comparisons would we need to do?
+
+\vfill
+
+b) How many pairs of comparisons would we need to do if we had...
+
+    1. Four groups?
+
+    \vfill
+
+    2. Five groups?
+
+    \vfill
+
+    3. Six groups?
+    
+    \vfill
+    
+The more groups we're considering, the more tests we have to do!
+
+__Multiple testing__ leads to an even bigger problem. The more tests we do, the more the Type I error rate gets inflated.
+
+c) Suppose we need to do three hypothesis tests on a data set. Each one has a Type I error rate of $\alpha=0.05$. What is the probability that _at least one test_ results in an error?
+
+\vfill
+
+d) What happens if we need to do...
+
+    1. Four tests?
+
+    \vfill
+
+    2. Five tests?
+
+    \vfill
+
+    3. Six tests?
+
+    \vfill
+
+__Familywise error rate__: 
+
+\vfill
+
+\pagebreak
+
+As a solution, we "adjust" our p-values to control the overall familywise error rate at $\alpha=0.05$. One method for doing so is Tukey's honest significant differences.
+
+__Tukey's "honest significant differences" (HSD)__: a method of making pairwise comparisons that adjusts critical values (t*) to control the overall familywise error rate
+
+- Can be used to determine which pairwise comparisons in the ANOVA are statistically significant, and which ones are not
+- Also referred to as "Tukey-Kramer" method
+- There are lots of other adjustment methods, some are more "conservative" (like the Bonferroni adjustment mentioned in the textbook) and some are less "conservative"
+
+To apply Tukey's HSD to an analysis of variance, use the `TukeyHSD()` function.
+
+e) Interpret the table and confidence interval plots. Which groups are "different", and which are not?
+
+\vfill
+
+```{r}
+TukeyHSD(model)
+
+plot(TukeyHSD(model))
+```
+
+\pagebreak
+
+## Question 3: BMI and educational attainment
+
+This question uses data from the National Health and Nutrition Examination Survey (NHANES), a survey conducted annually by the US Centers for Disease Control (CDC). The dataset `nhanes.samp.adult.500 contains data for 500 participants ages 21 years or older that were randomly sampled from the complete NHANES dataset that contains 10,000 observations.
+
+```{r}
+library(NHANES)
+data(nhanes.samp.adult.500)
+```
+
+The variable `BMI` contains BMI information for the study participants. The variable `Education` records the highest level of education obtained: 8$^{th}$ grade, 9$^{th}$ - 11$^{th}$ grade, high school, some college, or college degree.
+
+a) The boxplot below shows the association between BMI and educational level. Describe what you see.
+
+\vfill
+
+```{r}
+nhanes.samp.adult.500 %>%
+  ggplot(aes(x=BMI)) + 
+  geom_boxplot(aes(fill=Education)) + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+b) Examine the normality and equal variance assumptions across the groups. 
+
+\vfill
+
+```{r}
+library(mosaic)
+favstats(~BMI|Education, data=nhanes.samp.adult.500)
+```
+
+c) Use analysis of variance to address the question of interest. Let $\alpha = 0.05$. Summarize the conclusions.
+
+\vfill
+
+```{r}
+model <- aov(BMI ~ Education, data=nhanes.samp.adult.500)
+summary(model)
+```
+
+d) Would it make sense to use Tukey's HSD here? Explain why or why not.
+
+\vfill
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Self-care for dialysis patients
+
+Researchers studying patients with kidney disease wanted to assess home self-care practices. Patients with kidney disease doing home dialysis treatments are especially susceptible to infections, so rigorous cleaning and self-care practices are especially important. They collected data on oral plaque levels from 90 subjects who were (1) doing home dialysis for less than a year, (2) doing home dialysis for 1 to 3 years, and (3) dialysis for more than three years. A higher value indicates a greater amount of plaque.
+
+a) Use the boxplots provided to compare and contrast the plaque levels for the three groups. Do any groups show outliers or extreme skewness?
+
+```{r, echo=FALSE}
+#plaque <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/plaque.csv")
+plaque <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/plaque.csv")
+plaque$GROUP <- as.factor(plaque$GROUP)
+```
+
+b) Use analysis of variance to detemrine whether there is a difference in plaque levels. Include your null and alternative hypothesis, test statistic, p-value, and conclusion.
+
+c) Use Tukey's HSD to determine which pairs of groups (if any) are different.
+
+d) Do you have any hesitations about this analysis?
+
+R code on the next page.
+
+\pagebreak
+
+```{r}
+head(plaque)
+
+favstats(~PLAQUE|GROUP, data=plaque)
+
+plaque %>% ggplot(aes(x=PLAQUE)) + 
+  geom_boxplot(aes(fill=GROUP)) +
+  labs(fill="Group", x="Plaque levels") + 
+  scale_fill_OkabeIto()
+
+model <- aov(PLAQUE ~ GROUP, data=plaque)
+
+summary(model)
+```
+
+\pagebreak
+
+```{r}
+TukeyHSD(model)
+
+plot(TukeyHSD(model))
+```

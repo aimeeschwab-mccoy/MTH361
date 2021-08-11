@@ -1,0 +1,269 @@
+---
+title: 'Lab 24: Chi-Square Goodness of Fit'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 8.3 (Inference for Two or More Groups)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Birth days
+
+The National Center for Health Statistics records information on each new baby born, such as time and date of birth, weight, and sex. One piece of information available from this data is the day of the week on which each baby was born. The data below comes from a random sample from NCHS data of 180 births in 2016.
+
+We might expect that babies should be born at the same frequency on all seven days of the week. Is this true? 
+
+Day|Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday
+---|----|----|----|----|----|----|----|---
+Count|14|26|34|21|27|28|20
+
+\vfill
+
+```{r, echo=FALSE}
+library(tidyverse)
+
+days <- tribble(
+  ~Day, ~n,
+  "Sunday", 14,
+  "Monday", 26, 
+  "Tuesday", 34,
+  "Wednesday", 21,
+  "Thursday", 27,
+  "Friday", 38,
+  "Saturday", 20
+)
+
+days <- uncount(days, weights=n)
+
+days$Day <- fct_relevel(days$Day, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
+```
+
+```{r}
+library(tidyverse)
+library(colorblindr)
+days %>% ggplot(aes(x=Day)) + 
+  geom_bar(aes(fill=Day)) + 
+  scale_fill_OkabeIto()
+
+obs <- c(14, 26, 34, 21, 27, 38, 20)
+exp <- c(1/7, 1/7, 1/7, 1/7, 1/7, 1/7, 1/7)
+
+chisq.test(x=obs, p=exp)
+```
+
+\pagebreak
+
+## Question 2: Patient outcomes
+
+Are the outcomes of hospital care different on weekends than weekdays? In a random sample of 500 patients who experienced severe medical complications after admission to acute care wards in three US states from 1999 to 2001, 119 had been admitted on a weekend and 381 had been admitted on a weekday. This compares with a large population of people at risk for such complications in which 14.8% are admitted on weekends and 85.2% are admitted on weekdays. 
+
+a) Which of the methods below could be used to test whether the probability of severe complications in at-risk patients admitted to hospitals differs between weekend and weekday? Explain why or why not each method is appropriate.
+
+    1. Binomial test
+    2. Chi-square test for association
+    3. Chi-square test for goodness of fit
+
+\vfill
+
+b) Based on the binomial test output below, is there a difference in the probability of complications between weekends and weekdays? Show all steps of the hypothesis test.
+
+\vfill
+
+```{r}
+binom.test(x=119, n=500, p=2/7, alternative='two.sided')
+```
+
+\pagebreak
+
+c) Based on the chi-square test for goodness of fit output below, is there a difference in the probability of complications between weekends and weekdays? Show all steps of your hypothesis test.
+
+\vfill
+
+```{r}
+obs <- c(119, 381)
+exp <- c(2/7, 5/7)
+
+chisq.test(x=obs, p=exp)
+```
+
+A test that we haven't yet covered for working with a single proportion is the __z-test__. This test uses a _normal approximation_ to the sampling distribution for a proportion, $\hat{p}$, rather than the _exact binomial distribution_. 
+
+d) The sampling distribution of the sample proportion, $\hat{p}$, has mean $p$, standard error $\sqrt{p(1-p)/n}$, and can be assumed "approximately normally distributed" if $n$ is sufficiently large. Calculate the mean and standard error, assuming the true proportion of complications on the weekend is $p=0.148$, and draw a picture of this sampling distribution.
+
+\vfill
+
+e) How many standard errors is the observed sample proportion of weekend complications from the hypothesized proportion of complications.
+
+\vfill
+
+\pagebreak
+
+f) Based on the z-test output below, is there a difference in the probability of complications between weekends and weekdays? 
+
+\vfill
+
+```{r}
+prop.test(x=119, n=500, p=2/7, 
+          alternative='two.sided', correct=FALSE)
+```
+
+g) Compare and contrast the conclusions and evidence from these three methods.
+
+\vfill
+
+\pagebreak
+
+## Question 3: Weight perception
+
+A Gallup survey asked 1014 adults aged 18 and older about their ideal weight. The survey found that 116 interviewees thought that they were currently under their ideal weight, 180 thought they were at about their ideal weight, and 718 thought they were over their ideal weight. The National Health Interview Survey estimates, based on people's actual body mass index, that 1.8% of the US adult population is underweight, 36.7% has a healthy weight, and 61.5% is either overweight or obese. Do these self-perceptions match the reality of the weight distribution in the United States?
+
+\vfill
+
+```{r}
+obs <- c(116, 180, 718)
+exp <- c(0.018, 0.367, 0.615)
+
+chisq.test(x=obs, p=exp)
+```
+
+\pagebreak
+
+## Question 4: Opthalmology
+
+A five-year study among 601 participants with reinitis pigementosa assessed the effects of high-dose vitamin A (15,000 IU per day) and vitamin E (400 IU per day) on the course of their disease. One issue is to what extent supplementation with vitamin A affected their serum-retinol levels. The serum-retinol data in the table below were obtained over three years of follow-up among 73 males taking 15,000 IU/day of vitamin A (vitamin A group) and 57 males taking 75 IU/day of vitamin A (the trace group).
+
+Retinol (mmol/L)|n|Year 0 $\bar{x} \pm s$ | Year 3 $\bar{x} \pm s$
+----|----|----|----
+Vitamin A group|73|1.89 $\pm$ 0.36|2.06 $\pm$ 0.53
+Trace group|57|1.83 $\pm$ 0.31|1.78 $\pm$ 0.30
+
+a) What test can be used to assess whether mean serum retinol has increased over three years among subjects in the vitamin A group?
+
+\vspace{1in}
+
+Before doing this test, the researchers would like to use a formal hypothesis test to decide whether retinol levels are normally distributed. They plan to use a chi-square goodness of fit test to decide whether a normal distribution is a good "fit" for the data. The table on the next page gives five categories for retinol measurements.
+
+b) Find the expected probabilities under a normal model. You may use the sample mean and standard deviation as "plug-in" estimates for the normal mean and standard deviation.
+
+Serum-retinol range|n|"Expected" probabilities
+-----|-----|-----
+$\le$ 1.40 | 6 | 0.1065139
+1.41-1.75 | 22| 0.1727917
+1.76-2.10|22| 0.2507747
+2.11-2.45|20| 0.2390084
+$\ge$ 2.46|3 | 0.2309113
+
+\vfill
+
+```{r}
+# Retinol < 1.40
+pnorm(1.40, mean=2.06, sd=0.53)
+
+# Retinol between 1.40 and 1.75
+pnorm(1.75, mean=2.06, sd=0.53) - pnorm(1.40, mean=2.06, sd=0.53)
+
+# Retinol between 1.75 and 2.10
+pnorm(2.10, mean=2.06, sd=0.53) - pnorm(1.75, mean=2.06, sd=0.53)
+
+# Retinol between 2.45 and 2.10
+pnorm(2.45, mean=2.06, sd=0.53) - pnorm(2.10, mean=2.06, sd=0.53)
+
+# More than 2.46
+1 - 0.1065139 - 0.1727917 - 0.2507747 - 0.2390084
+
+obs <- c(6, 22, 22, 20, 3)
+exp <- c(0.1065139, 0.1727917, 0.2507747, 0.2390084, 0.2309113)
+
+chisq.test(x=obs, p=exp)
+```
+
+c) Complete the chi-square test. What do you conclude?
+
+\vfill
+
+\pagebreak
+
+## Question 5: FAMuSS representativeness
+
+The participants in the FAMuSS study were volunteers at a university, and did not come from a random sample of the US population. The participants may not be representative of the general US population. The chi-square test can be used to test the hypothesis that the participants are racially representative of the general population. The table below shows the number observed by racial category in the FAMuSS study, and the proportions of the US population in each of those categories.
+
+- _Note: The US Census Bureau considers Hispanic as a classification separate from race, on the basis that Hispanic individuals can be any race. In order to facilitate the comparison with the FAMuSS data, participants identified as Hispanic have been combined with the "Other" category._
+
+Race|African American|Asian|Caucasian|Other (includes Hispanic)|Total
+----|----|----|----|----|----
+FAMuSS|27|55|467|46|595
+US Census|0.128|0.01|0.804|0.058|1
+
+a) The bar chart below shows the observed counts in each racial category in the data compared to the expected counts in the US census (open boxes). Based on this plot, do you believe the FAMuSS study is representative? Explain why or why not.
+b) Write the null and alternative hypotheses for a chi-square goodness of fit test. What do you conclude?
+
+\vfill
+
+```{r, echo=FALSE}
+library(oibiostat)
+library(colorblindr)
+data(famuss)
+famuss <- famuss %>% mutate(Race2 = recode(race, 'Hispanic'='Other'))
+
+expected <- tibble(location=c('African Am', 'Asian', 'Caucasian', 'Other'),
+                   counts = 595*c(0.128, 0.01, 0.804, 0.058))
+
+famuss %>% ggplot(aes(x=Race2)) + 
+  geom_bar(aes(fill=race)) + 
+  guides(fill=FALSE)  +
+  geom_col(data = expected, aes(x = location, y = counts), col='black', alpha=0) + 
+  scale_fill_OkabeIto()
+```
+
+```{r, echo=TRUE}
+obs <- c(27, 55, 467, 46)
+exp <- c(0.128, 0.01, 0.804, 0.058)
+
+chisq.test(x=obs, p=exp)
+```
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+## Inbreeding in prairie dogs
+
+A field biologist recorded events of inbreeding in a colony of prairie dogs. Based on a sample of 44 estrous females and 17 sexually mature males, the researcher computed the coefficient of relatedness of all possible male-female pairs in this sample. On the one hand, if individuals avoided inbreeding, we would expect to observe breeding mostly between individuals with little genetic relatedness. On the other hand, if breeding occurred randomly, without regard for the genetic relatedness of the mating couple, we would expect breeding observations among individuals of various relatedness to be proportional to the number of possible pairs with a given coefficient of relatedness. Do the data support the hypothesis that breeding among  prairie dogs occurs randomly, without regard for genetic relatedness?
+
+Coefficient of relatedness|Observed pairs|Expected pairs
+----|-----|-----
+$r\ge 1/4$ (siblings)|6|6
+$1/8 \le r <1/4$|4|5
+$1/16\le r <1/8$|18|10
+$1/32 \le r <1/16$|12|12
+$1/64\le r <1/32$|10|11
+$1/128 \le r <1/64$|3|7
+$0\le r <1/128$|8|8
+No known kinship|8|10
+
+\vfill
+
+```{r}
+obs <- c(6, 4, 18, 12, 10, 3, 8, 8)
+exp <- c(6, 5, 10, 12, 11, 7, 8, 10)/69
+chisq.test(x=obs, p=exp)
+```

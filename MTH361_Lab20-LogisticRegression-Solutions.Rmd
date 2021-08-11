@@ -1,0 +1,314 @@
+---
+title: 'Lab 11b: Logistic Regression'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  html_document:
+    toc: TRUE
+    toc_flot: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=2.5)
+```
+
+This lab introduces simple logistic regression, a model for the association of a binary response variable with a single predictor variable. Logistic regression generalizes methods for two-way tables and allows for the use of a numerical predictor.
+
+# Introduction
+
+## Odds and probabilities
+
+If the probability of an event $A$ is $p$, the __odds of the event__ are: 
+
+> The ratio of the probability of "success" to the probability of "failure".
+>
+> $$Odds = \frac{p}{1-p}$$
+
+Given the odds of an event $A$, the probability of the event is:
+
+> Solve the odds formula for $p$, and get:
+>
+> $$p = \frac{Odds}{1+Odds}$$
+
+Think of the odds as a reframing of probability. Where have you seen odds reported before?
+
+> Gambling!
+
+We can compare the odds for two groups with a quantity called the __odds ratio__:
+
+> Let $O_1$ be the odds for group 1 and $O_2$ be the odds for group 2.
+>
+> $$Odds \ ratio = OR = \frac{O_1}{O_2}$$
+>
+> If two groups have (about) the same probability of success, $p_1=p_2$, then they should have (about) the same odds, and the odds ratio should be (about) 1.
+
+
+
+
+## Simple logistic regression
+
+Suppose that $Y$ is a binary response variable and $X$ is a predictor variable, where $Y = 1$ represents the particular outcome of interest.
+
+The model for a single variable logistic regression, where $p(x) = P(Y = 1 | X = x)$, is:
+
+> $$ln(Odds) = ln\left( \frac{p(x)}{1-p(x)} \right) = \beta_0 + \beta_1 X + \epsilon$$
+
+The estimated model equation has the form:
+
+> $$\widehat{ln(Odds)} = \widehat{ln\left( \frac{p(x)}{1-p(x)} \right)} = \hat{\beta}_0 + \hat{\beta}_1 X$$
+
+where $\hat{\beta}_0$ and $\hat{\beta}_1$ are estimates of the model parameters $\beta_0$ and $\beta_1$.
+
+## How is logistic regression similar to linear regression?
+
+> - The "right-hand" side of the model equation is the same.
+
+## How is logistic regression different from linear regression?
+
+> - Instead of modeling the response variable (0 or 1), we're modeling the log-odds, or "logit". 
+> 
+> It turns out that a linear model is a really bad fit to probabilities. Let's look at an example.
+
+# Background Information
+
+Patients admitted to an intensive care unit (ICU) are either extremely ill or considered to be at great risk of serious complications. There are no widely accepted criteria for distinguishing between patients who should be admitted to an ICU and those for whom admission to other hospital units would be more appropriate. Thus, among different ICUs, there are wide ranges in a patient's chance of survival. When studies are done to compare effectiveness of ICU care, it is critical to have a reliable means of assessing the comparability of the different patient populations.
+
+One such strategy for doing so involves the use of statistical modeling to relate empirical data for many patient variables to outcomes of interest. The following dataset consists of a sample of 200 subjects who were part of a much larger study on survival of patients following admission to an adult ICU.\footnote{From Hosmer D.W., Lemeshow, S., and Sturdivant, R.X. \textit{Applied Logistic Regression}. 3$^{rd}$ ed., 2013.} The major goal of the study was to develop a logistic regression model to predict the probability of survival to hospital discharge.\footnote{Lemeshow S., et al. Predicting the outcome of intensive care unit patients. \textit{Journal of the American Statistical Association} 83.402 (1988): 348-356.}
+
+The data are accessible as the `icu` dataset in the `aplore3` package.
+
+```{r}
+#install.packages('aplore3')
+library(aplore3)
+data(icu)
+```
+
+
+### Odds and probabilities
+
+1. The contingency table below reports data on survival to discharge by whether CPR was administered prior to admission. For the `sta` variable, `sta=0` corresponds to `Died` and `sta=1` corresponds to `Lived`.
+
+    a) Calculate the odds of survival to discharge for those who did not receive CPR prior to ICU admission. Is someone who did not receive CPR prior to admission more likely to survive to discharge than to not survive to discharge?
+    b) Calculate the odds of survival to discharge for those who received CPR prior to ICU admission. Is someone who received CPR prior to admission more likely to survive to discharge than not?
+    c) Calculate the odds ratio of survival to discharge, comparing patients who receive CPR prior to admission to those who do not receive CPR prior to admission.
+
+> For someone who did not receive CPR prior to admission, the odds of survival ("success") are:
+> $$Odds_{no \ CPR} = \frac{154}{33} = 4.666667$$
+> Patients who did not receive CPR are about 4.67 times as likely to survive than die.
+    
+> For someone who did receive CPR prior to admission, the odds of survival ("success") are:
+> $$Odds_{CPR} = \frac{6}{7} = 0.8571429$$
+> Patients who did receive CPR are about 0.8571429 times as likely to survive than die.    
+    
+> The odds ratio for survival for patients who did not receive CPR compared to those who did is:
+> $$OR = \frac{4.666667}{0.8571429} = 5.444445$$
+> The odds of survival for patients who did not receive CPR are over five times the odds of survival for patients who did.
+
+
+```{r}
+library(mosaic)
+tally(sta~cpr, data=icu)
+
+library(tidyverse)
+icu %>% ggplot(aes(x=cpr)) + 
+  geom_bar(aes(fill=sta), col='black') + 
+  scale_fill_brewer()
+```
+
+
+
+2. Creatinine level in the data are recorded as being either less than or equal to 2.0 mg/dL or greater than 2.0 mg/dL. A typical creatinine level is between 0.5 - 1.0 mg/dL, and elevated creatinine may be a sign of renal failure.
+
+    a) Calculate the odds of survival to discharge for patients who have a creatinine level less than or equal to 2.0 mg/dL. From the odds, calculate the probability of survival to discharge for these patients.
+    b) Calculate the probability of survival to discharge for patients who have a creatinine level greater than 2.0 mg/dL. From the probability, calculate the odds of survival to discharge for these patients.
+    c) Compute and interpret the odds ratio of survival to discharge, comparing patients with creatinine $> 2.0$ mg/dL to those with creatinine $\leq$ 2.0 mg/dL.
+    
+> For someone who with a creatinine level less than or equal to 2, the odds of survival ("success") are:
+> $$Odds_{no \ CPR} = \frac{155}{35} = 4.428571$$
+> The estimated probability of survival is:
+> $$p = \frac{Odds}{1+Odds} = \frac{4.428571}{5.428571} = 0.8157895$$
+> $$p = \frac{155}{155+35} = 0.8157895$$
+> See! It works. :)
+    
+> For someone who with a creatinine level over 2, the odds of survival ("success") are:
+> $$Odds_{no \ CPR} = \frac{5}{5} = 1$$
+> The estimated probability of survival is:
+> $$p = \frac{Odds}{1+Odds} = \frac{1}{2} = 0.5$$
+    
+> The odds ratio for survival for patients who did not receive CPR compared to those who did is:
+> $$OR = \frac{4.428571}{1} = 4.428571$$
+> The odds of survival for patients with low creatinine are 4.428571 times the odds of survival for patients with high creatinine.
+    
+```{r}
+tally(sta~cre, data=icu)
+
+icu %>% ggplot(aes(x=cre)) + 
+  geom_bar(aes(fill=sta), col='black') + 
+  scale_fill_brewer()
+```
+
+
+
+# Simple logistic regression
+
+3. The code below fits a logistic regression model to predict survival to discharge from prior CPR.
+
+    a) Write the model equation estimated from the data.
+    b) Interpret the intercept. Confirm that the interpretation coheres with the answer to Question 1, part a).
+    c) Interpret the slope coefficient. Compute the exponential of the slope coefficient and confirm that this matches the answer to Question 1, part c).
+    d) Is there evidence of a statistically significant association between survival to discharge and prior CPR at $\alpha = 0.05$?
+    
+> The estimated model is:
+> $$\widehat{ln \left( \frac{p}{1-p} \right)} = -1.5404 + 1.6946 \times CPR$$
+
+> The intercept represents the estimated log-odds when `cpr` is "0" (no). If we calculate the natural log of the odds we estimated previously, we get:
+> $$ln(4.666667) = 1.5404$$
+
+> The slope coefficient represents the change in the log odds going from `cpr` of no to `cpr` of yes.
+> The log odds will decrease by -1.6946.
+> $$ln(4.666667)-ln(0.8571429) = 1.6946$$
+
+> Yes, there is evidence that the relationship between survival and prior CPR is "statistically significant" (slope p-value = 0.00398).
+    
+```{r}
+# Create a new variable with 1 if sta is "Lived:
+icu <- icu %>% mutate(sta2 = ifelse(sta=='Lived', 1, 0))
+
+model <- glm(sta2 ~ cpr, data=icu, family='binomial')
+summary(model)
+```
+
+
+    
+4. Fit a logistic regression model to predict survival to discharge from an indicator of elevated creatinine.
+
+    a) Write the model equation estimated from the data.
+    b) Interpret the intercept and slope coefficient.
+    c) Compute and interpret an odds ratio that summarizes the association between survival to discharge and an indicator of elevated creatinine.
+    d) Is there evidence of a statistically significant association between survival to discharge and an indicator of elevated creatinine at $\alpha = 0.05$?
+    
+> The estimated model is:
+> $$\widehat{ln \left( \frac{p}{1-p} \right)} = 1.4881 + -1.4881 \times (cre > 2.0)$$
+
+> The intercept represents the estimated log-odds when `cre>2.0` is "0" (low creatine). If we calculate the natural log of the odds we estimated previously, we get:
+> $$ln(4.428571) = 1.4881$$
+
+> The slope coefficient represents the change in the log odds going from low creatine of high creatine.
+> The log odds will decrease by -1.4881.
+> $$ln(4.428571)-ln(0.8157895) = 1.4881$$
+
+> Yes, there is _some_ evidence that the relationship between survival and creatine is "statistically significant" (slope p-value = 0.0241), but the evidence is not as strong as the previous model.
+    
+```{r}
+model2 <- glm(sta2 ~ cre, data=icu, family='binomial')
+summary(model2)
+```
+
+
+
+5. Fit a logistic regression model to predict survival to discharge from age.
+
+    a) Write the model equation estimated from the data.
+    b) Does the intercept have a meaningful interpretation in the context of the data?
+    c) Interpret the slope coefficient. 
+    d) Calculate the odds of survival to discharge for a 70-year-old individual. Is a 70-year-old individual more likely to survive than not?
+    e) Calculate the odds ratio of survival to discharge comparing a 45-year-old individual to a 70-year-old individual.
+    
+ > The estimated model is:
+> $$\widehat{ln \left( \frac{p}{1-p} \right)} = 3.05851 + -0.02754 \times (age)$$
+
+> The intercept represents the estimated log-odds when age is 0. This is not that meaningful in practice, since we often won't have to worry about infants in the ICU. Also, we have not observed any children in this data.
+
+> The slope coefficient represents the change in the log odds as age increases by 1. For a logistic regression model, the change is not linear. See plot below, the blue line represents predicted probabilities. Points are "jittered" (spread out) around the y-axis to decrease the overlap.
+
+> For a 70-year old, the predicted log odds of survival are:
+> $$\widehat{ln \left( \frac{p}{1-p} \right)} = 3.05851 + -0.02754 \times 70 = 1.13071$$
+> This corresponds to a predicted probability of:
+> $$\hat{p} = \frac{e^{1.12071}}{1+e^{1.12071}}=0.7541204$$
+
+> To show this, solve for $p$...
+> $${ln \left( \frac{p}{1-p} \right)} = 1.12701$$
+
+> For a 40-year old, the predicted log odds of survival are:
+> $$\widehat{ln \left( \frac{p}{1-p} \right)} = 3.05851 + -0.02754 \times 40 = 1.95691$$
+> This corresponds to a predicted probability of:
+> $$\hat{p} = \frac{e^{1.95691}}{1+e^{1.95691}}=0.8761982$$
+
+> The estimated odds of survival for a 70-year old are $e^1.12071=3.067031$ and the estimated odds of survival for a 40-year old are $e^1.95691=7.077424$.
+
+```{r}
+model3 <- glm(sta2 ~ age, data=icu, family='binomial')
+summary(model3)
+
+3.05851 + -0.02754*70
+exp(1.12071)/(1+exp(1.12071))
+
+3.05851 + -0.02754*40
+exp(1.95691)/(1+exp(1.95691))
+
+icu %>% ggplot(aes(x=age, y=sta2)) +
+  geom_jitter(height=0.1) + 
+  geom_smooth(method='glm', 
+              method.args=list(family='binomial'), 
+              se=FALSE) 
+```
+
+----
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Recurring bladder tumors
+
+Can we predict which cancers are more likely to recur? Researchers examined 86 patients with bladder cancer, looking for a relationship between cancer recurrence (0=no, 1=yes), and the number of superficial bladder tumors identified and removed right after the initial cancer diagnosis.
+
+```{r, echo=FALSE}
+set.seed(361)
+recurring <- sample(0:1, replace=TRUE, size=86)
+number <- c()
+for(i in 1:86){
+  number[i] = rpois(lambda=(1+2*recurring[i]), 1) + 1
+}
+tumors <- tibble(recurring, number)
+```
+
+```{r, echo=TRUE}
+head(tumors)
+tumors %>% ggplot(aes(x=number, y=recurring)) + 
+  geom_jitter(height=0.1, width=0.1) + 
+  labs(x='Number of tumors', y='Recurring')
+```
+
+a) Write the fitted linear model.
+
+$$\widehat{log-odds} = -2.6543+0.9967\times number$$
+
+```{r}
+model <- glm(recurring~number, data=tumors, family='binomial')
+summary(model)
+```
+
+b) Find the predicted probability that the cancer comes back for a patient with 1 tumor removed.
+
+$$\widehat{log-odds} = -2.6543+0.9967\times 1=-1.6576$$
+
+$$\hat{p} = \frac{e^{-1.6576}}{1+e^{-1.6576}}$$
+
+c) Find the predicted probability that the cancer comes back for a patient with 4 tumors removed.
+
+$$\widehat{log-odds} = -2.6543+0.9967\times 4=1.3325$$
+
+$$\hat{p} = \frac{e^{1.3325}}{1+e^{1.3325}}$$
+
+d) Based on the plot, when is it "likely" that the cancer will return? When is it "almost certain" that the cancer will return?
+
+> It's "likely" that the cancer will return at around 2-3 tumors (probability near 0.50). For 5 or more tumors, it's almost certain the cancer will recur.
+
+```{r,echo=TRUE}
+tumors %>% ggplot(aes(x=number, y=recurring)) +
+  geom_jitter(height=0.1, width=0.1, alpha=0.5) + 
+  geom_smooth(method='glm', 
+              method.args=list(family='binomial'), 
+              se=FALSE) 
+```

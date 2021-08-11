@@ -1,0 +1,345 @@
+---
+title: 'Lab 20: Logistic Regression'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=2.5)
+```
+
+This lab introduces simple logistic regression, a model for the association of a binary response variable with a single predictor variable. Logistic regression generalizes methods for two-way tables and allows for the use of a numerical predictor.
+
+# Introduction
+
+## Odds and probabilities
+
+If the probability of an event $A$ is $p$, the __odds of the event__ are: 
+
+\vfill
+
+Given the odds of an event $A$, the probability of the event is:
+
+\vfill
+
+Think of the odds as a reframing of probability. Where have you seen odds reported before?
+
+\vfill
+
+We can compare the odds for two groups with a quantity called the __odds ratio__:
+
+\vfill
+
+\pagebreak
+
+## Simple logistic regression
+
+Suppose that $Y$ is a binary response variable and $X$ is a predictor variable, where $Y = 1$ represents the particular outcome of interest.
+
+The model for a single variable logistic regression, where $p(x) = P(Y = 1 | X = x)$, is:
+
+\vfill
+
+The estimated model equation has the form:
+
+\vfill
+
+where $\hat{\beta}_0$ and $\hat{\beta}_1$ are estimates of the model parameters $\beta_0$ and $\beta_1$.
+
+## How is logistic regression similiar to linear regression?
+
+\vfill
+
+## How is logistic regression different from linear regression?
+
+\vfill
+
+\newpage
+
+## Why the "logit" function?
+
+Consider some hypothetical data. Visually, which model is a better "fit"?
+
+- The linear model:
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+x <- sample(-20:120, size=50, replace=TRUE)
+y <- rbinom(n=50, size=1, prob=ifelse(x<0, 0, ifelse(x>100, 1, x/100)))
+
+data <- tibble(x=x, y=y)
+
+data %>% ggplot(aes(x=x, y=y)) + 
+  geom_point() + 
+  geom_smooth(method='lm', se=FALSE)
+```
+
+- The logistic model
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+data %>% ggplot(aes(x=x, y=y)) + 
+  geom_point() + 
+  geom_smooth(method='glm', 
+              method.args=list(family='binomial'), 
+              se=FALSE, col='green')
+```
+
+\newpage
+
+# Background Information
+
+Patients admitted to an intensive care unit (ICU) are either extremely ill or considered to be at great risk of serious complications. There are no widely accepted criteria for distinguishing between patients who should be admitted to an ICU and those for whom admission to other hospital units would be more appropriate. Thus, among different ICUs, there are wide ranges in a patient's chance of survival. When studies are done to compare effectiveness of ICU care, it is critical to have a reliable means of assessing the comparability of the different patient populations.
+
+One such strategy for doing so involves the use of statistical modeling to relate empirical data for many patient variables to outcomes of interest. The following dataset consists of a sample of 200 subjects who were part of a much larger study on survival of patients following admission to an adult ICU.\footnote{From Hosmer D.W., Lemeshow, S., and Sturdivant, R.X. \textit{Applied Logistic Regression}. 3$^{rd}$ ed., 2013.} The major goal of the study was to develop a logistic regression model to predict the probability of survival to hospital discharge.\footnote{Lemeshow S., et al. Predicting the outcome of intensive care unit patients. \textit{Journal of the American Statistical Association} 83.402 (1988): 348-356.}
+
+The following table provides a list of the variables in the dataset and their description. The data are accessible as the `icu` dataset in the `aplore3` package.
+
+\begin{center}
+\begin{tabular}{r|l}
+\textbf{Variable} & \textbf{Description} \\
+\hline
+\texttt{id} & patient ID number \\
+\texttt{sta} & patient status at discharge, either \texttt{Lived} or \texttt{Died} \\
+\texttt{age} & age in years (when admitted) \\
+\texttt{gender} & gender, either \texttt{Male} or \texttt{Female} \\
+\texttt{can} & cancer part of current issue, either \texttt{No} or \texttt{Yes} \\
+\texttt{crn} & history of chronic renal failure, either \texttt{No} or \texttt{Yes}\\
+\texttt{inf} & infection probable at admission, either \texttt{No} or \texttt{Yes} \\
+\texttt{cpr} & CPR prior to admission, either \texttt{No} or \texttt{Yes} \\
+\texttt{sys} & systolic blood pressure at admission, in mm Hg \\
+\texttt{hra} & heart rate at admission, in beats per minute \\
+\texttt{pre} & previous admission to an ICU within 6 months, either \texttt{No} or \texttt{Yes} \\
+\texttt{type} & type of admission, either \texttt{Elective} or \texttt{Emergency} \\
+\texttt{fra} & long bone, multiple, neck, single area, or hip fracture, either \texttt{No} or \texttt{Yes} \\
+\texttt{po2} & $PO_2$ from initial blood gases, either \texttt{60} or \texttt{<=60}, in mm Hg\\
+\texttt{ph} & $pH$ from initial blood gases, either \texttt{>= 7.25} or \texttt{< 7.25} \\
+\texttt{pco} & $PCO_2$ from initial blood gases, either \texttt{<= 45} or \texttt{>45}, in mm Hg \\
+\texttt{bic} & $HCO_3$ (bicarbonate) from initial blood gases, either \texttt{>= 18} or \texttt{<18}, in mm Hg \\
+\texttt{cre} & creatinine from initial blood gases, either \texttt{<= 2.0} or \texttt{> 2.0}, in mg/dL \\
+\texttt{loc} & level of consciousness at admission, either \texttt{Nothing}, \texttt{Stupor}, or \texttt{Coma}
+\end{tabular}
+\end{center}
+
+\vfill
+
+```{r}
+#install.packages('aplore3')
+library(aplore3)
+data(icu)
+```
+
+
+\newpage
+
+### Odds and probabilities
+
+1. The contingency table below reports data on survival to discharge by whether CPR was administered prior to admission. For the \texttt{sta} variable, \texttt{0} corresponds to \texttt{Died} and \texttt{1} corresponds to \texttt{Lived}.
+
+    a) Calculate the odds of survival to discharge for those who did not receive CPR prior to ICU admission. Is someone who did not receive CPR prior to admission more likely to survive to discharge than to not survive to discharge?
+
+    \vfill
+
+    b) Calculate the odds of survival to discharge for those who received CPR prior to ICU admission. Is someone who received CPR prior to admission more likely to survive to discharge than not?
+    
+    \vfill
+    
+    c) Calculate the odds ratio of survival to discharge, comparing patients who receive CPR prior to admission to those who do not receive CPR prior to admission.
+    
+    \vfill
+
+```{r}
+library(mosaic)
+tally(sta~cpr, data=icu)
+
+library(tidyverse)
+library(colorblindr)
+icu %>% ggplot(aes(x=cpr)) + 
+  geom_bar(aes(fill=sta), col='black') + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+2. Creatinine level in the data are recorded as being either less than or equal to 2.0 mg/dL or greater than 2.0 mg/dL. A typical creatinine level is between 0.5 - 1.0 mg/dL, and elevated creatinine may be a sign of renal failure.
+
+    a) Calculate the odds of survival to discharge for patients who have a creatinine level less than or equal to 2.0 mg/dL. From the odds, calculate the probability of survival to discharge for these patients.
+    
+    \vfill
+  
+    b) Calculate the probability of survival to discharge for patients who have a creatinine level greater than 2.0 mg/dL. From the probability, calculate the odds of survival to discharge for these patients.
+    
+    \vfill
+  
+    c) Compute and interpret the odds ratio of survival to discharge, comparing patients with creatinine $> 2.0$ mg/dL to those with creatinine $\leq$ 2.0 mg/dL.
+    
+    \vfill
+    
+```{r}
+tally(sta~cre, data=icu)
+
+icu %>% ggplot(aes(x=cre)) + 
+  geom_bar(aes(fill=sta), col='black') + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+# Simple logistic regression
+
+3. The code below fits a logistic regression model to predict survival to discharge from prior CPR.
+
+    a) Write the model equation estimated from the data.
+    
+    \vfill
+    
+    b) Interpret the intercept. Confirm that the interpretation coheres with the answer to Question 1, part a).
+    
+    \vfill
+    
+    c) Interpret the slope coefficient. Compute the exponential of the slope coefficient and confirm that this matches the answer to Question 1, part c).
+    
+    \vfill
+  
+    d) Is there evidence of a statistically significant association between survival to discharge and prior CPR at $\alpha = 0.05$?
+    
+    \vfill
+    
+```{r}
+icu <- icu %>%
+  mutate(sta2 = ifelse(sta=='Lived', 1, 0))
+model <- glm(sta2  ~ cpr, data=icu, family='binomial')
+summary(model)
+```
+
+\newpage
+    
+4. Fit a logistic regression model to predict survival to discharge from an indicator of elevated creatinine.
+
+    a) Write the model equation estimated from the data.
+    
+    \vfill
+    
+    b) Interpret the intercept and slope coefficient.
+    
+    \vfill
+    
+    c) Compute and interpret an odds ratio that summarizes the association between survival to discharge and an indicator of elevated creatinine.
+    
+    \vfill
+    
+    d) Is there evidence of a statistically significant association between survival to discharge and an indicator of elevated creatinine at $\alpha = 0.05$?
+    
+    \vfill
+    
+```{r}
+model2 <- glm(sta2 ~ cre, data=icu, family='binomial')
+summary(model2)
+```
+
+\pagebreak
+
+5. Fit a logistic regression model to predict survival to discharge from age.
+
+    a) Write the model equation estimated from the data.
+    
+    \vfill
+    
+    b) Does the intercept have a meaningful interpretation in the context of the data?
+    
+    \vfill
+    
+    c) Interpret the slope coefficient. 
+    
+    \vfill
+    
+    d) Calculate the odds of survival to discharge for a 70-year-old individual. Is a 70-year-old individual more likely to survive than not?
+    
+    \vfill
+
+    e) Calculate the odds ratio of survival to discharge comparing a 45-year-old individual to a 70-year-old individual.
+    
+    \vfill
+    
+```{r}
+model3 <- glm(sta2 ~ age, data=icu, family='binomial')
+summary(model3)
+```
+
+\pagebreak
+
+6. Based on the plot, describe how age and survival are linked in this model.
+
+```{r,echo=TRUE}
+icu %>% ggplot(aes(x=age, y=sta2)) +
+  geom_jitter(height=0.1, width=0.1, alpha=0.5) + 
+  geom_smooth(method='glm', 
+              method.args=list(family='binomial'), 
+              se=FALSE) 
+```
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Recurring bladder tumors
+
+Can we predict which cancers are more likely to recur? Researchers examined 86 patients with bladder cancer, looking for a relationship between cancer recurrence (0=no, 1=yes), and the number of superficial bladder tumors identified and removed right after the initial cancer diagnosis.
+
+```{r, echo=FALSE}
+set.seed(361)
+recurring <- sample(0:1, replace=TRUE, size=86)
+number <- c()
+for(i in 1:86){
+  number[i] = rpois(lambda=(1+2*recurring[i]), 1) + 1
+}
+tumors <- tibble(recurring, number)
+```
+
+```{r, echo=TRUE}
+head(tumors)
+tumors %>% ggplot(aes(x=number, y=recurring)) + 
+  geom_jitter(height=0.1, width=0.1) + 
+  labs(x='Number of tumors', y='Recurring')
+```
+
+a) Write the fitted linear model.
+
+\vfill
+
+\pagebreak
+
+```{r}
+model <- glm(recurring~number, data=tumors, family='binomial')
+summary(model)
+```
+
+b) Find the predicted probability that the cancer comes back for a patient with 1 tumor removed.
+
+\vfill
+
+c) Find the predicted probability that the cancer comes back for a patient with 4 tumors removed.
+
+\vfill
+
+d) Based on the plot, when is it "likely" that the cancer will return? When is it "almost certain" that the cancer will return?
+
+\vfill
+
+```{r,echo=FALSE}
+tumors %>% ggplot(aes(x=number, y=recurring)) +
+  geom_jitter(height=0.1, width=0.1, alpha=0.5) + 
+  geom_smooth(method='glm', 
+              method.args=list(family='binomial'), 
+              se=FALSE) 
+```

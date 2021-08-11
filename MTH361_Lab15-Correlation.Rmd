@@ -1,0 +1,256 @@
+---
+title: 'Lab 15: Scatterplots and Correlation'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Sections 6.1 & 6.2 (Examining a Scatterplot & Estimating a Regression Line)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Obstetrics
+
+Obstetricians sometimes order tests to measure estriol levels from 24-hour urine specimens taken from pregnant women who are near term because level of estriol has been found to be related to infant birthweight. The test can provide indirect evidence of an abnormally small fetus. A 1963 study by Greene and Touchstone was the first to measure this relationship. The data is shown below in the `hormone_test` data set. 
+
+```{r}
+library(tidyverse)
+```
+
+```{r, echo=FALSE}
+hormone_test <- tibble(
+  Estriol = c(7, 9, 9, 12, 14, 16, 16, 16, 14, 16, 16, 17, 19, 21, 24, 15, 16, 17, 25, 27, 15, 15, 15, 16, 19, 18, 17, 18, 20, 22, 25, 24),
+  Birthweight = c(25, 25, 25, 27, 27, 27, 24, 30, 30, 31, 30, 31, 30, 28, 32, 32, 32, 32, 34, 34, 34, 35, 35, 34, 35, 36, 37, 38, 40, 39, 43, 40))
+```
+
+a) Describe the relationship between estriol (mg/24 hours) and birthweight (g/100).
+
+\vfill
+
+```{r}
+hormone_test %>%
+  ggplot(aes(x=Estriol, y=Birthweight)) + 
+  geom_point()
+```
+
+b) Estimate the correlation between estriol and birthweight.
+
+\vfill
+
+\pagebreak
+
+c) Interpret the correlation.
+
+\vfill
+
+```{r}
+cor(hormone_test)
+```
+
+d) Write the fitted regression line. Interpret the slope and y-intercept (if applicable).
+
+\vfill
+
+```{r}
+model <- lm(Birthweight ~ Estriol, data=hormone_test)
+summary(model)
+```
+
+\pagebreak
+
+e) What is the predicted birthweight for an estriol level of 15 mg/24 hours?
+
+\vfill
+
+f) Low birthweight is defined as $\le$ 2500 g. For what estriol levels would the predicted birthweight be below 2500 g?
+
+\vfill
+
+\pagebreak
+
+## Question 2: Cerebellum size in mammals
+
+The cerebellum is a highly convoluted brain structure sitting underneath the cerebral hemispheres. This intriguing structure is thought to facilitate the acquisition and use of sensory data by the rest of the brain, particularly the motor areas. Studies suggest that the cerebellum may scale up with the size of animals' bodies and brains, where as other parts of the brain are differentially represented across species. 
+
+Researchers collected data on the typical body weights (in grams) and cerebellum weights (also in grams) for a set of 15 mammals. The data set is called `AnimalBrains`, for probably obvious reasons.
+
+```{r, echo=FALSE}
+#AnimalBrains <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/AnimalBrains.csv")
+AnimalBrains <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/AnimalBrains.csv")
+```
+
+a) Describe the correlation between the weight of each species' body and cerebellum. Is correlation an appropriate measure for this relationship? Explain why or why not.
+
+\vfill
+
+```{r, error=TRUE}
+# This produces an error - why?
+cor(AnimalBrains)
+```
+
+
+```{r, fig.width=4, fig.height=3.5}
+matrix <- AnimalBrains %>%
+  select(-Species) %>%
+  cor()
+
+matrix
+```
+
+\pagebreak
+
+```{r, fig.width=4, fig.height=3.5}
+library(corrplot)
+corrplot(matrix)
+
+library(PerformanceAnalytics)
+AnimalBrains %>%
+  select(-Species) %>%
+  chart.Correlation()
+```
+
+\pagebreak
+
+```{r}
+AnimalBrains %>%
+  ggplot(aes(x=Body, y=Cerebellum)) + 
+  geom_point()
+```
+
+b) Which species would you consider outliers? Is this surprising?
+
+\vfill
+
+```{r}
+AnimalBrains
+```
+
+\pagebreak
+
+In statistics, one way to "correct" for violated model conditions is to transform the variables. In the data set, the last two columns refer to the natural log of each variable, specifically $ln(Body)$ and $ln(Cerebellum)$. We'll see whether this natural log transformation is an effective solution.
+
+```{r}
+head(AnimalBrains)
+```
+
+c) Describe the correlation between the log-weight of each species' body and cerebellum. Is correlation an appropriate measure for this relationship? Explain why or why not.
+
+\vfill
+
+```{r}
+matrix
+
+AnimalBrains %>% 
+  ggplot(aes(x=Log_Body, y=Log_Cerebellum)) +
+  geom_point()
+```
+
+\pagebreak
+
+d) Write the fitted linear regression model for predicting the natural log of cerebellum weight as a function of the natural log of body weight.
+
+\vfill
+
+```{r}
+model <- lm(Log_Cerebellum~Log_Body, data=AnimalBrains)
+summary(model)
+```
+
+\pagebreak
+
+## Question 3: Forced expiratory volume
+
+The forced expiratory volume (FEV, measured in liters) is a primary indicator of lung function and corresponds to the volume of air that can be forcibly blown out in the first second after full inspiration. Researchers recorded the age, FEV, height, sex, and smoking status of a random sample of 654 children between the ages of 3 and 19.
+
+a) Which variable is most strongly correlated with FEV?
+
+\vfill
+
+```{r, echo=FALSE}
+#FEV <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/FEV.csv")
+FEV <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/FEV.csv")
+```
+
+```{r}
+head(FEV)
+
+matrix2 <- FEV %>% 
+  select(Age, FEV, Height) %>%
+  cor()
+
+matrix2
+
+corrplot(matrix2)
+``` 
+
+\pagebreak
+
+b) Is correlation an appropriate measure for describing the relationship between FEV and age or height? Explain why or why not.
+
+\vfill
+
+```{r}
+FEV %>%
+  ggplot(aes(x=Age, y=FEV)) + 
+  geom_point() + 
+  geom_smooth(method='lm')
+
+FEV %>%
+  ggplot(aes(x=Height, y=FEV)) + 
+  geom_point() + 
+  geom_smooth(method='lm')
+```
+
+
+
+\pagebreak
+
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Hemocrit levels
+
+A 79-year old man was admitted to the hospital with coronary-artery disease, abdominal pain, and worsening intermittent claudication (which roughly means loss of circulation in the legs, making walking difficult and/or painful). As part of the patient's workup, his lab values were followed over time while in the hospital. His hemocrit values (%) over the first 7 days in the hospital are shown below.
+
+```{r, echo=FALSE}
+PatientRecords <- tibble(
+  Day = c(0, 3, 4, 5, 6, 7),
+  Hemocrit = c(28.9, 28.7, 26.4, 30.4, 30.3, 33.2))
+```
+
+a) Describe the relationship between day and hemocrit levels. 
+
+\vfill
+
+```{r}
+PatientRecords %>%
+  ggplot(aes(x=Day, y=Hemocrit)) + 
+  geom_point()
+```
+
+b) Would you feel confident using a linear model based on this data to predict his hemocrit levels on day 8? Explain why or why not.
+
+\vfill
+
+c) Would you describe the correlation between day and hemocrit levels as strong, moderate, or weak? Explain your reasoning.
+
+```{r}
+cor(PatientRecords)
+```
+
+\vfill

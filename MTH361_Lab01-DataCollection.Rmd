@@ -1,0 +1,66 @@
+---
+title: 'Lab 01: Data Collection'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+# Review: Sections 1.2-1.3 (Data Basics and Collection)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Hormone replacement therapy
+
+Oral estrogen-replacement therapy (ERT) activates blood coagulation and increases the risk of venous thromboembolism (a traveling blood clot, sometimes fatal) in post- menopausal women. A study compared a random sample of 155 post-menopausal women who had had a first thromboembolism and a control random sample of 381 women with no history of thromboembolism. One of the study findings was that 21% of the women in the thromboembolism group were currently using oral ERT, compared with only 7% of the women in the control group.
+
+a) Is this an experimental study or an observational study? Explain how you know.
+b) Identify the population and the sample. What is the sample size, $n$?
+c) Identify the response variable. Is this variable categorical or numerical?
+d) Identify the explanatory variable. Is this variable categorical or numerical?
+e) Can you conclude that oral ERT _causes_ the higher rate of thromboembolism? Explain why or why not.
+
+\pagebreak
+
+## Question 2: Smoking habits in the UK
+
+A survey was conducted to study the smoking habits of UK residents. The table below displays the first six observations.
+
+a) What does each row of the table represent? What does each column represent?
+b) How many participants were in the study?
+c) For each variable, indicate whether it is numerical or categorical.
+
+```{r, echo=TRUE}
+library(openintro)
+data(smoking)
+head(smoking)
+nrow(smoking)
+```
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+## Treatments for moderate to severe anxiety 
+
+Cooley et al. (2009) randomly assigned either of two treatments, naturopathic care (diet counseling, breathing techniques, vitamins, and an herbal medicine) or standardized psychotherapy to 81 individuals having moderate to severe anxiety. Anxiety scores decreased an average of 57% in the naturopathic group and 31% in the psychotherapy group.
+
+1. Is this an experimental study or an observational study? Explain how you know.
+2. Identify the population and the sample. What is the sample size, $n$?
+3. Identify the response variable. Is this variable categorical or numerical?
+4. Identify the explanatory variable. Is this variable categorical or numerical? Explain why or why not.
+

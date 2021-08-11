@@ -1,0 +1,110 @@
+---
+title: 'Lab 04: Probability'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+# Review: Section 2.1 (Probability Rules)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Immunizations in kindergarten
+
+A 2014 study of immunizations among school-age children found that in some areas, as many as 13.5% of of incoming kindergarten students did not have the full recommended list of vaccinations. Imagine a classroom of 20 children in this particular area. If there are no siblings in the classroom, we might be willing to assume that vaccination status of children in this classroom is independent.
+
+1. What is the probability that none of the 20 children are fully vaccinated?
+2. What is the probability that all of the 20 children are fully vaccinated?
+3. What is the probability that at least one of the 20 children is not fully vaccinated?
+
+\pagebreak
+
+## Question 2: Mental Health Surveillance Study
+
+In the Mental Health Surveillance Study, clinicians interviewed a very large random sample of American adults so as to diagnose the presence of mental disorders in the previous 12 months. There are many types of mental disorders, and a person can suffer from more than one. Let $X$ represent the number of mental disorders a person has experienced in the past year. Based on this study, the following probability distribution was reported.
+
+$X$|$X=0$|$X=1$|$X=2$|$X=3$|$X\ge 4$
+---|---|---|---|---|---
+$P(X)$| |0.149|0.041|0.022|0.013
+
+1. Complete the table by finding $P(X=0)$.
+2. Find $P(X<2)$.
+3. Find $P(X\le 2)$.
+
+\pagebreak
+
+## Question 3: Behavioral Risk Factor Surveillance System
+
+The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey designed to identify risk factors in the adult population and report emerging health trends. The table below summarizes two variables for the respondents: health status and health coverage, which describes whether each respondent had health insurance.
+
+Health status|Excellent|Very good|Good|Fair|Poor|Total
+---|---|---|---|---|---|---
+No health coverage|459|727|854|385|99|2,524
+Health coverage|4,198|6,245|4,821|1,634|578|17,476
+Total|4,657|6,972|5,675|2,019|677|20,000
+
+1. If we draw one individual at random, what is the probability that the respondent has excellent health and doesn’t have health coverage?
+2. If we draw one individual at random, what is the probability that the respondent has excellent health or doesn’t have health coverage?
+3. Are being in excellent health and having health coverage mutually exclusive (disjoint)?
+4. What is the probability that a randomly chosen individual has excellent health?
+
+\pagebreak
+
+## Question 4: Blood types
+
+The probability that a randomly chosen North American has a particular blood type is listed in the table below. 
+
+Type|O+|O-|A+|A-|B+|B-|AB+|AB-
+---|---|---|---|---|---|---|---|---
+Prob|0.374|0.066|0.357|0.063|0.085|0.015|0.034|0.006
+
+1. What is the probability that a randomly selected North American has blood type O?
+2. B- blood can be safely donated to anyone who has B+, B-, AB+, or AB- blood. What is the probability that a randomly selected North American can receive blood type B-?
+3. Only individuals with O+ blood can receive an O+ blood donation. What is the probability that a randomly selected North American cannot receive blood type O+?
+4. What is the probability that a randomly selected North American is _Rh_+?
+5. What is the probability that a randomly selected North American is _Rh_-?
+6. Assume that blood type does not affect the choice of sexual partner. What probability of North American pregnancies will be at risk for _Rh incompatibility_?
+
+\pagebreak
+
+## Question 5: Genetics
+
+The gene _Prdm9_ is thought to regulate hotspots of recombination (crossing over) in mammals. In the people of Han Chinese descent living in the Los Angeles area there are five alleles at the _Prdm9_ gene: $A_1$, $A_2$, $A_3$, $A_4$, $A_5$. The relative frequencies with which these alleles occur in that population are 0.06, 0.03, 0.84, 0.03, and 0.04, respectively.
+
+Is it reasonable to assume that in this population, the two alleles present in any individual are independently sampled from the population as a whole?
+
+What is the probability that an individual has...
+
+1. Two $A_1$ alleles?
+2. One $A_1$ alleles and one $A_3$ allele?
+3. No $A_1$ alleles?
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## American Community Survey
+
+The American Community Survey is an ongoing survey that provides data every year to give communities the current information they need to plan investments and services. The 2010 American Community Survey estimates that 14.6% of Americans live below the poverty line, 20.7% speak a language other than English (foreign language) at home, and 4.2% fall into both categories.
+
+a) Are living below the poverty line and speaking a foreign language at home disjoint?
+b) Draw a Venn diagram summarizing the variables and their associated probabilities.
+c) What percent of Americans live below the poverty line and only speak English at home?
+d) What percent of Americans live below the poverty line or speak a foreign language at home? 
+e) What percent of Americans live above the poverty line and only speak English at home?

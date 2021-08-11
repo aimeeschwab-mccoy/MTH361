@@ -1,0 +1,104 @@
+---
+title: 'Lab 07: Sampling Distributions'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=3)
+```
+
+# Review: Section 4.1 (Variability in Estimates)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Length of stay
+
+The average length of stay in a US hospital is 2.4 days, with a standard deviation of 0.9 days. We randomly sample 80 people who have recently stayed in an Omaha hospital.
+
+a) Find the mean and standard error of the sampling distribution of $\bar{x}$, the sample mean length of a hospital stay.
+b) What is the probability that the sample mean length of stay at this hospital will be less than 2 days?
+c) Give a range for how long you might _expect_ to be hospitalized?
+
+\pagebreak
+
+## Question 2: Arsenic blood concentration
+
+Arsenic blood concentration is normally distributed with mean $\mu = 3.2 \mu g/dl$ and standard deviation $\sigma = 1.5 \mu g/dl$.
+
+a) Sketch a picture of the population distribution.
+b) A 2017 study by the U.S. Geological Survey and Centers for Disease Control and Prevention estimates about 2.1 million people in the U.S. may be getting their drinking water from private domestic wells considered to have high concentrations of arsenic, presumed to be from natural sources. To see whether high concentrations in the drinking water are negatively affecting people in those areas, researchers plan to sample 200 people at random and measure their arsenic blood concentration. Find the sampling distribution of $\bar{x}$.
+c) Sketch a picture of the sampling distribution. How does it compare to the population distribution?
+d) After collecting data, the researchers found an average arsenic blood concentration of 3.5 $\mu g/dl$. Does this suggest that higher arsenic levels in drinking water _cause_ higher arsenic levels in the blood? Explain why or why not.
+
+\pagebreak
+
+## Question 3: Cholesterol levels
+
+Suppose that the blood cholesterol level of men age 20-34 years follows a normal distribution with mean 188 milligrams/deciliter (mg/dl) and standard deviation 41 mg/dl. 
+
+a) Take a random sample of 100 men from this population. What is the sampling distribution of $\bar{x}$? Find the probability that the sample mean $\bar{x}$ is within 3 mg/dl of the true mean.
+b) Take a random sample of 1000 men from this population. What is the sampling distribution of $\bar{x}$? Find the probability that the sample mean $\bar{x}$ is within 3 mg/dl of the true mean.
+c) Compare your probabilities. What does this tell you about how sampling distributions behave?
+
+\pagebreak
+
+## Question 4: Medical compensation
+
+Medical care and compensation costs for workers injured on the job can vary a lot, and are strongly skewed right. The National Academy of Scoial Insurance reports that the mean workers' compensation claim cost in a year is $\mu = \$ 429$ with a standard deviation of $\sigma = \$ 20,000$. 
+
+a) Sketch a graph of what the population of workers' compensation claim costs may look like. 
+b) A large company with... questionable... safety practices expects to pay 50 workers' compensation claims in a given year. Estimate the probability that the total workers' compensation cost is greater than $25,000.
+
+\pagebreak
+
+## Question 5: Sampling drivers for BAC
+
+The distribution of blood alcohol content in evening drivers is very skewed: Most drivers don't drink and drive, some limit their drinking, while a (hopefully _very_) few are intoxicated. If we wanted to use the normal distribution as an approximation to the sampling distribution of the mean blood alcohol content of evening drivers, how large would our sample need to be?
+
+To get an idea, let's simulate some data. 
+
+- Link: https://stats.cpm.org/quantsamples/
+
+To generate data that "looks like" what we think blood alcohol content in drivers might look like...
+
+- Population data drop-down menu: "random skewed"
+- Min: 0
+- Max: 0.15
+- Peak/balance: 0.05
+
+a) Use the applet to generate samples of $n=20, n=50, n=200, n=500$. How many observations need to be in the sample for the generated sampling distribution to "look normal"?
+b) Change the "peak/balance" setting to 0.20 (this makes the population data less skewed). Use the applet to generate samples of $n=20, n=50, n=200, n=500$. How many observations need to be in the sample for the generated sampling distribution to "look normal"?
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+
+## Age at time of death
+
+The World Health Organization reports that the distribution of ages at time of death in the United States has a mean of $\mu=79.8$ years and a standard deviation $\sigma=15.5$ years, based on death certificates. The distribution of age at death is obviously left-skewed (few people die young, most die old). Researchers plan to take a random sample of 100 American death certificates.
+
+a) What are the mean and standard deviation of the sampling distribution of the average age at death, $\bar{x}$, for samples of 100 death certificates?
+b) Explain why the sampling distribution of $\bar{x}$ is approximately normal, even though the population distribution is left-skewed.
+c) Find the probability that the mean age at time of death in a random sample of 100 American adults will be more than 79 years.
+d) Suppose researchers decide to increase their sample size to 500. Find the mean and standard deviation of the sampling distribution of the average age at death, $\bar{x}$.
+e) Find the probability that the mean age at time of death in a random sample of 500 American adults will be more than 79 years.
+f) How does increasing the sample size affect the sampling distribution?

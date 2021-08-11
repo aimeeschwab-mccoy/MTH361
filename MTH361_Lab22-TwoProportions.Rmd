@@ -1,0 +1,88 @@
+---
+title: 'Lab 22: Comparing Two Proportions'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+
+# Review: Section 8.2 (Inference for the Difference of Two Proportions)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Does fish oil prevent cardiovascular events?
+
+A five-year experiment was conducted to evaluate the effectiveness of fish oils on reducing cardiovascular events, where each subject was randomized into one of two treatment groups. Calculate and interpret a 95% confidence interval for the effect of fish oils on heart attacks for patients who are well-represented by those in the study. What does "well-represented" mean in this context?
+
+Group|Heart attack|No heart attack|Total
+----|----|----|----
+Fish oil|145|12788|12933
+Placebo|200|12738|12938
+
+\pagebreak
+
+## Question 2: Stanford University Heart Transplant study
+
+The Stanford University Heart Transplant Study was conducted to determine whether an experimental heart transplant program increased lifespan. Each patient entering the program was officially designated a heart transplant candidate, meaning that he was gravely ill and might benefit from a new heart. Patients were randomly assigned into treatment and control groups. Patients in the treatment group received a heart transplant, and those in the control group did not. The table below displays how many patients survived and died in each group.
+
+Group|Control|Treatment
+---|---|---
+Alive|4|24
+Dead|30|45
+
+a) Calculate the proportion of patients in each group who were alive at the end of the study period.
+b) Explain why we should _not_ calculate a confidence interval for the difference in survival rate between the control and treatment groups using the methods from this section. What might go wrong?
+
+\pagebreak
+
+## Question 3: HIV in sub-Saharan Africa
+
+In July 2008 the US National Institutes of Health announced that it was stopping a clinical study early because of unexpected results. The study population consisted of HIV-infected women in sub-Saharan Africa who had been given single dose Nevaripine (a treatment for HIV) while giving birth, to prevent transmission of HIV to the infant. The study was a randomized comparison of continued treatment of a woman (after successful childbirth) with Nevaripine vs. Lopinavir, a second drug used to treat HIV. 240 women participated in the experiment, with 120 randomized to each of the two treatments. Six months after starting the study treatment, each woman was tested to determine if the HIV infection was becoming worse - an outcome called _virologic failure_. 26 of the 120 women treated with Nevaripine experienced virologic failure, while 10 of the 120 women treated with the other drug experienced virologic failure.
+
+a) Make a two-way table presenting the results of this study.
+b) Calculate and interpret a 95% confidence interval for the difference in virologic failure rates. 
+c) Based on your interval, why do you think the study was stopped?
+
+\pagebreak
+
+## Question 4: Echinacea
+
+Echinacea is widely used as an herbal remedy for the common cold. Does it work? In a double-blind experiment, healthy volunteers agreed to be exposed to common-cold causing rhinovirus type 39 and have their symptoms monitored. The volunteers were randomly assigned to take either a placebo or an echinacea supplement daily for 5 days following viral exposure. 
+
+Among the 103 subjects taking a placebo, 88 developed a cold. Of the 48 taking echinacea, 44 developed a cold.
+
+a) Calculate and interpret a 95% confidence interval for the difference in the proportions of individuals developing a cold.
+b) Are there any concerns about this confidence interval?
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+## Do blood thinners improve patient outcomes after a heart attack?
+
+The data below is taken from an experiment on patients who underwent cardiopulmonary resuscitation for a heart attack and were subsequently admitted to a hospital. Patients were randomly divided into a treatment group, which received a blood thinner, and a control group which did not. The outcome variable of interest was whether the patients survived for at least 24 hours.
+
+Calculate and interpret a 95% confidence interval for the difference in survival rates. Do the data suggest that blood thinners are effective? Why or why not?
+
+Group|Survived|Died|Total
+---|---|---|---
+Control|11|39|50
+Treatment|14|26|40
+Total|25|65|90

@@ -1,0 +1,166 @@
+---
+title: 'Lab 18: Introduction to Multiple Regression'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Sections 7.1 & 7.2 (Introduction to Multiple Linear Regression)
+
+\pagebreak
+
+## Question 1: Nursing salaries
+
+Hospital administrators are often concerned about providing the best possible care to their patients while balancing the rising cost of healthcare. The data set `Nursing.csv` contains information from a random sample of 52 small hospitals in the state of New Mexico. Variables include:
+
+- Number of beds
+- Number of in-patient days per month
+- Number of all-patient days per month
+- Monthly revenue from patient care
+- Monthly salaries for their nursing staff
+- Expenditures on facility maintenance
+- Whether or not the hospital is in a rural area
+
+All expenditures and revenues are reported in thousands of dollars. Can we use these explanatory variables in a multiple regression model to predict the monthly revenue? (R output on the next page.)
+
+```{r, echo=-1}
+Nursing <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/2018/Spring 2018 Courses/MTH 361 - Probability and Statistics in the Health Sciences/Slides/Nursing.csv")
+#Nursing <- read.csv("~/Dropbox/Spring 2017 Courses/Math 516/Module 7 (Weeks 13-14)/Nursing.csv")
+head(Nursing)
+```
+
+1. Which variable(s) in the model are "statistically significant"?
+
+\vfill
+
+2. Which variable(s) in the model are not statistically significant?
+
+\vfill
+
+\pagebreak
+
+3. Interpret the slope for the number of beds.
+
+\vfill
+
+4. Predict the monthly revenue from patient care for hospital 2.
+
+\vfill
+
+5. How much of the variability in patient revenue can be explained using this linear model?
+
+\vfill
+
+```{r}
+model <- lm(PatientRevenue ~ Beds + InPatientDays +  AllPatientDays + 
+NurseSalaries + FacilitiesExpend, data=Nursing)
+summary(model)
+```
+
+\pagebreak
+
+__Question 2__: In multiple linear regression, we often decide to remove variables from the model that are non-significant. The new model, `model2`, only contains two explanatory variables: `Beds` and `AllPatientDays`.
+
+1. Are these variables "statistically significant"? How do you know?
+
+\vfill
+
+2. Interpret the slope for the number of beds.
+
+\vfill
+
+3. Predict the monthly revenue from patient care for hospital 2.
+
+\vfill
+
+4. How much of the variability in patient revenue can be explained using this linear model?
+
+\vfill
+
+```{r}
+model2 <- lm(PatientRevenue ~ Beds + AllPatientDays, data=Nursing)
+summary(model2)
+```
+
+\pagebreak
+
+5. Use the first two residual plots to evaluate this model. Are any of the necessary assumptions violated?
+
+\vfill
+
+```{r, fig.height=6, fig.width=6}
+par(mfrow=c(2,2))
+plot(model2)
+```
+
+\pagebreak
+
+## Interpreting residual plots
+
+It's difficult to really get a feel for what a "good" residual plot should look like without seeing a few "bad" ones. The plots below come from data sets where at least one of the LINE assumptions isn't met.
+
+For each plot:
+
+1. Which assumption(s) is/are problematic?
+2. How does that manifest in the residual plots?
+
+![Data set A](DataA.png)
+
+![Data set B](DataB.png)
+
+![Data set C](DataC.png)
+
+![Data set D](DataD.png)
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+The FEV data set measures pulmonary function on children ages 3-19. This data set contains data on age, gender, height (inches), FEV (volume of air expelled in one second in liters), and smoking status.
+
+```{r, echo=-1}
+FEV <- read.csv("C:/Users/ads67836/OneDrive - Creighton University/MTH 361 - Biostatistics/Class Slides/FEV.csv")
+#FEV <- read.csv("~/OneDrive - Creighton University/MTH 361 - Biostatistics/Worksheets and Labs/FEV.csv")
+head(FEV)
+```
+
+a) Write the fitted multiple linear regression model for predicting FEV based on age, height, sex, and smoking status. (Output on the next page.)
+
+\vfill
+
+b) Which variables in this model are "significant"? Which variables aren't useful predictors?
+
+\vfill
+
+c) How much of the variability in FEV can be explained using this model?
+
+\vfill
+
+d) Based on the residual plots (next page), are the model assumptions met? Explain why or why not. 
+
+\vfill
+
+\pagebreak
+
+```{r}
+model <- lm(fev ~ age + height + sex + smoke, data=FEV)
+summary(model)
+```
+
+```{r, echo=-1}
+par(mfrow=c(1,2))
+plot(model)
+```

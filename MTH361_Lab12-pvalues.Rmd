@@ -1,0 +1,382 @@
+---
+title: 'Lab 12: A Closer Look at P-Values'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+__Definition of a p-value__: 
+
+\vfill
+
+![](img_pvalue_interpretation.jpg)
+
+Why are p-values so difficult to interpret and understand? In this lab, we'll use a __simulation study__ to dig a little deeper into what they tell us, and what they don't.
+
+\pagebreak
+
+# The ASA Statement on Statistical Significance and $P$-Values
+
+In 2016, the American Statistical Association released a formal statement clarifying principles about the proper use and interpretation of the $p$-value, with the aim of improving the way research is conducted in the scientific community.\footnote{Wasserstein, R.L. and Lazar, N.A. (2016). The ASA's statement on p-values: context, process, and purpose. \textit{The American Statistician}, \textit{70}(2), 129-133.} The main points of the statement are reproduced below.
+
+1. $P$-values can indicate how incompatible the data are with a specified statistical model. 
+
+\vfill
+
+2. $P$-values do not measure the probability that the studied hypothesis is true, or the probability that the data were produced by random chance alone. 
+
+\vfill
+
+3. Scientific conclusions and business or policy decisions should not be based only on whether a $p$-value passes a specific threshold. Many other contextual factors should be considered, such as the design of a study, the external evidence for the phenomenon under study, and the validity of the assumptions that underlie the data analysis.
+
+\vfill
+
+4. Proper inference requires full reporting and transparency. Conducting multiple analyses and reporting only those with certain $p$-values compromises interpretation of the results.
+
+\vfill
+
+5. A $p$-value does not measure the size of an effect or the importance of a result. Statistical significance is not equivalent to scientific, human, or economic significance.
+
+\vfill
+
+6. By itself, a $p$-value does not provide a good measure of evidence regarding a model or hypothesis. 
+ 
+ \vfill
+ 
+The second point touches on an especially common misconception about $p$-values -- that __if a $p$-value equals, say, 0.04, the null hypothesis has only a 4\% chance of being true (or that the alternative hypothesis has a 96\% chance of being true)__. This misconception will be explored in the lab, along with an approach for quantifying external evidence for a phenomenon (as mentioned in the third point).
+
+\vfill
+
+\pagebreak
+  
+# Introduction: Alzheimer's treatment
+
+Treatment for Alzheimer's disease is an active research area because of the aging population in the United States and other high-income countries. The Dementia Severity Rating Scale (DSRS) is a questionnaire completed by a knowledgeable informant (typically a spouse or other close relative) to measure the impairment severity of a person with Alzheimer's disease.\footnote{Clark C.M., Ewbank D.C. (1996). Performance of the dementia severity rating scale: a caregiver questionnaire for rating severity in Alzheimer disease. \textit{Alzheimer Disease and Associated Disorders}, \textit{10}(1),31-9.} Scores on the DSRS range from 0 (indicating no impairment) to 54 (extreme impairment).
+
+Cognitive decline over several years is measured by the annual rate in change in DSRS score. For example, a patient scored for three consecutive years whose score increased from 7 to 14.5 has an annual rate of change of $7.5/3 = 2.5$ points per year. A negative rate of change is indicative of improvement from baseline.
+
+Suppose a pharmaceutical company has developed a drug to slow cognitive decline in individuals with Alzheimer's disease. In a randomized trial, the company will compare mean annual rate of change in DSRS score for participants receiving a placebo to mean annual rate of change for participants treated with the new drug. The study will enroll individuals newly diagnosed with Alzheimer's and randomize each participant to either the control group or the treatment group, with DSRS being measured for each participant at the beginning of the study and three years later.
+
+The company scientists have decided that a 1.0 point difference in mean rate of change in DSRS score between the groups will be sufficient to warrant further study of the drug. Individuals newly diagnosed with Alzheimer's have an average DSRS score of about 20 and typically experience cognitive decline at the rate of +3.5 points per year. The standard deviation of rate of decline can be assumed to be 6 points per year. The study results will be analyzed with a two-sided $t$-test conducted at $\alpha = 0.05$. They plan to recruit 600 participants for each group.
+
+> We'll talk about the details of a two-sample t-test after the Midterm Exam...
+
+---
+
+Suppose that the null hypothesis of no difference between treatment groups is true, and that the mean rate of change in DSRS score in both groups is 3.5 points/year, with standard deviation of 6 points. Assume that average rate of change is normally distributed.
+
+a) Run the following code to simulate rate of change in DSRS score for 600 individuals in the control group and 600 individuals in the treatment group, stored in the vectors `control` and `treatment`.
+    
+```{r}
+# Set the parameters
+control.mean <- 3.5
+treatment.mean <- 3.5
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Simulate data
+control <- rnorm(n = control.n, 
+                 mean = control.mean, 
+                 sd = control.sigma)
+treatment <-  rnorm(n = treatment.n, 
+                    mean = treatment.mean, 
+                    sd = treatment.sigma)
+
+```
+
+\pagebreak
+
+b) Conduct a two-sided test of the null hypothesis of no difference from the simulated data. 
+    
+    i. Summarize your conclusions.
+        
+    ii. Does this represent an instance of Type I error? Explain why or why not.
+ 
+\vfill
+
+```{r}
+t.test(control, treatment)
+```
+
+\pagebreak
+
+c) What would happen if we generated __many data sets__ assuming that $\mu_{treatment} = \mu_{control}$, and ran __many hypothesis tests__?
+
+```{r}
+# Set the parameters
+control.mean <- 3.5
+treatment.mean <- 3.5
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Number of experiments
+N <- 10000
+
+# Empty "data frame" for saving the test statistics and p-values
+results <- data.frame(nrow=N, ncol=2)
+
+for(i in 1:N){
+    # Simulate data
+    control <- rnorm(n = control.n, mean = control.mean, sd = control.sigma)
+    treatment <-  rnorm(n = treatment.n, mean = treatment.mean, sd = treatment.sigma)
+    
+    # Conduct a t-test to see if the two groups have the same mean
+    test <- t.test(control, treatment)
+    
+    results[i, 1] <- test$statistic
+    results[i, 2] <- test$p.value
+}
+
+colnames(results) <- c('t_stat', 'p_value')
+```
+
+\pagebreak
+
+Now, let's visualize the results. Remember, $H_0: \mu_{treatment} = \mu_{control}$ is __true__, because that's how we generated the data.
+
+```{r}
+library(tidyverse)
+results %>% ggplot(aes(x=t_stat)) + 
+  geom_histogram(fill='lightblue', col='black')
+
+results %>% ggplot(aes(x=p_value)) + 
+  geom_histogram(fill='lightblue', col='black', breaks=0:20/20)
+```
+
+Assuming that $H_0: \mu_{treatment} = \mu_{control}$ is true, how often would we get a p-value less than 0.05? 0.10?
+
+> Hint: The histogram of the p-values is set up so that bars run from 0-0.05, 0.05-0.10, 0.10-0.15, ...
+
+\pagebreak
+
+
+Now, suppose that the alternative hypothesis of a difference between treatment groups is true, and that the mean rate of change in DSRS score in the treatment group is 2.5 points/year while mean rate of change in the control group is 3.5 points/year.
+
+a) Run the following code to simulate rate of change in DSRS score for 600 individuals in the control group and 600 individuals in the treatment group, stored in the vectors `control` and `treatment`.
+    
+```{r}
+# Set the parameters
+control.mean <- 3.5
+
+# All parameters are the same EXCEPT the treatment mean
+treatment.mean <- 2.5
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Simulate data
+control <- rnorm(n = control.n, mean = control.mean, sd = control.sigma)
+treatment <-  rnorm(n = treatment.n, mean = treatment.mean, sd = treatment.sigma)
+```
+    
+b) Conduct a two-sided test of the null hypothesis of no difference from the simulated data. 
+    
+    i. Summarize your conclusions.
+        
+    ii. Does this represent an instance of Type II error? Explain why or why not.
+ 
+\vfill
+
+```{r}
+# Conduct a t-test to see if the two groups have the same mean
+t.test(control, treatment)
+```
+        
+
+\pagebreak
+
+c) What would happen if we generated __many data sets__ assuming that $\mu_{treatment} =2.5,  \mu_{control}=3.5$, and ran __many hypothesis tests__?
+
+```{r}
+# Set the parameters
+control.mean <- 3.5
+treatment.mean <- 2.5
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Number of experiments
+N <- 10000
+
+# Empty "data frame" for saving the test statistics and p-values
+results <- data.frame(nrow=N, ncol=2)
+
+for(i in 1:N){
+    # Simulate data
+    control <- rnorm(n = control.n, mean = control.mean, sd = control.sigma)
+    treatment <-  rnorm(n = treatment.n, mean = treatment.mean, sd = treatment.sigma)
+    
+    # Conduct a t-test to see if the two groups have the same mean
+    test <- t.test(control, treatment)
+    
+    results[i, 1] <- test$statistic
+    results[i, 2] <- test$p.value
+}
+
+colnames(results) <- c('t_stat', 'p_value')
+```
+
+\pagebreak
+
+Now, let's visualize the results. Remember, $H_0: \mu_{treatment} = \mu_{control}$ is __false__, because that's how we generated the data.
+
+The __effect size__ is:
+
+$$\mu_{control} - \mu_{treatment} = 3.5-2.5=1.0$$
+
+```{r}
+library(tidyverse)
+results %>% ggplot(aes(x=t_stat)) + 
+  geom_histogram(fill='lightyellow', col='black')
+
+results %>% ggplot(aes(x=p_value)) + 
+  geom_histogram(fill='lightyellow', col='black', breaks=0:20/20)
+```
+
+Assuming that $H_0: \mu_{treatment} = \mu_{control}$ is false and the true difference is 1.0, how often would we get a p-value less than 0.05? 0.10?
+
+> Hint: The histogram of the p-values is set up so that bars run from 0-0.05, 0.05-0.10, 0.10-0.15, ...
+
+\pagebreak
+
+Let's see one more example. Suppose that the alternative hypothesis of a difference between treatment groups is true, and that the mean rate of change in DSRS score in the treatment group is 1.0 points/year while mean rate of change in the control group is 3.5 points/year.
+
+a) Run the following code to simulate rate of change in DSRS score for 600 individuals in the control group and 600 individuals in the treatment group, stored in the vectors `control` and `treatment`.
+    
+```{r}
+# Set the parameters
+control.mean <- 3.5
+
+# All parameters are the same EXCEPT the treatment mean
+treatment.mean <- 1.0
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Simulate data
+control <- rnorm(n = control.n, mean = control.mean, sd = control.sigma)
+treatment <-  rnorm(n = treatment.n, mean = treatment.mean, sd = treatment.sigma)
+```
+    
+b) Conduct a two-sided test of the null hypothesis of no difference from the simulated data. 
+    
+    i. Summarize your conclusions.
+        
+    ii. Does this represent an instance of Type II error? Explain why or why not.
+ 
+\vfill
+
+```{r}
+# Conduct a t-test to see if the two groups have the same mean
+t.test(control, treatment)
+```
+        
+
+\pagebreak
+
+c) What would happen if we generated __many data sets__ assuming that $\mu_{treatment} =1.0,  \mu_{control}=3.5$, and ran __many hypothesis tests__?
+
+```{r}
+# Set the parameters
+control.mean <- 3.5
+treatment.mean <- 1.0
+control.sigma <- 6
+treatment.sigma <-  6
+control.n <- 600
+treatment.n <- 600
+alpha <-  0.05
+
+# Set seed
+set.seed(361)
+
+# Number of experiments
+N <- 10000
+
+# Empty "data frame" for saving the test statistics and p-values
+results <- data.frame(nrow=N, ncol=2)
+
+for(i in 1:N){
+    # Simulate data
+    control <- rnorm(n = control.n, mean = control.mean, sd = control.sigma)
+    treatment <-  rnorm(n = treatment.n, mean = treatment.mean, sd = treatment.sigma)
+    
+    # Conduct a t-test to see if the two groups have the same mean
+    test <- t.test(control, treatment)
+    
+    results[i, 1] <- test$statistic
+    results[i, 2] <- test$p.value
+}
+
+colnames(results) <- c('t_stat', 'p_value')
+```
+
+\pagebreak
+
+Now, let's visualize the results. Remember, $H_0: \mu_{treatment} = \mu_{control}$ is __false__, because that's how we generated the data.
+
+The __effect size__ is:
+
+$$\mu_{control} - \mu_{treatment} = 3.5-1.0=2.5$$
+
+```{r}
+library(tidyverse)
+results %>% ggplot(aes(x=t_stat)) + 
+  geom_histogram(fill='lightpink', col='black')
+
+results %>% ggplot(aes(x=p_value)) + 
+  geom_histogram(fill='lightpink', col='black', breaks=0:20/20)
+```
+
+Assuming that $H_0: \mu_{treatment} = \mu_{control}$ is false and the true difference is 2.5, how often would we get a p-value less than 0.05? 0.10?
+
+> Hint: The histogram of the p-values is set up so that bars run from 0-0.05, 0.05-0.10, 0.10-0.15, ...
+
+\pagebreak
+
+# What have we learned?
+
+Address the misconception mentioned at the beginning of the lab --- what is the logical flaw in concluding that if a $p$-value equals, say, 0.04, the null hypothesis has only a 4\% chance of being true (or that the alternative hypothesis has a 96\% chance of being true)?
+
+\vfill
+
+What are some other takeaway lessons?
+
+\vfill

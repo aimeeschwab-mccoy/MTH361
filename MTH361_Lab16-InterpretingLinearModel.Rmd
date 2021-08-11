@@ -1,0 +1,304 @@
+---
+title: 'Lab 16: Interpreting the Linear Model and Making Predictions'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Sections 6.2 & 6.3 (Estimating a Regression Line and Interpreting a Linear Model)
+
+\pagebreak
+
+# Introduction
+
+## Least squares regression
+
+The relationship between two numerical variables can be visualized using a scatterplot with the *explanatory* variable plotted on the horizontal axis, while the *response* variable is plotted on the vertical axis. 
+
+This lab introduces the idea of using a straight line, $y = b_0 + b_1x$, where $b_0$ is the $y$-intercept and $b_1$ is the slope, to summarize data that exhibit an approximately linear relationship. 
+
+The vertical distance between a point in the scatterplot and the predicted value on the regression line is the **residual** for the point. For an observation $(x_i, y_i)$, where $\hat{y}_i$ is the predicted value according to the line $\hat{y} = b_0 + b_1 x$, the residual is the value $e_i = y_i - \hat{y}_i$. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
+x <- runif(50, min=0, max=10)
+y <- 3 + 2*x + rnorm(50, 0, 1)
+
+library(tidyverse)
+data <- tibble(x=x, y=y)
+data %>% ggplot(aes(x=x, y=y)) + 
+  geom_point() + 
+  geom_smooth(method='lm')
+```
+
+The **least squares regression line** is the line which minimizes the sum of the squared residuals (SSE) for all the points in the plot; i.e., the regression line is the line that minimizes $e_1^{2} + e_2^{2} + ... + e_n^{2}$ for the $n$ pairs of points in the dataset.\footnote{SSE stands for "sum of squared errors" and refers to the sum of squared residuals.}
+
+For a general population of ordered pairs $(x, y)$, the population regression model is
+\[y = \beta_0 + \beta_1 x + \epsilon ,\]
+where $\epsilon$ is a normally distributed 'error term' with mean 0 and standard deviation $\sigma$.
+
+The terms $\beta_0$ and $\beta_1$ are parameters with estimates $\hat{\beta}_0$ and $\hat{\beta}_1$. These estimates are calculated by finding the line which satisfies two criteria:
+
+1. The _sum of the residuals_ is set to 0
+2. The _sum of the squared residuals_ is minimized
+
+Hence, __least squares regression__.
+
+\vfill
+
+## Residual plots
+
+There are a variety of **residual plots** used to check the fit of a least squares line. The ones used in this course are scatterplots in which predicted values are on the $x$-axis and residual values on the $y$-axis. Residual plots are useful for checking the assumptions of linearity and constant variability.
+
+> If the model assumptions (LINE) are satisfied, you should see:
+
+\vfill
+
+To assess the normality of residuals, **normal probability plots** are used. These plots are also known as quantile-quantile plots, or Q-Q plots. 
+
+> If the model assumptions (LINE) are satisified, you should see:
+
+\vfill
+
+\pagebreak
+
+```{r, echo=FALSE, fig.width=6, fig.height=6}
+model <- lm(y ~ x, data=data)
+
+# This sets the "plotting window" to a 2 by 2 grid
+par(mfrow=c(2, 2))
+plot(model)
+```
+
+\pagebreak
+
+# Question 1: PREVEND Study
+
+The Prevention of REnal and Vascular END-stage Disease (PREVEND) study took place between 2003 and 2006 in the Netherlands. Clinical and demographic data for 4,095 individuals are stored in the `prevend` dataset in the `oibiostat` package.
+
+As adults age, cognitive function declines over time; this is largely due to various cerebrovascular and neurodegenerative changes. 
+
+The Ruff Figural Fluency Test (RFFT) is one measure of cognitive function that provides information about cognitive abilities such as planning and the ability to switch between different tasks. Scores on the RFFT range from 0 to 175 points, where higher scores are indicative of better cognitive function.
+
+The goal of this lab is to begin exploring the relationship between age and RFFT score in the `prevend` dataset.
+
+
+## Fitting and interpreting a line
+
+The questions in this lab will be based around data from a random sample of $n = 500$ individuals from the `prevend` dataset; the sample is stored as `prevend.samp` in the `oibiostat` package.
+
+Run the following code chunk to load the `prevend.samp` dataset.
+
+```{r}
+# Load the data and libraries
+library(oibiostat)
+library(tidyverse)
+  
+data(prevend.samp)
+```
+
+The scatterplot below shows RFFT score (`RFFT`) and age in years (`Age`) in `prevend.samp`.
+
+```{r}
+prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point()
+```
+
+\pagebreak
+
+We'll examine the plot and consider possible lines that are a reasonable approximation for the relationship in the plot.
+
+1. Consider the line $\hat{y} = -20 + 2x$. Does this line appear to be a good fit to the data?
+
+\vfill
+  
+2. Consider the line $\hat{y} = 137.55 - 1.261x$. Does this line appear to be a good fit to the data?
+
+\vfill
+
+```{r, echo=FALSE}
+p1 <- prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point(alpha=0.25, col='red') + 
+  geom_abline(intercept=-20, slope=2) + 
+  labs(title='y = -20 + 2x')
+
+p2 <- prevend.samp %>%
+  ggplot(aes(x=Age, y=RFFT)) + 
+  geom_point(alpha=0.25, col='blue') + 
+  geom_abline(intercept=137.55, slope=-1.261) + 
+  labs(title='y = 137.55 - 1.261x')
+
+library(patchwork)
+p1 + p2
+
+```
+  
+
+\pagebreak
+
+3. The code below fits the least squares regression model.
+
+    a) Write the fitted linear model. 
+    
+    \vfill
+
+    b) Interpret the slope and intercept values in the context of the data; i.e., explain the linear model in terms that a non-statistician would understand. Comment on whether the intercept value has any interpretive meaning in this setting.
+    
+    \vfill
+
+    c) Based on the linear model, how much does RFFT score differ, on average, between an individual who is 60 years old versus an individual who is 50 years old?
+    
+    \vfill
+
+    d) According to the linear model, what is the average RFFT score for an individual who is 70 years old?
+    
+    \vfill
+
+    e) Is it valid to use the linear model to estimate RFFT score for an individual who is 20 years old? Explain your answer.
+
+    \vfill
+
+```{r}
+model <- lm(RFFT~Age, data=prevend.samp)
+summary(model)
+```
+
+\pagebreak
+
+
+## Checking assumptions with residual plots
+
+There are four assumptions that must be met for a linear model to be considered reasonable: linearity (L), independent observations (I), normally distributed residuals (N), constant error variability (E).
+
+Even though linearity and constant variability can be assessed from the scatterplot of $y$ versus $x$, it is helpful to consult residual plots for a clearer view. Normality of residuals is best assessed through a normal probability plot; although skew can be visible from a histogram of the residuals, deviations from normality are more obvious on a normal probability plot.
+
+4. The code on the next page creates four residual plots for our model. We'll examine the first two.
+
+    a) We'll start with the plot in the upper left. In this plot, the predicted values ("fitted values") on the horizonal axis and the residuals are on the vertical axis. When a linear model is a good fit for the data, the residuals should scatter around the horizontal line $y = 0$ with no apparent pattern. Does a linear model seem appropriate for these data?
+    
+    \vfill
+    
+    b) Does the variability of the residuals seem constant across the range of predicted RFFT scores? A horizontal "band" indicates constant variability, and a "funnel" shape indicates increasing/decreasing variability.
+    
+    \vfill
+    
+    c) The plot in the upper right is a Q-Q plot of the residuals against a normal distribution. Remember, normally distributed variables should follow a roughly straight lilne. Does this plot suggest that the residuals are normally distributed?
+    
+    \vfill
+    
+\pagebreak
+    
+```{r, echo=-1, fig.height=6, fig.width=6}
+par(mfrow=c(2,2))
+plot(model)
+```
+
+5. Overall, does it seem that a least squares regression line is an appropriate model for estimating the relationship between cognitive function (as measured by RFFT score) and age?
+
+\pagebreak
+
+## Question 2: Obstetrics
+
+Obstetricians sometimes order tests to measure estriol levels from 24-hour urine specimens taken from pregnant women who are near term because level of estriol has been found to be related to infant birthweight. The test can provide indirect evidence of an abnormally small fetus. A 1963 study by Greene and Touchstone was the first to measure this relationship. The data is shown below in the `hormone_test` data set. 
+
+```{r}
+library(tidyverse)
+```
+
+```{r, echo=FALSE}
+hormone_test <- tibble(
+  Estriol = c(7, 9, 9, 12, 14, 16, 16, 16, 14, 16, 16, 17, 19, 21, 24, 15, 16, 17, 25, 27, 15, 15, 15, 16, 19, 18, 17, 18, 20, 22, 25, 24),
+  Birthweight = c(25, 25, 25, 27, 27, 27, 24, 30, 30, 31, 30, 31, 30, 28, 32, 32, 32, 32, 34, 34, 34, 35, 35, 34, 35, 36, 37, 38, 40, 39, 43, 40))
+```
+
+a) Write the fitted regression line. Interpret the slope and y-intercept (if applicable).
+
+\vfill
+
+```{r}
+model <- lm(Birthweight ~ Estriol, data=hormone_test)
+summary(model)
+```
+
+b) Find the predicted birthweight and residual for the first observation.
+
+\vfill
+
+c) Find the predicted birthweight and residual for the second observation.
+
+\vfill
+
+```{r}
+head(hormone_test)
+```
+
+\pagebreak
+
+d) Evaluate the model using the _first two_ residual plots. Are the model assumptions met?
+
+```{r, fig.width=6, fig.height=6, echo=-1}
+par(mfrow=c(2,2))
+plot(model)
+```
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Clutch volume and body size in frogs
+
+The `frog` dataset in the `oibiostat` package contains observations from a study conducted on a frog species endemic to the Tibetan Plateau. Researchers collected measurements on egg clutches and female frogs found at breeding ponds across five study sites.
+
+Previous research suggests that larger body size allows females to produce egg clutches with larger volumes. Frog embryos are surrounded by a gelatinous matrix that may protect developing embryos from temperature fluctuation or ultraviolet radiation; a larger matrix volume provides added protection. In the data, clutch volume (`clutch.volume`) is recorded in cubic millimeters and female body size (`body.size`) is measured as length in centimeters.
+
+```{r}
+data(frog)
+```
+
+1. Describe the scatterplot of clutch volume versus female body size. Based on the plot, does the regression line appear to be a "good fit"?
+
+\vfill
+
+```{r}
+frog %>% ggplot(aes(x=body.size, y=clutch.volume)) + 
+  geom_point() + 
+  geom_smooth(method='lm', se=FALSE)
+```
+
+2. Write the fitted linear model. (R output on the next page.) Predict the clutch volume for a female who is 5.0 centimeters long.
+
+\vfill
+
+3. Based on the residual plots, do the residuals appear normally distributed? Explain why or why not.
+
+\vfill
+
+4. Based on the residual plots, do the residuals appear to have constant variance? Explain why or why not.
+
+\vfill
+
+\pagebreak
+
+```{r, echo=-1, fig.height=6, fig.width=6}
+par(mfrow=c(2,2))
+model <- lm(clutch.volume ~ body.size, data=frog)
+summary(model)
+plot(model)
+```
+

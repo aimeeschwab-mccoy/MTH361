@@ -1,0 +1,244 @@
+---
+title: 'Lab 08: Confidence Intervals'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=4, fig.height=3)
+```
+
+# Review: Section 4.2 (Confidence Intervals)
+
+\pagebreak
+
+# Exploration: Youth Risk Behavioral Surveillance System
+
+This lab uses data from the Youth Risk Behavioral Surveillance System (YRBSS), a yearly survey conducted by the US Centers for Disease Control to measure health-related activity in high-school aged youth. The dataset `yrbss` contains responses from the 13,572 participants in 2013 for a subset of the variables included in the complete survey data.
+
+Variables in `yrbss` include:
+
+- `age`: age in years
+- `gender`: gender of participant, recorded as either "female" or "male"
+- `grade`: grade in high school (9-12)
+- `height`: height, in meters (1 m = 3.28 ft)
+- `weight`: weight, in kilograms (1 kg = 2.2 lbs)
+
+The CDC used the response from the 13,572 students to estimate the health behaviors of the target population: the 21.2 million high school aged students in the United States in 2013.
+
+The goal in this lab is to observe the effect of sampling by treating the 13,572 individuals in `yrbss` as a target population and drawing random samples. How do interval estimates of mean weight, $(\overline{x}_{weight} - m, \overline{x}_{weight} + m)$, calculated from random samples compare to the population parameter, $\mu_{weight}$?
+
+
+## Calculating confidence intervals
+
+Run the following code in RStudio to take a random sample of 30 individuals from `yrbss` and store the subset as `yrbss.sample`. The code includes a section that removes any rows from `yrbss` where there are no data recorded for `weight`. The version of `yrbss` without missing weight values is stored as `yrbss.complete`.
+
+```{r}
+# Load the data
+library(oibiostat)
+data("yrbss")
+
+# Load the tidyverse
+library(tidyverse)
+
+#remove rows with missing values
+yrbss.complete <- yrbss %>% filter(weight != 'NA')
+
+# Set parameters
+sample.size <- 30
+
+# Set a seed for"starting" the random sample
+set.seed(361)
+
+# Take a random sample of row numbers
+sample.rows <- sample(1:nrow(yrbss.complete), sample.size)
+
+# Create yrbss.sample by keeping only those rows
+yrbss.sample <- yrbss.complete[sample.rows, ]
+```
+
+\pagebreak
+
+A confidence interval is calculated from four quantities: the sample mean $\overline{x}$, the sample standard deviation $s$, the sample size $n$, and the critical $z$-value $z^\star$.
+
+a) Calculate $\overline{x}_{weight}$ and $s_{weight}$, the mean and standard deviation of weight in the sample using the `favstats()` function from the `mosaic` library. Make a histogram of your sample.
+
+\vfill
+
+```{r}
+library(mosaic)
+favstats(~weight, data=yrbss.sample)
+
+yrbss.sample %>% ggplot(aes(x=weight)) + 
+  geom_histogram(fill='lightblue', col='black', bins=20)
+```
+    
+b) For a 95\% confidence interval, $z^\star$ is the point on a standard normal distribution that has area 0.975 to the left (and area 0.025 to the right). Calculate the value of $z^\star$ for a 95\% confidence interval.
+
+\vfill
+
+\pagebreak
+    
+c) Calculate a 95\% confidence interval based on the sampled weights. The quantity $(z^\star \times \frac{s}{\sqrt{n}})$ is known as the margin of error, $m$.
+
+$$\overline{x} \pm z^\star \times \frac{s}{\sqrt{n}}  \rightarrow  \left( \overline{x} - z^\star \frac{s}{\sqrt{n}}, \ \overline{x} + z^\star \frac{s}{\sqrt{n}} \right) $$
+
+\vfill
+
+d) The standard deviation of weight in the sample is 18.26 kg. Suppose that the standard deviation in the sample were 20 kg or 25 kg, but that $\overline{x}$ and $n$ remain constant. Re-run the calculation from part c) and describe the effect of larger (sample) standard deviation on the confidence interval.
+
+\vfill
+
+
+\pagebreak
+
+In general, for a confidence interval of $(1 - \alpha)(100)\%$, $z^\star$ is the point on a standard normal distribution that has area $1 - (\alpha/2)$ to the left (and area $\alpha/2$ to the right). For a 95\% confidence interval, $\alpha = 0.05$; $z^\star$ is the point on a standard normal distribution with area $1 - (0.05/2) = 0.975$ to the left.
+
+e) Calculate a 90\% confidence interval for mean weight based on the sample data.
+
+\vfill
+    
+f) Calculate a 99\% confidence interval for mean weight based on the sample data.
+
+\vfill
+
+g) Compare the 95\% confidence interval calculated in the previous question to the 90\% and 99\% confidence intervals. Describe the relationship between confidence level and width of the interval.
+
+\vfill
+    
+h) Which of the intervals calculated (90\%, 95\%, 99\%) do you find to be the most informative as an estimate of the mean weight of high school age students in the US? Explain your answer. 
+
+\vfill
+
+\pagebreak
+
+The `t.test()` command can be used to calculate confidence intervals. For example, the command to calculate a 95\% confidence interval for `weight` in `yrbss.sample` is
+
+```{r}
+t.test(yrbss.sample$weight, conf.level = 0.95)
+```
+
+
+i) Compare the 95\% confidence interval for mean weight using `t.test()` to the one you calculated by hand.
+    
+\vfill
+
+> The answer will differ slightly from the one in Question 1 because `R` calculates confidence intervals using a critical value from the $t$ distribution rather than from the standard normal distribution; the $t$ distribution will be introduced in Chapter 5.
+    
+j) Examine the effect of larger sample sizes on the confidence interval by re-running the code for sample sizes of 50, 100, and 300. Describe your observations.
+
+\vfill
+
+```{r}
+# Set parameters
+sample.size <- 50
+
+# Take a random sample of row numbers
+sample.rows <- sample(1:nrow(yrbss.complete), sample.size)
+
+# Create yrbss.sample by keeping only those rows
+yrbss.sample.new <- yrbss.complete[sample.rows, ]
+
+favstats(~weight, data=yrbss.sample.new)
+```
+
+\pagebreak
+
+```{r}
+# Set parameters
+sample.size <- 100
+
+# Take a random sample of row numbers
+sample.rows <- sample(1:nrow(yrbss.complete), sample.size)
+
+# Create yrbss.sample by keeping only those rows
+yrbss.sample.new <- yrbss.complete[sample.rows, ]
+
+favstats(~weight, data=yrbss.sample.new)
+```
+
+\vfill
+
+```{r}
+# Set parameters
+sample.size <- 300
+
+# Take a random sample of row numbers
+sample.rows <- sample(1:nrow(yrbss.complete), sample.size)
+
+# Create yrbss.sample by keeping only those rows
+yrbss.sample.new <- yrbss.complete[sample.rows, ]
+
+favstats(~weight, data=yrbss.sample.new)
+```
+
+\vfill
+
+\pagebreak
+
+## The interpretation of "confidence"
+
+The method discussed for computing an $x\%$ confidence interval will produce an interval that $x$ times out of 100 (on average) contains the population mean.
+
+k) Consider the individuals in `yrbss.complete` as the target population. Calculate the population mean weight, $\mu_{weight}$. 
+
+```{r}
+favstats(~weight, data=yrbss.complete)
+```
+
+\vfill
+
+l) Does the 95\% interval calculated above for $n = 100$ contain $\mu_{weight}$?
+
+\vfill
+
+From what you have observed in this lab about the relationship between an interval estimate $(\overline{x} \pm m)$ and the population mean ($\mu$), evaluate the following statement:
+    
+> "The 95\% confidence interval as calculated from the 13,572 sampled high school students in the 2013 YRBSS survey is (67.61, 68.20) kg. It is possible to definitively conclude that this interval contains the mean weight of the 21.2 million high school students in the US in 2013."
+
+\vfill
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Relaxing after work
+
+The 2010 General Social Survey asked the question: “After an average work day, about how many hours do you have to relax or pursue activities that you enjoy?" to a random sample of 1,155 Americans. A 95% confidence interval for the mean number of hours spent relaxing or pursuing activities they enjoy is (1.38, 1.92).
+
+a) Interpret this interval in context of the data.
+b) Suppose another set of researchers reported a confidence interval with a larger margin of error based on the same sample of 1,155 Americans. How does their confidence level compare to the confidence level of the interval stated above?
+c) Suppose next year  a new survey asking the same question is conducted, and this time the sample size is 2,500. Assume that the population characteristics, with respect to how much time people spend relaxing after work, have not changed much within a year. How will the margin of error of the new 95% confidence interval compare to the margin of error of the interval stated above?
+d) Suppose the researchers think that 90% confidence interval would be more appropriate. Will this new interval be smaller or larger than the original 95% confidence interval? Justify your answer. (Assume that the standard deviation remains constant).
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Chronic illness
+
+In 2013, the Pew Research Foundation reported that "45% of US adults report that they live with one or more chronic conditions". However, this value was based on a sample, so it may not be a perfect estimate for the population parameter. The study reported a standard error of about 1.2%. Assume a normal model is appropriate. 
+
+a) Calculate a 95% confidence interval for the proportion of US adults who live with one or more chronic conditions. Interpret the confidence interval.
+
+b) Identify the statements below as true or false. For each one, provide an explanation.
+
+Statements:
+
+1. We can say with certainty that the confidence interval contains the true percentage of US adults who suffer from a chronic condition.
+2. If we repeated this study 1,000 times and constructed a 95% confidence interval for each study, then approximately 950 of those confidence intervals would contain the true fraction of US adults who suffer from chronic illness.
+3. The poll provides strong evidence that the percentage of US adults who suffer from chronic illnesses is below 50%.
+4. Since the standard error is 1.2%, only 1.2% of people in the study were unsure about their response.

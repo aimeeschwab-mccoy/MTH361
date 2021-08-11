@@ -1,0 +1,163 @@
+---
+title: 'Lab 13: Comparing Two Independent Samples'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 5.3 (Two-Sample Test for Independent Data)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Benefits of drinking tea
+
+Drinking tea appears to offer a strong boost to the immune system. Specifically, researchers suspected that drinking tea might enhance the production of interferon gamma, a molecule that helps the immune system fight bacteria, viruses, and tumors. Twenty-one individuals who did not drink tea or coffee were sampled. Eleven of these participants were randomly assigned to drink five or six cups of tea a day, while 10 were asked to drink the same amount of coffee. After two weeks, their blood samples were exposed to an antigen and production of interferon gamma was measured. The results are shown below. 
+
+a) Use a hypothesis test to determine whether or not there is evidence of a difference in interferon gamma production for coffee drinkers and tea drinkers. 
+
+b) The sample R code below uses the `var.equal=TRUE` option. Explain why.
+
+\vfill
+
+```{r, echo=TRUE}
+tea <- c(5, 11, 13, 18, 20, 47, 48, 52, 55, 56, 58) 
+coffee <- c(0, 0, 3, 11, 15, 16, 21, 21, 38, 52)
+
+library(mosaic)
+favstats(~tea)
+favstats(~coffee)
+
+# The data is stored in two different data sets, so use
+# t.test(data1, data2, ...)
+t.test(tea, coffee, var.equal=TRUE, alternative='two.sided', mu=0)
+```
+
+\pagebreak
+
+## Question 2: Change in arm strength after training
+
+In the Functional polymorphisms Associated with Human Muscle Size and Strength study (FAMuSS), researchers investigated the relationship between muscle strength and genotype at a location on the ACTN3 gene. The `famuss` dataset in `oibiostat` contains a subset of the data collected from the study, which includes additional demographic and phenotypic information. The percent change in non-dominant arm strength, comparing strength after training to before training, is stored as `ndrm.ch`.
+
+```{r}
+library(oibiostat)
+data(famuss)
+head(famuss)
+```
+
+a) The boxplot below shows the association between `ndrm.ch` and `sex`. Describe what you see.
+
+\vfill
+
+```{r}
+library(tidyverse)
+library(colorblindr)
+famuss %>% ggplot(aes(x=ndrm.ch)) +
+  geom_boxplot(aes(fill=sex)) + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+b) Conduct a hypothesis test to address the question of interest. Let $\alpha = 0.05$.
+
+    1. Suppose the parameter $\mu_F$ is the population mean change in non-dominant arm strength for women, and $\mu_M$ is the population mean change in non-dominant arm strength for men. State the null and alternative hypotheses.
+    
+    2. Calculate the test statistic for the difference in means of the two groups, where $\overline{x}_1$ and $\overline{x}_2$ are the means of each sample, $s_1$ and $s_2$ are the standard deviations of each sample, and $n_1$ and $n_2$ are the number of observations per sample. (This assumes that the population standard deviations are not equal.)
+  
+    \[t = \dfrac{(\overline{x}_1 - \overline{x}_2) - (\mu_1 - \mu_2)}{\sqrt{\dfrac{s_1^2}{n_1} + \dfrac{s_2^2}{n_2}}} \]
+    
+    3. Identify the $p$-value.
+    
+    4. Draw a conclusion.
+
+\vfill
+
+c) Identify the 95\% confidence interval. Interpret the interval in the context of the data.
+
+\vfill
+
+```{r}
+favstats(~ndrm.ch|sex, data=famuss)
+
+# The data is in the same data set, so use:
+# t.test(response ~ explanatory, data=data, ...)
+t.test(ndrm.ch ~ sex, data=famuss, alternative='two.sided', mu=0, var.equal=TRUE)
+```
+
+\pagebreak
+
+Does the equal variances assumption make a difference?
+
+> Sometimes, but not often.
+
+```{r}
+favstats(~ndrm.ch|sex, data=famuss)
+
+# The data is in the same data set, so use:
+# t.test(response ~ explanatory, data=data, ...)
+t.test(ndrm.ch ~ sex, data=famuss, 
+       alternative='two.sided', mu=0, 
+       var.equal=TRUE)
+
+t.test(ndrm.ch ~ sex, data=famuss, 
+       alternative='two.sided', mu=0, 
+       var.equal=FALSE)
+```
+
+\pagebreak
+
+## Question 3: Distracted eating and gaming
+
+A group of researchers are interested in the possible effects of distracting stimuli during eating, such as an increase or decrease in the amount of food consumption. To test this hypothesis, they monitored food intake for a group of 44 patients who were randomized into two equal groups. The treatment group ate lunch while playing solitaire, and the control group ate lunch without any added distractions. Patients in the treatment group ate 52.1 grams of biscuits, with a standard deviation of 45.1 grams, and patients in the control group ate 27.1 grams of biscuits, with a standard deviation of 26.4 grams. Do these data provide convincing evidence that the average food intake (measured in amount of biscuits consumed) is different for patients in the treatment group? Assume that conditions for inference are satisfied.
+
+\vfill
+
+```{r}
+library(BSDA)
+tsum.test(mean.x=52.1, s.x=45.1, n.x=22, 
+          mean.y=27.1, s.y=26.4, n.y=22,
+          alternative='two.sided', var.equal=FALSE)
+```
+
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Mouse enrichment
+
+Many studies have shown that people who engage in any exercise have improved mental health over those that never exercise. In particular, even a small amount of exercise seems to confer some resilience to stress. Most of these studies have been, by necessity, experimental studies. A recent experiment with mice moves researchers one step closer to a causal association. In the study, mice were randomly assigned to either an enriched environment (EE) where there was an exercise wheel available or a standard environment (SE) with no exercise options. After three weeks in the specified environment, for five minutes a day for two weeks, the mice were each exposed to a “mouse bully” – a mouse that was very strong, aggressive, and territorial. At the end of the two weeks, the mice in the SE group exhibited maladaptive, depressive-like, and anxiety-like behavior across a wide spectrum of activities. In particular, one measure of mouse anxiety is amount of time spent hiding in a dark compartment, with mice that are more anxious spending more time in darkness. The data from one trial is given below. Is there evidence to suggest that mice that have spent time in an enriched environment spend significantly less time in darkness after a stress-inducing experience?
+
+```{r, echo=FALSE}
+mice <- tibble(Group = c(rep('Enriched', 7), rep('Standard', 7)),
+               Time  = c(359, 280, 138, 227, 203, 184, 231, 
+                         394, 477, 439, 428, 391, 488, 454))
+```
+
+```{r, fig.height=2}
+t.test(Time ~ Group, data=mice, alternative='less', mu=0)
+
+mice %>% ggplot(aes(x=Time)) +
+  geom_boxplot(aes(fill=Group)) + 
+  scale_fill_OkabeIto()
+```

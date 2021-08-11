@@ -1,0 +1,214 @@
+---
+title: 'Lab 21: Inference for a Single Proportion'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 8.1 (Inference for a Single Proportion)
+
+\vfill
+
+```{r, echo=FALSE}
+library(tidyverse)
+
+x1 <- 0:10
+x2 <- 0:50
+p1 <- dbinom(x1, size=10, prob=0.5)
+p2 <- dbinom(x1, size=10, prob=0.25)
+p3 <- dbinom(x1, size=10, prob=0.1)
+p4 <- dbinom(x2, size=50, prob=0.5)
+p5 <- dbinom(x2, size=50, prob=0.25)
+p6 <- dbinom(x2, size=50, prob=0.1)
+
+data <- tibble(x = c(x1, x1, x1, x2, x2, x2),
+               p = c(p1, p2, p3, p4, p5, p6),
+               dist = c(rep('Binomial(n=10, p=0.5)', 11),
+                        rep('Binomial(n=10, p=0.25)', 11),
+                        rep('Binomial(n=10, p=0.1)', 11),
+                        rep('Binomial(n=100, p=0.5)', 51),
+                        rep('Binomial(n=100, p=0.25)', 51),
+                        rep('Binomial(n=100, p=0.1)', 51)))
+
+library(colorblindr)
+data %>% ggplot(aes(x=x, y=p)) + geom_col(aes(fill=dist)) + facet_wrap(~dist, scales='free') + guides(fill=FALSE) + scale_fill_OkabeIto()
+               
+```
+
+\pagebreak
+
+# Review: Section 8.1 (Inference for a Single Proportion)
+
+\pagebreak
+
+
+# Practice problems
+
+## Question 1: Vegetarian college students
+
+Suppose that 8% of college students are vegetarians. Determine if the following statements are true or false, and explain your reasoning. 
+
+a) The distribution of the sample proportions of vegetarians in random samples of size 60 is approximately normal since $n\ge 30$.
+
+\vfill
+
+b) The distribution of the sample proportions of vegetarian college students in random samples of size 60 is right skewed.
+
+\vfill
+
+c) A random sample of 125 college students where 12% are vegetarians would be considered unusual.
+
+\vfill
+
+d) A random sample of 250 college students where 12% are vegetarians would be considered unusual.
+
+\vfill
+
+e) The standard error would be reduced by one-half if we increased the sample size from 125 to 250.
+
+\vfill
+
+\pagebreak
+
+```{r, echo=TRUE}
+n <- 60 
+p <- 0.08
+x <- 0:n
+prob_x <- dbinom(x, prob=p, size=n)
+
+
+data <- tibble(x=x, prob_x=prob_x)
+
+data %>% ggplot(aes(x=x, y=prob_x)) + 
+  geom_col(fill='lightblue', col='black') + 
+  labs(x='x', y='P(X=x)', title='Binomial(p=0.08, n=60)')
+```
+
+\pagebreak
+
+## Question 2: Occupational health hazards
+
+The safety of people who work at or live close to nuclear power plants has been debated for years. One possible health hazard from radiation exposure is an excess of cancer deaths among those exposed. One problem with studying this question is that because the number of deaths attributable to either cancer in general or specific types of cancer is small, reaching "statistically significant" conclusions is difficult. A possible solution is to use a __proportional-mortality study__, wherein the proportion of deaths attributed to a specific cause in an exposed group is compared with the corresponding proportion in a large population. Suppose that 13 deaths have occurred among 55- to 64-year old male workers in a nuclear power plant and that in 5 of them, the cause of death was cancer. Assume, based on vital-statistics reports, that approximately 20% of all deaths can be attributed to some form of cancer. Does the data suggest a higher proportion of deaths from cancer in nuclear power plant workers?
+
+\vfill
+
+```{r}
+binom.test(x=5, n=13, p=0.20, alternative='greater')
+```
+
+\pagebreak
+
+## Question 3: Legalizing marijuana
+
+The General Social Survey asked 1,578 US residents: "Do you think the use of marijuana should be made legal, or not?" 61.02% of the respondents said it should be made legal.
+
+a) Calculate and interpret a Wald 95% confidence interval for the proportion of US residents who think marijuana should be made legal.
+
+\vfill
+
+b) Compare this to the Clopper-Pearson confidence interval - do the intervals "agree"? Explain why or why not.
+
+\vfill
+
+```{r}
+binom.test(x=963, n=1578, conf.level=0.95)
+```
+
+c) A news piece on this survey's findings states, "Majority of Americans think marijuana should be legalized." Based on your confidence interval, is this news piece's statement justified?
+
+\vfill
+
+d) If we wanted to limit the margin of error of a 95% confidence interval to about 2%, how many Americans would we need to survey?
+
+\vfill
+
+\pagebreak
+
+## Question 4: Drug side effects
+
+The drug erythromycin has been proposed to possible lower the risk of premature delivery. However, before any drug is widely used, its possible side effects should be studied. Assume that 30% of all pregnant women complain of nausea between weeks 24 and 28 of pregnancy. Furthermore, suppose that of 200 women who take erythromycin regularly during that portion of pregnancy, 110 complain of nausea. Is there evidence to suggest that nausea is a possible side effect of erythromycin?
+
+\vfill
+
+```{r}
+binom.test(x=110, n=200, p=0.30, alternative='greater')
+```
+
+\pagebreak
+
+## Question 5: UN Goal 3 (Good Health and Well-Being)
+
+The United Nations recently published a report containing nine goals for improving human welfare across the globe. They are:
+
+1. No poverty
+2. Zero hunger
+3. Good health and well-being
+4. Quality education
+5. Gender equality
+6. Clean water and sanitation
+7. Affordable and clean energy
+8. Decent work and economic growth
+9. Industry, innovation, and infrastructure
+
+These seem like lofty, unattainable goals. However, you may be surprised to learn that in many ways, we're closer to reaching these goals than you think.
+
+The question you just answered,
+
+
+__How many of the world's 1-year-old children were vaccinated against some disease in 2019?__
+
+a. Less than 20%
+b. Around 50%
+c. More than 80%
+
+\vfill
+
+> 70% of people answer wrongly. They don't realize that most of the world has modernized and modern medicine in its basic form is reaching most babies.
+
+a) Pretend that our class represents a random sample of Creighton students. Based on our sample, what proportion of all Creighton students would answer this question correctly?
+
+\vfill
+
+b) Are Creighton students "better" than the global accuracy?
+
+\vfill
+
+c) Is it realistic to assume that our class represents a random sample of Creighton students? Why or why not?
+
+\vfill
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+
+## "National Health Plan"
+
+A _Kaiser Family Foundation_ poll for US adults in 2019 found that 79% of Democrats, 55% of Independents, and 24% of Republicans supported a generic "National Health Plan". There were 347 Democrats, 298 Republicans, and 617 Independents surveyed.
+
+a) A political pundit on TV claims that a majority of Independents support a "National Health Plan". Does the data provide strong evidence to support his type of statement?
+
+\vfill
+
+b) Would you expect a confidence interval for the proportion of Independents who oppose the public option plan to include 0.5? Explain.
+
+\vfill
+
+```{r}
+binom.test(x=339, n=617, p=0.50, alternative='greater')
+```
+

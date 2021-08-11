@@ -1,0 +1,193 @@
+---
+title: 'Lab 23: Chi-Square Test for Association'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+  #html_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 8.3 (Inference for Two or More Groups)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: FAMuSS study
+
+In the `famuss` study, researchers measured a variety of demographic and genetic characteristics for about 1,300 participants, including data on race and genotype at a specific locus on the ACTN3 gene. Is there evidence of an association between genotype and race? (Output continued on the next page.)
+
+\vfill
+
+```{r}
+library(tidyverse)
+library(oibiostat)
+library(colorblindr)
+data(famuss)
+head(famuss)
+
+famuss %>% ggplot(aes(x=race)) + 
+  geom_bar(aes(fill=actn3.r577x), position='fill', col='black') + 
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_OkabeIto()
+```
+
+\pagebreak
+
+```{r}
+library(mosaic)
+table <- tally(actn3.r577x~race, data=famuss)
+
+table
+
+chisq.test(table)
+```
+
+\pagebreak
+
+## Question 2: Stanford University Heart Transplant study
+
+The Stanford University Heart Transplant Study was conducted to determine whether an experimental heart transplant program increased lifespan. Each patient entering the program was officially designated a heart transplant candidate, meaning that he was gravely ill and might benefit from a new heart. Patients were randomly assigned into treatment and control groups. Patients in the treatment group received a heart transplant, and those in the control group did not. The table below displays how many patients survived and died in each group.
+
+Group|Control|Treatment
+---|---|---
+Alive|4|24
+Dead|30|45
+
+Is there evidence of an association between outcome and treatment group?
+
+\vfill
+
+```{r}
+table <- matrix(c(4, 30, 24, 45), nrow=2)
+
+colnames(table) <- c('Control', 'Treatment')
+rownames(table) <- c('Alive', 'Dead')
+table
+
+chisq.test(table)
+```
+
+\pagebreak
+
+## Question 3: Support for former smokers
+
+Does being part of a support group affect the ability of people to quit smoking? A county health department enrolled 300 smokers in a randomized experiment. 150 participants were assigned to a group that used a nicotine patch and met with a weekly support group, and the other 150 received the patch without a support group. At the end of the study, 40 of the participants in the patch plus support group had quit smoking while only 30 smokers had quit in the other group.
+
+Is there evidence of an association between treatment group and successful quitting of smoking?
+
+\vfill
+
+```{r, echo=FALSE}
+smoking_data <- tribble(
+  ~Group, ~Quit, ~n,
+  "Support", "Yes", 40,
+  "Support", "No", 150-40,
+  "No support", "Yes", 30,
+  "No support", "No", 150-30
+)
+
+smoking_data <- uncount(smoking_data, weights=n)
+```
+
+```{r}
+smoking_data %>% ggplot(aes(x=Group)) + 
+  geom_bar(aes(fill=Quit), position='fill', col='black') + 
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_OkabeIto()
+
+table <- tally(Group~Quit, data=smoking_data)
+
+chisq.test(table)
+```
+
+\pagebreak
+
+## Question 4: Diabetes and unemployment
+
+A Gallup poll surveyed Americans about their employment status and whether or not they have diabetes. The survey results indicate that 1.5% of the 47,774 employed (full or part time) and 2.5% of the 5,855 unemployed 18-29 year olds have diabetes.
+
+a) Create a two-way table presenting the results of this study.
+b) State appropriate hypotheses for testing whether there is an association between diabetes status and unemployment in the United States.
+c) The sample difference is about 1%. If we completed the hypothesis test, we would find that the p-value is very small, meaning the difference is "statistically significant". Use this result to explain the difference between _statistically significant_ and _practically significant_ findings.
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your answers in BlueLine when you are finished.
+
+## Do blood thinners improve patient outcomes after a heart attack?
+
+The data below is taken from an experiment on patients who underwent cardiopulmonary resuscitation for a heart attack and were subsequently admitted to a hospital. Patients were randomly divided into a treatment group, which received a blood thinner, and a control group which did not. The outcome variable of interest was whether the patients survived for at least 24 hours.
+
+a) Is there evidence of an _association_ between blood thinners and survival?
+b) Do the chi-square test suggest blood thinners are effective? Why or why not?
+
+Group|Survived|Died|Total
+---|---|---|---
+Control|11|39|50
+Treatment|14|26|40
+Total|25|65|90
+
+```{r, echo=FALSE}
+blood_data <- tribble(
+  ~Group, ~Outcome, ~n,
+  "Control", "Survived", 11,
+  "Treatment", "Survived", 14,
+  "Control", "Died", 39,
+  "Treatment", "Died", 26
+)
+
+blood_data <- uncount(blood_data, weights=n)
+```
+
+```{r, fig.height=2, fig.width=4}
+blood_data %>% ggplot(aes(x=Group)) + 
+  geom_bar(aes(fill=Outcome), position='fill', col='black') + 
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_OkabeIto()
+
+table <- tally(Group~Outcome, data=blood_data)
+
+chisq.test(table)
+```
+
+\pagebreak
+
+# Covid-19 vaccine from Pfizer and BioNTech is strongly effective, early data from large trial indicate
+
+__Link__: https://www.statnews.com/2020/11/09/covid-19-vaccine-from-pfizer-and-biontech-is-strongly-effective-early-data-from-large-trial-indicate/
+
+On Monday, November 9, Pfizer and BioNTech released the results from a preliminary analysis of a vaccine candidate for Covid-19.
+
+> The vaccine is the first to be tested in the United States to generate late-stage data. The companies said an early analysis of the results showed that individuals who received two injections of the vaccine three weeks apart experienced more than 90% fewer cases of symptomatic Covid-19 than those who received a placebo. For months, researchers have cautioned that a vaccine that might only be 60% or 70% effective. 
+
+> The story of how the data have been analyzed seems to include no small amount of drama. Pfizer, seeing an opportunity to both help battle a pandemic and demonstrate its research prowess, made decisions that were always likely to make its study the first of a Covid-19 vaccine to produce data — including its decision to have an independent group of researchers, known as a __data safety and monitoring board (DSMB)__, take an early look at the data in the 44,000-volunteer study before its completion. 
+
+> The first analysis was to occur after 32 volunteers — both those who received the vaccine and those on placebo — had contracted Covid-19. If fewer than six volunteers in the group who received the vaccine had developed Covid-19, the companies would make an announcement that the vaccine appeared to be effective. The study would continue until at least 164 cases of Covid-19 — individuals with at least one symptom and a positive test result — had been reported.
+
+By the time this study design had been formalized, __94 cases of Covid-19 had been observed in the study participants__. This meant that the data could be sent for review by the DSMB, which met on Sunday, November 8.
+
+Let's focus on this statement: __an early analysis of the results showed that individuals who received two injections of the vaccine three weeks apart experienced more than 90% fewer cases of symptomatic Covid-19 than those who received a placebo__.
+
+__Statistically speaking__, what does this all mean?
+
+- Based on what we know, can we figure out how many cases were in the placebo group? How many were in the vaccine group?
+
+\vfill
+
+- If the Covid-19 vaccine was _not effective_, what proportion of cases would we expect to fall into the placebo group? What about the vaccine group?
+
+\vfill
+

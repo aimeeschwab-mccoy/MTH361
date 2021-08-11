@@ -1,0 +1,263 @@
+---
+title: 'Lab 02: Describing Data'
+author: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Updated `r Sys.Date()`"
+output: 
+  html_document: 
+    toc: TRUE
+    toc_float: TRUE
+    theme: cosmo
+    code_download: TRUE
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=4, cache=TRUE)
+```
+
+This week's labs will be a little different. We'll work together as a class to explore several data sets by calculating data visualizations and summary statistics using R. Follow along, and run the R code in your RMarkdown document when instructed. To download your own copy of the RMarkdown document, click the "Code" button in the upper right.
+
+Periodically, you should "Knit" your work to save a copy.
+
+When you're finished, upload the knitted document with your responses to BlueLine.
+
+
+# Exploration: California DDS discrmination?
+
+In the United States, individuals with developmental disabilities typically receive services and support from state governments. The State of California allocates funds to developmentally-disabled residents through the California Department of Developmental Services (DDS); individuals receiving DDS funds are referred to as 'consumers'. The dataset `dds.discr` represents a sample of 1,000 DDS consumers (out of a total population of approximately 250,000), and includes information about age, gender, ethnicity, and the amount of financial support per consumer provided by the DDS. The dataset is available in the `oibiostat` package.
+
+A team of researchers examined the mean annual expenditure on consumers by ethnicity, and found that the mean annual expenditures on Hispanic consumers was approximately one-third of the mean expenditures on White non-Hispanic consumers. As a result, an allegation of ethnic discrimination was brought against the California DDS.
+
+Does this finding represent sufficient evidence of ethnic discrimination, or might there be more to the story? This lab provides a walkthrough to conducting an exploratory analysis that not only investigates the relationship between two variables of interest, but also considers whether other variables might be influencing that relationship.
+
+
+
+# Distributions of single variables
+
+To begin understanding a dataset and developing a sense of context, start by examining the distributions of single variables.
+
+Load the `dds.discr` dataset into RStudio. Descriptions of the variables are provided in the documentation file. Produce a table of the first five rows in the data matrix.
+
+```{r}
+library(oibiostat)
+data(dds.discr)
+head(dds.discr, n=10)
+```
+
+
+Using appropriate numerical and graphical summaries and the `tidyverse` library, examine the distributions of each of the variables in the dataset and answer the following questions.
+
+```{r}
+library(tidyverse)
+```
+
+## Question 1
+
+Describe the distribution of annual expenditures. For most consumers, is the amount of financial support provided by the DDS relatively high or low?
+
+  
+```{r}
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(bins=20)
+```
+
+
+
+## Question 2
+
+The variable `age` directly records a consumer's age; in the `age.cohort` variable, consumers are assigned to one of six age cohorts. Modify the previous code (repeated below) to make a plot of age. Describe the distribution of age in this sample of consumers. Do consumers tend to be older or younger?
+
+
+```{r}
+# Make a plot of the distribution of age
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(bins=20)
+```
+    
+
+
+The cohorts are indicative of particular life phases. In the first three cohorts, consumers are still living with their parents as they move through preschool age, elementary/middle school age, and high school age. In the 18-21 cohort, consumers are transitioning from their parents' homes to living on their own or in supportive group homes. From ages 22-50, individuals are mostly no longer living with their parents but may still receive some support from family. In the 51+ cohort, consumers often have no living parents and typically require the most amount of support. 
+  
+## Question 3
+
+Is there an equal representation of ethnic groups in this sample of consumers? Use the bar chart below to support your answer.
+
+
+```{r}
+dds.discr %>%
+  ggplot(aes(x=ethnicity)) + 
+  geom_bar()
+```
+
+
+
+## Question 4
+
+Does gender appear to be balanced in this sample of consumers? Modify the code below to make a bar chart to support your answer.
+  
+
+```{r}
+# Make a plot of the distribution of gender
+dds.discr %>%
+  ggplot(aes(x=ethnicity)) + 
+  geom_bar()
+``` 
+
+
+
+# Relationships between two variables
+
+After examining variables individually, explore how variables are related to each other. It is often useful to start by investigating the relationships between two variables, particularly between the primary response variable of interest and the exploratory variables. For this case study, the response variable is `expenditures`, the amount of funds the California DDS allocates annually to each consumer.
+
+## Question 5
+
+How do annual expenditures vary by age? Is there a large amount of variation in expenditures between age cohorts? Use the `age.cohort` variable as the measure of age.
+
+
+```{r, fig.height=5}
+library(colorblindr)
+
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(aes(fill=age.cohort), bins=20, col='black') + 
+  facet_wrap(~age.cohort) 
+```
+
+# Color schemes
+
+__Disclaimer__: Throughout the lab worksheets, I'll be using a color palette called the Okabe-Ito color palette from the `colorblindr`. If you'd like to use this in your work, you can install the relevant R package at the link below.
+
+https://rdrr.io/github/clauswilke/colorblindr/
+
+If you don't want to use this, simply delete the last line and + sign.
+
+```{r, fig.height=5, eval=FALSE}
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(aes(fill=age.cohort), bins=20, col='black') + 
+  facet_wrap(~age.cohort) + 
+  scale_fill_OkabeIto()
+```
+
+
+## Question 6
+
+How do annual expenditures vary by age? Is there a large amount of variation in expenditures between age cohorts? Use the `age` variable as the measure of age.
+
+
+```{r}
+dds.discr %>%
+  ggplot(aes(x=expenditures, y=age)) + 
+  geom_point(aes(col=age.cohort, pch=age.cohort)) 
+```
+
+
+
+## Question 7
+
+Which plot do you prefer - the faceted histograms (5) or the scatterplot (6)? What do you like/dislike about each plot?
+
+
+
+## Question 8
+
+Do annual expenditures seem to vary by gender?
+
+
+```{r}
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(aes(fill=gender), bins=20, col='black') + 
+  facet_wrap(~gender)
+```
+
+
+
+## Question 9
+
+How does the distribution of expenditures vary by ethnic group? Does there seem to be a difference in the amount of funding that a person receives, on average, between different ethnicities?
+
+
+```{r, fig.height=5}
+dds.discr %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(aes(fill=ethnicity), bins=20, col='black') + 
+  facet_wrap(~ethnicity) 
+
+dds.discr %>%
+  group_by(ethnicity) %>%
+  summarize(mean=mean(expenditures))
+```
+
+
+
+# A closer look 
+
+Two of the ethnic groups, Hispanic and White non-Hispanic, comprise the majority of the data; some ethnic groups represent less than 10\% of the observations. For ethnic groups with relatively small sample sizes, it is possible that the observed samples are not representative of the larger populations. The rest of this analysis will focus on comparing how `expenditures` varies between the two largest ethnic groups.
+
+## Question 10
+
+Compare the distribution of `expenditures` between Hispanic and White non-Hispanic consumers, graphically and numerically. Do Hispanic consumers, on average, seem to receive less financial support from the California DDS than a White non-Hispanic consumer?
+
+```{r}
+dds.discr %>%
+  filter(ethnicity %in% c("Hispanic", "White not Hispanic")) %>%
+  ggplot(aes(x=expenditures)) + 
+  geom_histogram(aes(fill=ethnicity), bins=20, col='black') + 
+  facet_wrap(~ethnicity)
+
+dds.discr %>%
+  filter(ethnicity %in% c("Hispanic", "White not Hispanic")) %>%
+  group_by(ethnicity) %>%
+  summarize(mean=mean(expenditures))
+```
+
+
+
+## Question 11
+
+Recall that expenditures is strongly associated with age—older individuals tend to receive more financial support. Is there also an association between age and ethnicity, for these two ethnic groups? Examine the distribution of age within each group and describe your findings.
+
+
+```{r}
+dds.discr %>%
+  filter(ethnicity %in% c("Hispanic", "White not Hispanic")) %>%
+  ggplot(aes(x=age)) + 
+  geom_histogram(aes(fill=ethnicity), bins=20, col='black') + 
+  facet_wrap(~ethnicity)
+
+dds.discr %>%
+  filter(ethnicity %in% c("Hispanic", "White not Hispanic")) %>%
+  group_by(ethnicity) %>%
+  summarize(mean=mean(age))
+```
+
+
+
+When using data to investigate a question, it is important to explore not only how explanatory variables are related to the response variable(s), but also how explanatory variables influence each other.
+
+
+A __confounding variable__ is a variable that is associated with the response variable and the exploratory variable under consideration; confounding was initially introduced in the context of sunscreen use and the incidence of skin cancer, where sun exposure is a confounder. In this setting, `age` is a confounder for the relationship between `expenditures` and `ethnicity`. Just as it would be incorrect to claim that sunscreen causes skin cancer, it is essential here to recognize that there is more to the story than the apparent association between `expenditures` and `ethnicity`.
+
+
+## Question 12
+
+For a closer look at the relationship between age, ethnicity, and expenditures, compare how average `expenditures` depends on age within each ethnicity. If age is indeed the primary source of the observed variation in expenditures, then there should be little difference in average `expenditures` between individuals in different ethnic groups but approximately of the same age. Is this the case? Describe your findings.
+
+
+```{r}
+dds.discr %>%
+  filter(ethnicity %in% c("Hispanic", "White not Hispanic")) %>%
+  ggplot(aes(x=age, y=expenditures)) + 
+  geom_point(aes(col=ethnicity, pch=ethnicity)) 
+```
+
+
+
+## Question 13
+
+Based on this exploratory analysis, does there seem to be evidence of ethnic discrimination in the amount of financial support provided by the California DDS? Summarize your findings in language accessible to a non-statistician.
+
+
+

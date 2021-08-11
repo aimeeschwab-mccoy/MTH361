@@ -1,0 +1,144 @@
+---
+title: 'Lab 06: The Normal Model'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=5, fig.height=3)
+```
+
+# Review: Section 3.3 (Normal Distribution)
+
+\vfill
+
+Some online normal calculators:
+
+- https://homepage.divms.uiowa.edu/~mbognar/applets/normal.html
+
+- https://istats.shinyapps.io/NormalDist/
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Standard normal
+
+What percent of a standard normal distribution $Normal(\mu = 0, \sigma = 1)$ is found in each region? Be sure to draw a graph.
+
+a) $Z <-1.35$
+
+\vfill
+
+b) $Z >1.48$
+
+\vfill
+
+c) $-0.4<Z <1.5$
+
+\vfill
+
+d) $\vert Z\vert >2$
+
+\vfill
+
+\pagebreak
+
+## Question 2: Bone mineral density
+
+The World Health Organization defines osteoporosis in young adults as a measured bone mineral density 2.5 or more standard deviations below the mean for young adults. Assume that bone mineral density follows a normal distribution in young adults.
+
+a) Sketch a picture of this distribution?
+b) What percentage of young adults suffer from osteoporosis according to this criterion?
+
+\vfill
+
+## Question 3: Arsenic concentration
+
+Arsenic blood concentration is normally distributed with mean $\mu = 3.2 \mu g/dl$ and standard deviation $\sigma = 1.5 \mu g/dl$.
+
+a) Sketch a picture of this distribution.
+b) What range of arsenic blood concentration defines the middle 95% of this distribution?
+
+\vfill
+
+\pagebreak
+
+## Question 4: Height measurements
+
+Researchers studying anthropometry collected body girth measurements and skeletal diameter measurements, as well as age, weight, height and gender, for 507 physically active individuals. The histogram below shows the sample distribution of heights in centimeters.
+
+a) What is the point estimate for the average height of active individuals? 
+b) What is the point estimate for the standard deviation of the heights of active individuals? What about the IQR?
+b) Is a person who is 1m 80cm (180 cm) tall considered unusually tall? And is a person who is 1m 55cm (155cm) considered unusually short? Explain your reasoning. 
+
+\vfill
+
+```{r, echo=FALSE}
+set.seed(361)
+library(tidyverse)
+measurements <- tibble(height=round(rnorm(n=507, mean=171.1, sd=9.4), 0))
+```
+
+```{r}
+measurements %>% 
+  ggplot(aes(x=height)) + 
+  geom_histogram(bins=20, 
+                 fill='lightblue',
+                 col='black')
+
+library(mosaic)
+favstats(~height, data=measurements)
+```
+
+\pagebreak
+
+## Question 5: MI5
+
+It was rumored that Britain's domestic intelligence service MI5 has an upper limit on the height of its spies, on the assumption that tall people stand out. (For the record - they deny this.) The rumor says that, to apply to be a spy, you can be no taller than 5 feet 11 inches (180.3 cm) if you are a man, and no taller than 5 feet 8 inches (172.7 cm) if you are a woman -- supposedly to allow the spies to blend in with a crowd.
+
+Adult heights are known to be approximately normally distributed. For males, $x \sim Normal(177.0, 7.1)$ and for females, $x \sim Normal(163.3, 6.4)$. 
+
+- What proportion of British males are eligible to apply to MI5?
+- What proportion of British females are eligible to apply to MI5?
+
+Sketch a graph of both distributions to help you out.
+
+\pagebreak
+
+## Question 6: Fruit fly thoraxes
+
+The common fruit fly, _Drosophila melanogaster_, is the most studied organism in genetic research because it is small, easy to grow, and reproduces rapidly. The length of the thorax (where the wings and legs attach), in a population of male fruit flies is approximately normally distributed with mean 0.800 millimeters  and standard deviation 0.078 mm. 
+
+a) Choose a male fruit fly at random. What is the probability that you choose a fly with a thorax longer than 1 mm?
+b) What proportion of male fruit flies have thorax length between 0.9 and 1 mm?
+c) About 16% of male fruit flies have thorax length shorter than...
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Standard normal model
+
+Consider the standard normal distribution with mean $\mu = 0$ and standard deviation $\sigma = 1$.
+
+a) What is the probability that an outcome $Z$ is greater than 2.60? 
+b) What is the probability that $Z$ is less than 1.35?
+c) What is the probability that $Z$ is between -1.70 and 3.10?
+d) What value of $Z$ cuts off the upper 15% of the distribution?
+e) What value of $Z$ marks off the lower 20% of the distribution?
+
+

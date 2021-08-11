@@ -1,0 +1,166 @@
+---
+title: 'Lab 11: Inference for Paired Data'
+subtitle: 'MTH 361: Probability and Statistics in the Health Sciences'
+date: "Last updated: `r Sys.Date()`"
+output: 
+  pdf_document
+header-includes:
+- |
+  ```{=latex}
+  \usepackage[default]{sourcesanspro}
+  \usepackage[T1]{fontenc}
+  ```
+---
+
+\definecolor{background}{HTML}{d1dede}
+\pagecolor{background}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=6, fig.height=3)
+```
+
+# Review: Section 5.2 (Two-Sample Test for Paired Data)
+
+\pagebreak
+
+# Practice problems
+
+## Question 1: Distinguishing between paired and independent data
+
+The following scenarios describe examples of two-sample data. Identify whether the data are paired (i.e., an observation in one group can be paired to an observation in the other) or independent.
+
+a) A multimedia program designed to improve dietary behavior among low-income women was evaluated by comparing women who were randomly assigned to intervention and control groups. The intervention was a 30-minute session in a computer kiosk in the Food Stamp office. About 2 months after the program, the participants took a knowledge test about healthy eating practices. The test scores will be used as an outcome in an analysis assessing the efficacy of the multimedia program.
+
+\vfill
+
+b) An investigator is studying standardized IQ test scores for third grade students in Massachusetts to see if birth order is associated with test score. He has collected test score data for 25 sets of siblings (first-born versus second-born).
+
+\vfill
+
+c) Researchers are interested in analyzing the relationship between oral contraceptive use and blood pressure in women.
+    
+    i. A group of women who are not currently oral contraceptive users are identified and their blood pressure is measured. One year later, the women who have become oral contraceptive users are identified; these women are selected as the study population and their blood pressure is measured a second time. The researchers will compare the initial blood pressure and the follow-up blood pressure of the women in the study population.
+        
+    ii. A group of oral contraceptive users and a group of non-users are identified, and their blood pressure is measured. The researchers will compare blood pressure between the users and non-users.
+
+\vfill
+
+\pagebreak
+
+![](Discuss.png)
+
+In your Breakout Rooms, 
+
+1. Write your own research objective.
+2. Briefly "design" a study that addresses the research objective using paired data.
+3. Briefly "design" a study that addresses the research objective using independent samples.
+4. Which study is "best" for your particular objective? Why?
+
+Add your responses to the Google Doc (link will be sent in Chat).
+
+
+\pagebreak
+
+## Question 2: Wetsuit design
+
+Wetsuits are commonly used in the swimming stage of triathlons; in addition to providing thermal insulation against cold water, wetsuits are also thought to increase swimming speed. In 2008, de Lucas and co-authors conducted a study to assess the effect of wetsuits on swim velocity. In this study, 12 competitive swimmers were asked to swim 1,500 meters at maximal velocity, once wearing a wetsuit and once wearing a standard swimsuit. The order of wetsuit versus swimsuit was randomized for each swimmer.
+
+The mean velocity (m/s) for each 1500m swim is recorded in the `swim` dataset in `oibiostat`.
+
+Load and view the data. There are two velocity values for each swimmer: one for the wetsuit trial and one for the swimsuit trial.
+
+```{r}
+library(oibiostat)
+data(swim)
+head(swim)
+```
+
+a) For swimmer 1, what is the difference between velocity measured during the wetsuit trial and velocity measured during the swimsuit trial?
+
+\vfill
+
+b) How were the values stored in the `velocity.diff` variable calculated? What does a positive value for `velocity.diff` imply, versus a negative value?
+
+\vfill
+
+c) Report $\overline{d}$, the mean of the observed differences.
+
+```{r}
+library(mosaic)
+favstats(~velocity.diff, data=swim)
+```
+
+\vfill
+
+\pagebreak
+
+d) Conduct a hypothesis test to address the question of interest. Let $\alpha = 0.05$.
+
+    a) Suppose the parameter $\delta$ is the population mean of the differences in velocities during a 1500m swim if all competitive swimmers recorded swim velocities with both suit types. State the null and alternative hypotheses.
+    
+    b) Calculate the test statistic, where $\overline{d}$ is the mean of the differences, $s_d$ is the standard deviation of the differences, and $n$ is the number of differences (i.e., number of pairs). Note how the formula for the test statistic is identical to the one introduced in the previous chapter; a paired $t$-test is essentially a one-sample test of difference values.
+    
+    \[t = \dfrac{\overline{d} - \delta_0}{s_{d}/ \sqrt{n}} \]
+    
+    c) Calculate the $p$-value from a $t$-distribution with degrees of freedom $n - 1$.
+    
+    d) Draw a conclusion.
+
+\vfill
+
+```{r}
+t.test(~velocity.diff, mu=0, alternative='greater', data=swim)
+```
+
+e) Calculate a 95\% confidence interval. Interpret the interval in the context of the data.
+
+    \[\overline{d} \pm  t^{\star} \times \dfrac{s_d}{\sqrt{n}}\]
+
+\vfill
+
+```{r}
+t.test(~velocity.diff, conf.level=0.95, data=swim)
+```   
+    
+\pagebreak
+
+## Question 3: Advantages and disadvantages of paired data
+
+1. In many situations, a paired study design has more capacity to show evidence of a difference between two groups than an independent group design. Why do you think that is? (Hint: think about the variance between individuals, versus the variance between two measurements on the same individual).
+
+\vfill
+
+2. Give at least two disadvantages of a paired study design.
+
+\vfill
+
+
+\pagebreak
+
+# Problem(s) to submit
+
+On your own, complete the following problems. You may use your notes, this lab activity, or any other resources. Submit your responses in BlueLine when you are finished.
+
+## Global warming
+
+Is there strong evidence of global warming? Consider a small scale example, comparing how temperatures have changed in the US from 1968 to 2008. The daily high temperature reading on January 1 was collected in 1968 and 2008 for 51 randomly selected locations in the continental US. Then the difference between the two readings (temperature in 2008 - temperature in 1968) was calculated for each of the 51 different locations. The average of these 51 values was 1.1 degrees with a standard deviation of 4.9 degrees.
+
+a) Do these data provide strong evidence of temperature warming in the continental US? Conduct a hypothesis test; interpret your conclusions in context.
+
+```{r}
+library(BSDA)
+tsum.test(mean.x=1.1, s.x=4.9, n.x=51, alternative='greater')
+```
+\vfill
+
+b) Based on the results of this hypothesis test, would you expect a confidence interval for the average difference between the temperature measurements from 1968 and 2008 to include 0? Explain your reasoning.
+
+\vfill
+
+c) Calculate the interval. Were you right or wrong?
+
+\vfill
+
+```{r}
+qt(0.975, df=51-1)
+```
